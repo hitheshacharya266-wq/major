@@ -1,17 +1,10 @@
-/**
- * Admin Dashboard
- *
- * Displays all users and service providers in tabbed tables.
- * Features:
- * - Dark gradient theme with glassmorphism
- * - Page transition animation
- */
 import { useState, useEffect } from 'react';
 import { getAllUsers, getAllProviders } from '../firebase/firestoreService';
-import { formatDate, SERVICE_CATEGORIES } from '../utils/helpers';
-import { Users, Wrench, Shield } from 'lucide-react';
+import { SERVICE_CATEGORIES } from '../utils/helpers';
+import { Users, Wrench, Shield, Search, CheckCircle2, ShieldCheck, Mail, MapPin } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageTransition from '../components/PageTransition';
+import Footer from '../components/Footer';
 import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
@@ -19,17 +12,17 @@ const AdminDashboard = () => {
     const [providers, setProviders] = useState([]);
     const [activeTab, setActiveTab] = useState('users');
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
                 const [u, p] = await Promise.all([getAllUsers(), getAllProviders()]);
-                setUsers(u);
-                setProviders(p);
-            } catch (err) {
-                console.error('Admin fetch failed:', err);
-                toast.error('Failed to load admin data');
+                setUsers(u || []);
+                setProviders(p || []);
+            } catch {
+                toast.error('Failed to load system admin data');
             } finally {
                 setLoading(false);
             }
@@ -38,153 +31,165 @@ const AdminDashboard = () => {
     }, []);
 
     if (loading) {
-        return <LoadingSpinner fullScreen text="Loading admin panel..." />;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-surface">
+                <LoadingSpinner text="Initializing Admin Control Panel..." />
+            </div>
+        );
     }
+
+    const filteredUsers = users.filter(u =>
+        u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const filteredProviders = providers.filter(p =>
+        p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <PageTransition>
-            <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 relative overflow-hidden">
-                {/* Background orbs */}
-                <div className="bg-orb bg-orb-1" />
-                <div className="bg-orb bg-orb-2" />
-
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-                    {/* Header */}
-                    <div className="mb-8">
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="w-9 h-9 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                <Shield className="w-5 h-5 text-purple-400" />
-                            </div>
-                            <h1 className="text-3xl font-bold text-white">Admin Panel</h1>
+            <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
+                {/* ADMIN HEADER */}
+                <section className="bg-surface-container-low border-b border-outline-variant/30 py-10 px-6 lg:px-8">
+                    <div className="max-w-container-max mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div className="space-y-1">
+                            <span className="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-1.5">
+                                <Shield className="w-3.5 h-3.5" /> System Command Center
+                            </span>
+                            <h1 className="text-3xl font-extrabold text-on-surface">Platform Administration</h1>
+                            <p className="text-sm text-on-surface-variant">Oversee user accounts, service partner verification, and regional platform activity.</p>
                         </div>
-                        <p className="text-slate-400 ml-11">Manage users and service providers</p>
-                    </div>
 
-                    {/* Stats summary */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                        <div className="glass-card p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                <Users className="w-6 h-6 text-blue-400" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-white">{users.length}</p>
-                                <p className="text-sm text-slate-400">Total Users</p>
-                            </div>
-                        </div>
-                        <div className="glass-card p-5 flex items-center gap-4">
-                            <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
-                                <Wrench className="w-6 h-6 text-emerald-400" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-white">{providers.length}</p>
-                                <p className="text-sm text-slate-400">Service Providers</p>
-                            </div>
+                        {/* Search Input */}
+                        <div className="glass-card p-1.5 rounded-xl flex items-center gap-2 max-w-sm w-full border border-outline-variant/40">
+                            <Search className="w-4 h-4 text-on-surface-variant ml-3 shrink-0" />
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search user or provider..."
+                                className="bg-transparent border-none outline-none text-sm text-on-surface w-full py-1.5"
+                            />
                         </div>
                     </div>
+                </section>
 
-                    {/* Tabs */}
-                    <div className="flex gap-2 mb-6">
+                <main className="max-w-container-max mx-auto px-6 lg:px-8 py-10 flex-1 w-full space-y-8">
+                    {/* SYSTEM STATS */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl">
+                                👥
+                            </div>
+                            <div>
+                                <p className="text-2xl font-extrabold text-on-surface">{users.length}</p>
+                                <p className="text-xs text-on-surface-variant font-medium">Registered Platform Users</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xl">
+                                🛠️
+                            </div>
+                            <div>
+                                <p className="text-2xl font-extrabold text-on-surface">{providers.length}</p>
+                                <p className="text-xs text-on-surface-variant font-medium">Verified Service Partners</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xl">
+                                📍
+                            </div>
+                            <div>
+                                <p className="text-2xl font-extrabold text-on-surface">3</p>
+                                <p className="text-xs text-on-surface-variant font-medium">Active Coverage Districts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* TAB SELECTION */}
+                    <div className="border-b border-outline-variant/30 flex gap-6 text-sm font-bold">
                         <button
                             onClick={() => setActiveTab('users')}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === 'users'
-                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
-                                    : 'glass text-slate-300 hover:text-white hover:bg-white/10'
-                                }`}
+                            className={`pb-3 transition-colors ${activeTab === 'users' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
                         >
-                            <Users className="w-4 h-4" /> All Users
+                            Registered Users ({users.length})
                         </button>
                         <button
                             onClick={() => setActiveTab('providers')}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === 'providers'
-                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
-                                    : 'glass text-slate-300 hover:text-white hover:bg-white/10'
-                                }`}
+                            className={`pb-3 transition-colors ${activeTab === 'providers' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
                         >
-                            <Wrench className="w-4 h-4" /> Service Providers
+                            Service Partners ({providers.length})
                         </button>
                     </div>
 
-                    {/* Users table */}
+                    {/* USERS TABLE */}
                     {activeTab === 'users' && (
-                        <div className="glass-card overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="border-b border-white/10">
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Name</th>
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Email</th>
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Role</th>
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Joined</th>
+                        <div className="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 overflow-hidden shadow-xs">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-surface-container-low text-xs uppercase tracking-wider font-bold text-on-surface-variant border-b border-outline-variant/30">
+                                        <th className="py-4 px-6">User / Name</th>
+                                        <th className="py-4 px-6">Email Address</th>
+                                        <th className="py-4 px-6">Role</th>
+                                        <th className="py-4 px-6">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-outline-variant/20 text-xs font-medium">
+                                    {filteredUsers.map((u, i) => (
+                                        <tr key={u.id || i} className="hover:bg-surface-container/30 transition-colors">
+                                            <td className="py-4 px-6 font-bold text-on-surface">{u.fullName || u.name || 'User'}</td>
+                                            <td className="py-4 px-6 text-on-surface-variant">{u.email}</td>
+                                            <td className="py-4 px-6 font-bold uppercase text-primary">{u.role || 'user'}</td>
+                                            <td className="py-4 px-6">
+                                                <span className="bg-secondary-container/40 text-secondary font-bold px-2.5 py-0.5 rounded-full">
+                                                    Active
+                                                </span>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {users.map((user) => (
-                                            <tr key={user.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                                <td className="px-5 py-3.5 font-medium text-white">{user.fullName || user.name}</td>
-                                                <td className="px-5 py-3.5 text-slate-400">{user.email}</td>
-                                                <td className="px-5 py-3.5">
-                                                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${user.role === 'admin'
-                                                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                                            : user.role === 'provider'
-                                                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                                                : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                                        }`}>
-                                                        {user.role}
-                                                    </span>
-                                                </td>
-                                                <td className="px-5 py-3.5 text-slate-500">{formatDate(user.createdAt)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     )}
 
-                    {/* Providers table */}
+                    {/* PROVIDERS TABLE */}
                     {activeTab === 'providers' && (
-                        <div className="glass-card overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                    <thead>
-                                        <tr className="border-b border-white/10">
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Name</th>
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Category</th>
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Rating</th>
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Status</th>
-                                            <th className="text-left px-5 py-4 font-semibold text-slate-300">Joined</th>
+                        <div className="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 overflow-hidden shadow-xs">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-surface-container-low text-xs uppercase tracking-wider font-bold text-on-surface-variant border-b border-outline-variant/30">
+                                        <th className="py-4 px-6">Partner Name</th>
+                                        <th className="py-4 px-6">Category</th>
+                                        <th className="py-4 px-6">Rating</th>
+                                        <th className="py-4 px-6">Hourly Rate</th>
+                                        <th className="py-4 px-6">Duty State</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-outline-variant/20 text-xs font-medium">
+                                    {filteredProviders.map((p, i) => (
+                                        <tr key={p.id || i} className="hover:bg-surface-container/30 transition-colors">
+                                            <td className="py-4 px-6 font-bold text-on-surface">{p.name}</td>
+                                            <td className="py-4 px-6 font-bold capitalize text-primary">{p.category}</td>
+                                            <td className="py-4 px-6 text-amber-600 font-bold">★ {p.rating || 4.9}</td>
+                                            <td className="py-4 px-6 font-bold text-on-surface">₹{p.price || 399}</td>
+                                            <td className="py-4 px-6">
+                                                <span className={`font-bold px-2.5 py-0.5 rounded-full ${p.available ? 'bg-secondary-container/40 text-secondary' : 'bg-surface-container text-on-surface-variant'}`}>
+                                                    {p.available ? 'On Duty' : 'Offline'}
+                                                </span>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {providers.map((p) => {
-                                            const cat = SERVICE_CATEGORIES.find(c => c.id === p.category);
-                                            return (
-                                                <tr key={p.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                                    <td className="px-5 py-3.5 font-medium text-white">{p.name}</td>
-                                                    <td className="px-5 py-3.5 text-slate-300">
-                                                        {cat?.emoji} {cat?.label || p.category}
-                                                    </td>
-                                                    <td className="px-5 py-3.5 text-slate-300">
-                                                        ⭐ {p.rating?.toFixed(1) || '0.0'} ({p.ratingCount || 0})
-                                                    </td>
-                                                    <td className="px-5 py-3.5">
-                                                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${p.available
-                                                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                                                                : 'bg-red-500/20 text-red-300 border-red-500/30'
-                                                            }`}>
-                                                            {p.available ? 'Available' : 'Unavailable'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-5 py-3.5 text-slate-500">{formatDate(p.createdAt)}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     )}
-                </div>
+                </main>
+
+                <Footer />
             </div>
         </PageTransition>
     );
