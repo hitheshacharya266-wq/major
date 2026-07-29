@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ServiceHub - Confirm Booking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#5ed9d7",
+                        "inverse-surface": "#213145",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "surface-dim": "#cbdbf5",
+                        "primary": "#006a69",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#bcc9c8",
+                        "primary-container": "#0ea5a4",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "surface": "#f8f9ff",
+                        "background": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-container": "#252d41",
+                        "surface-tint": "#006a69",
+                        "surface-variant": "#d3e4fe",
+                        "on-secondary-container": "#00714d",
+                        "on-primary-fixed": "#002020",
+                        "tertiary-container": "#8c94ac",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#565e74",
+                        "on-primary-fixed-variant": "#00504f",
+                        "on-primary-container": "#003333",
+                        "inverse-primary": "#5ed9d7",
+                        "on-tertiary-fixed": "#131b2e",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#7df5f4",
+                        "on-surface": "#0b1c30",
+                        "outline": "#6d7a79",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#3d4949",
+                        "tertiary-fixed": "#dae2fd",
+                        "surface-container-low": "#eff4ff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#006c49",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "2xl": "48px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "xl": "32px",
+                        "3xl": "64px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .step-active {
+            @apply border-primary text-primary font-bold;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-dot {
+            box-shadow: 0 0 0 4px rgba(14, 165, 164, 0.2);
+        }
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(14, 165, 164, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface min-h-screen">
+<!-- Top Navigation (Transactional Style - Suppressed Bottom Nav as per Shell Rule) -->
+<header class="sticky top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 h-16 flex items-center px-lg">
+<div class="max-w-container-max mx-auto w-full flex justify-between items-center">
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-variant/50 p-sm rounded-full transition-all cursor-pointer">arrow_back</button>
+<span class="font-headline-md text-headline-md font-bold text-primary">ServiceHub</span>
+</div>
+<div class="hidden md:flex items-center gap-xl">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Secure Checkout</span>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-5xl mx-auto px-md py-xl lg:py-2xl">
+<!-- Progress Stepper -->
+<div class="flex items-center justify-between mb-xl max-w-2xl mx-auto">
+<div class="flex flex-col items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold shadow-md active-dot">1</div>
+<span class="font-label-sm text-label-sm text-primary">Service</span>
+</div>
+<div class="h-px bg-outline-variant flex-1 mx-md mb-6"></div>
+<div class="flex flex-col items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold shadow-md active-dot">2</div>
+<span class="font-label-sm text-label-sm text-primary">Schedule</span>
+</div>
+<div class="h-px bg-outline-variant flex-1 mx-md mb-6"></div>
+<div class="flex flex-col items-center gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-outline-variant text-on-surface-variant flex items-center justify-center font-bold">3</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Address</span>
+</div>
+<div class="h-px bg-outline-variant flex-1 mx-md mb-6"></div>
+<div class="flex flex-col items-center gap-sm">
+<div class="w-10 h-10 rounded-full border-2 border-outline-variant text-on-surface-variant flex items-center justify-center font-bold">4</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Confirm</span>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Left Column: Forms -->
+<div class="lg:col-span-7 space-y-lg">
+<!-- Section 1: Service Summary (Bento Style) -->
+<section class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg shadow-sm">
+<div class="flex items-start justify-between mb-md">
+<h2 class="font-headline-md text-headline-md">Service Details</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">Change</button>
+</div>
+<div class="flex gap-md">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A high-end professional residential cleaning service in action within a modern, sunlit apartment. The scene captures a detail-oriented cleaner using premium equipment. The atmosphere is pristine, organized, and evokes a high-quality SaaS service vibe with soft Teal and white tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqasVtRx3_HUvge8KNdsNru_9VEKWXhKSLQ3PTt6ewZSxKxjtAUuj78qNgXSeEC5q3JcGMkYhwb2CtVOD-_M8MC15esybLyg7UASs_WM0NbSWhoL_m8W6mMB6oYdP6QBxk8DLMOTinajdDH1LWgUOFx4bzHGlC9RZssVgrvrWNSiVJhXtkT7y0i7wgQlaHmNLHrtVD_6hhAqwnPfrMP8eejCOi8kJAHUuyoOVnnlTwq6p8_72yA13IBg"/>
+</div>
+<div class="flex flex-col justify-center">
+<h3 class="font-label-md text-label-md text-on-surface mb-xs">Premium Deep Cleaning</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-sm">3 Bedrooms, 2 Bathrooms, Living & Kitchen</p>
+<div class="flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Professional Certified</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Schedule & Date (Mangaluru Localized) -->
+<section class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg shadow-sm">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+<h2 class="font-headline-md text-headline-md">Pick a Date in Mangaluru</h2>
+</div>
+<div class="grid grid-cols-7 gap-sm mb-lg">
+<!-- Calendar Simulation for Mangaluru locality selection -->
+<div class="text-center font-label-sm text-on-surface-variant py-xs">S</div>
+<div class="text-center font-label-sm text-on-surface-variant py-xs">M</div>
+<div class="text-center font-label-sm text-on-surface-variant py-xs">T</div>
+<div class="text-center font-label-sm text-on-surface-variant py-xs">W</div>
+<div class="text-center font-label-sm text-on-surface-variant py-xs">T</div>
+<div class="text-center font-label-sm text-on-surface-variant py-xs">F</div>
+<div class="text-center font-label-sm text-on-surface-variant py-xs">S</div>
+<button class="p-md text-body-sm text-outline rounded-lg cursor-not-allowed">28</button>
+<button class="p-md text-body-sm text-outline rounded-lg cursor-not-allowed">29</button>
+<button class="p-md text-body-sm text-outline rounded-lg cursor-not-allowed">30</button>
+<button class="p-md text-body-sm text-on-surface bg-surface-container rounded-lg hover:bg-surface-variant transition-colors">1</button>
+<button class="p-md text-body-sm text-on-surface bg-surface-container rounded-lg hover:bg-surface-variant transition-colors">2</button>
+<button class="p-md text-body-sm text-on-surface bg-primary text-on-primary rounded-lg font-bold shadow-md">3</button>
+<button class="p-md text-body-sm text-on-surface bg-surface-container rounded-lg hover:bg-surface-variant transition-colors">4</button>
+</div>
+<div class="space-y-md">
+<label class="font-label-md text-label-md text-on-surface-variant block">Preferred Arrival Window</label>
+<div class="flex flex-wrap gap-sm">
+<button class="px-lg py-sm rounded-full border border-primary bg-primary/5 text-primary font-label-md text-label-md">08:00 AM - 10:00 AM</button>
+<button class="px-lg py-sm rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:border-primary transition-all">11:00 AM - 01:00 PM</button>
+<button class="px-lg py-sm rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:border-primary transition-all">03:00 PM - 05:00 PM</button>
+</div>
+</div>
+</section>
+<!-- Section 3: Address (PIN 575001) -->
+<section class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg shadow-sm">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary">location_on</span>
+<h2 class="font-headline-md text-headline-md">Service Location</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="space-y-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant ml-sm">PIN Code</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-md py-sm font-label-md text-on-surface-variant cursor-not-allowed" readonly="" type="text" value="575001"/>
+</div>
+<div class="space-y-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant ml-sm">City</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-xl px-md py-sm font-label-md text-on-surface-variant cursor-not-allowed" readonly="" type="text" value="Mangaluru"/>
+</div>
+<div class="md:col-span-2 space-y-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant ml-sm">House No. / Landmark</label>
+<input class="w-full bg-surface border border-outline-variant rounded-xl px-md py-sm font-body-md focus:border-primary transition-all" placeholder="e.g. #12, Kadri Road" type="text"/>
+</div>
+</div>
+<div class="mt-lg h-32 rounded-xl overflow-hidden border border-outline-variant/30 grayscale hover:grayscale-0 transition-all duration-700">
+<div class="w-full h-full bg-cover bg-center" data-location="Mangaluru" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB-xRpwH4r5x6VQceTt40LkyZlVYgPfMROtpMaLUOMdUQx2wHOt1RJYnPFIO6HLtuhnik4gcYrqOs_mkroanJokU7iEtE7nWQ01A0MvQFN30emZfqkmkAHZ7H0q0CaeAoSuIoboBqFdwmOx9EoyXokJGNQrHlE6D86m14ArCJ3mGS0gNfoQWpiupreHhkOFa4Kllhl7r8NYdQulK4m9xzlYAOvE4VEf-_OlQtFqvxyPQymhBhmG3yhbag')"></div>
+</div>
+</section>
+</div>
+<!-- Right Column: Price & Summary -->
+<aside class="lg:col-span-5">
+<div class="sticky top-24 space-y-lg">
+<!-- Price Breakdown -->
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg shadow-lg">
+<h2 class="font-headline-md text-headline-md mb-lg">Order Summary</h2>
+<div class="space-y-md mb-xl">
+<div class="flex justify-between items-center text-body-md">
+<span class="text-on-surface-variant">Service Base Fee</span>
+<span class="font-bold">₹2,499.00</span>
+</div>
+<div class="flex justify-between items-center text-body-md">
+<span class="text-on-surface-variant">Taxes & Fees (18% GST)</span>
+<span class="font-bold">₹449.82</span>
+</div>
+<div class="flex justify-between items-center text-body-md">
+<span class="text-on-surface-variant">Mangaluru Local Delivery</span>
+<span class="text-secondary font-bold">FREE</span>
+</div>
+<div class="h-px bg-outline-variant/30 my-md"></div>
+<div class="flex justify-between items-center">
+<span class="font-headline-md text-headline-md">Total</span>
+<span class="font-headline-md text-headline-md text-primary">₹2,948.82</span>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary text-on-primary py-md rounded-xl font-bold text-body-lg shadow-[0_10px_20px_-5px_rgba(0,106,105,0.3)] hover:shadow-[0_15px_30px_-5px_rgba(0,106,105,0.4)] active:scale-[0.98] transition-all duration-200">
+                            Confirm Booking
+                        </button>
+<p class="text-center text-label-sm text-on-surface-variant mt-md">
+                            By clicking, you agree to our <a class="underline" href="#">Terms of Service</a>
+</p>
+</div>
+<!-- ServiceHub Promise -->
+<div class="bg-secondary-container/20 border border-secondary/20 rounded-xl p-lg flex gap-md">
+<div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-secondary-container mb-xs">ServiceHub Promise</h4>
+<p class="font-body-sm text-body-sm text-on-secondary-container/80">Satisfaction guaranteed. If you're not happy with the quality, we'll make it right or refund your money—no questions asked.</p>
+</div>
+</div>
+<!-- Safe & Secure Badge -->
+<div class="flex items-center justify-center gap-xl opacity-60">
+<div class="flex flex-col items-center gap-xs">
+<span class="material-symbols-outlined text-[32px]">shield_lock</span>
+<span class="font-label-sm text-label-sm">Secure Pay</span>
+</div>
+<div class="flex flex-col items-center gap-xs">
+<span class="material-symbols-outlined text-[32px]">task_alt</span>
+<span class="font-label-sm text-label-sm">Vetted Pro</span>
+</div>
+<div class="flex flex-col items-center gap-xs">
+<span class="material-symbols-outlined text-[32px]">support_agent</span>
+<span class="font-label-sm text-label-sm">24/7 Support</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer (Minimal Transactional Footer) -->
+<footer class="w-full py-xl px-lg max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-md border-t border-outline-variant/30 mt-2xl text-on-surface-variant">
+<span class="font-body-sm text-body-sm">© 2024 ServiceHub. All rights reserved.</span>
+<div class="flex gap-lg">
+<a class="font-label-sm text-label-sm hover:text-primary transition-colors" href="#">Safety Info</a>
+<a class="font-label-sm text-label-sm hover:text-primary transition-colors" href="#">Help</a>
+<a class="font-label-sm text-label-sm hover:text-primary transition-colors" href="#">Privacy</a>
+</div>
+</footer>
+<script>
+        // Micro-interactions for calendar selection
+        const calendarButtons = document.querySelectorAll('button:not([disabled])');
+        calendarButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if(btn.closest('.grid-cols-7')) {
+                    calendarButtons.forEach(b => {
+                        if(b.closest('.grid-cols-7')) {
+                            b.classList.remove('bg-primary', 'text-on-primary', 'shadow-md', 'font-bold');
+                            b.classList.add('bg-surface-container', 'text-on-surface');
+                        }
+                    });
+                    btn.classList.remove('bg-surface-container', 'text-on-surface');
+                    btn.classList.add('bg-primary', 'text-on-primary', 'shadow-md', 'font-bold');
+                }
+            });
+        });
+    </script>
+</body></html>

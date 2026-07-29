@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ServiceHub | Trusted Local Services</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#5ed9d7",
+                    "inverse-surface": "#213145",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "surface-dim": "#cbdbf5",
+                    "primary": "#006a69",
+                    "on-secondary-fixed": "#002113",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#bcc9c8",
+                    "primary-container": "#0ea5a4",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "surface": "#f8f9ff",
+                    "background": "#f8f9ff",
+                    "surface-container": "#e5eeff",
+                    "on-tertiary-container": "#252d41",
+                    "surface-tint": "#006a69",
+                    "surface-variant": "#d3e4fe",
+                    "on-secondary-container": "#00714d",
+                    "on-primary-fixed": "#002020",
+                    "tertiary-container": "#8c94ac",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#565e74",
+                    "on-primary-fixed-variant": "#00504f",
+                    "on-primary-container": "#003333",
+                    "inverse-primary": "#5ed9d7",
+                    "on-tertiary-fixed": "#131b2e",
+                    "secondary-container": "#6cf8bb",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#7df5f4",
+                    "on-surface": "#0b1c30",
+                    "outline": "#6d7a79",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#3d4949",
+                    "tertiary-fixed": "#dae2fd",
+                    "surface-container-low": "#eff4ff",
+                    "error-container": "#ffdad6",
+                    "secondary": "#006c49",
+                    "on-background": "#0b1c30",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "2xl": "48px",
+                    "container-max": "1280px",
+                    "gutter": "24px",
+                    "xl": "32px",
+                    "3xl": "64px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "body-sm": ["Plus Jakarta Sans"],
+                    "display-lg-mobile": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav-underline {
+            position: relative;
+        }
+        .active-nav-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #006a69;
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top right, #e5eeff 0%, #f8f9ff 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 w-full z-50 bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<nav class="max-w-container-max mx-auto px-lg h-16 flex justify-between items-center">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary">ServiceHub</span>
+<div class="hidden md:flex items-center gap-lg">
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 cursor-pointer active:scale-95 duration-200" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary-container transition-colors cursor-pointer active:scale-95 duration-200" href="#">Services</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary-container transition-colors cursor-pointer active:scale-95 duration-200" href="#">Help</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm bg-surface-container px-md py-xs rounded-full cursor-pointer hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-primary text-[20px]">location_on</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Mangaluru</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-xs hover:bg-surface-variant rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<button class="p-xs hover:bg-surface-variant rounded-full transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="hero-gradient pt-3xl pb-2xl px-lg">
+<div class="max-w-container-max mx-auto flex flex-col lg:flex-row items-center gap-2xl">
+<div class="flex-1 space-y-xl">
+<div class="inline-flex items-center gap-sm bg-secondary-container/30 px-md py-xs rounded-full border border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-label-sm font-label-sm text-secondary">Verified Professionals in Coastal Karnataka</span>
+</div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface leading-tight">
+                        Find Trusted Local Services <br class="hidden md:block"/> in Your Neighborhood
+                    </h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl">
+                        Expert help for your home maintenance in Mangaluru, Hassan, and Udupi. Book verified professionals in under 60 seconds.
+                    </p>
+<!-- Search/Location Bar -->
+<div class="glass-card p-sm rounded-2xl flex flex-col md:flex-row items-center gap-sm shadow-md max-w-3xl">
+<div class="flex-1 flex items-center gap-sm px-md py-sm border-r border-outline-variant/30 w-full">
+<span class="material-symbols-outlined text-on-surface-variant">location_on</span>
+<select class="bg-transparent border-none focus:ring-0 text-body-md w-full cursor-pointer">
+<option>Mangaluru</option>
+<option>Hassan</option>
+<option>Udupi</option>
+</select>
+</div>
+<div class="flex-[1.5] flex items-center gap-sm px-md py-sm w-full">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md w-full" placeholder="PIN code or Service (e.g. Electrician)" type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-xl py-md rounded-xl font-label-md text-label-md hover:bg-primary/90 transition-all active:scale-95 w-full md:w-auto">
+                            Search Now
+                        </button>
+</div>
+<div class="flex flex-wrap gap-md items-center">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Popular:</span>
+<span class="px-md py-xs bg-surface-container rounded-full text-label-sm font-label-sm text-on-surface-variant cursor-pointer hover:bg-primary-container hover:text-on-primary-container transition-colors">AC Repair</span>
+<span class="px-md py-xs bg-surface-container rounded-full text-label-sm font-label-sm text-on-surface-variant cursor-pointer hover:bg-primary-container hover:text-on-primary-container transition-colors">Plumbing</span>
+<span class="px-md py-xs bg-surface-container rounded-full text-label-sm font-label-sm text-on-surface-variant cursor-pointer hover:bg-primary-container hover:text-on-primary-container transition-colors">Cleaning</span>
+</div>
+</div>
+<div class="flex-1 relative w-full max-w-lg lg:max-w-none">
+<div class="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl relative">
+<img class="w-full h-full object-cover" data-alt="A high-quality, bright and airy photograph of a professional Indian service technician wearing a smart teal polo shirt, smiling confidently at the camera. He is standing in a modern, well-lit Indian living room with clean white walls and warm wood accents. The lighting is soft and professional, highlighting a sense of trustworthiness and expertise. The aesthetic is clean and premium light-mode." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBImT5KkNEOk97K28c3bXzq7aXYiEFfyW4j0F5AoWbVOs-9WqKN_JiWFUeCOdeOCRy66YSLFooH5hx5kp61EHFB4i2qoiiKn9JQooDAg_YoLWK4D9IHdU65VGjVs9d4bZA24VSz6qm5O82RrZ3EFSU9Fy0wutTDLgUGB0ETIS18oSLW4Q47WoZXlT-mCf0oz-6lfZY0XC_z45WAkEvMC9Wk4W8J1_rY6t3077OQfq1Ca_podEqWEmMDrw"/>
+<!-- Floating Review Badge -->
+<div class="absolute bottom-lg left-lg glass-card p-md rounded-xl flex items-center gap-md shadow-lg animate-bounce-slow">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white">
+<img class="w-full h-full object-cover" data-alt="A portrait of a smiling Indian woman in her late 30s, looking satisfied and happy, against a soft-focus background of a clean modern home. She represents a happy customer in the Mangaluru region. The photo has a warm, inviting tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6PJxelaOu5lCLzKHjrPZUDcM8MmBzhQ3bOWMdHMEdlVGk21KNVP5wvblXWh4TBX0c9470wnTmei-BD4253lRbfkmM1j_iNfv6CgkanUY1SaMlOa8m1dLJIpvGRg2bGqhwTnM9T5vD8iZJrHq3jZf6NBrNTC81CVk8EnsTy0z9UOazXy_FhKBT1VZNb6saQL8DE7thJXsDrHTB6sjPHd9YQUIjwM6MKyihPNlQAdtxd535wo4RL3qLZw"/>
+</div>
+<div>
+<div class="flex gap-[2px]">
+<span class="material-symbols-outlined text-yellow-500 text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-yellow-500 text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-yellow-500 text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-yellow-500 text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-yellow-500 text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface">"Best service in Udupi!"</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Categories Section -->
+<section class="py-3xl bg-surface">
+<div class="max-w-container-max mx-auto px-lg">
+<div class="flex justify-between items-end mb-2xl">
+<div class="space-y-sm">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Browse Categories</h2>
+<p class="text-body-md text-on-surface-variant">Over 50+ professional services at your doorstep.</p>
+</div>
+<a class="text-primary font-label-md text-label-md flex items-center gap-sm hover:underline" href="#">
+                        View All <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-lg">
+<!-- Category Card 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-md group-hover:border-primary group-hover:shadow-lg transition-all duration-300">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]">electrical_services</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Electrician</span>
+</div>
+</div>
+<!-- Category Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-md group-hover:border-primary group-hover:shadow-lg transition-all duration-300">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]">plumbing</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Plumber</span>
+</div>
+</div>
+<!-- Category Card 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-md group-hover:border-primary group-hover:shadow-lg transition-all duration-300">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]">ac_unit</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">AC Repair</span>
+</div>
+</div>
+<!-- Category Card 4 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-md group-hover:border-primary group-hover:shadow-lg transition-all duration-300">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]">cleaning_services</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Cleaning</span>
+</div>
+</div>
+<!-- Category Card 5 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-md group-hover:border-primary group-hover:shadow-lg transition-all duration-300">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]">pest_control</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Pest Control</span>
+</div>
+</div>
+<!-- Category Card 6 -->
+<div class="group cursor-pointer">
+<div class="aspect-square bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-md group-hover:border-primary group-hover:shadow-lg transition-all duration-300">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]">construction</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">Carpentry</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust Features / Bento Grid -->
+<section class="py-3xl bg-surface-container-low">
+<div class="max-w-container-max mx-auto px-lg">
+<div class="text-center max-w-3xl mx-auto mb-2xl space-y-md">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Why ServiceHub is Your Neighborhood Choice</h2>
+<p class="text-body-md text-on-surface-variant">We bring trust and professional quality to every home in Mangaluru, Hassan, and Udupi.</p>
+</div>
+<div class="grid md:grid-cols-12 gap-lg h-auto md:h-[600px]">
+<!-- Feature 1: Neighborhood Heroes -->
+<div class="md:col-span-8 bg-white rounded-2xl p-xl flex flex-col md:flex-row gap-xl items-center border border-outline-variant/30 shadow-sm">
+<div class="flex-1 space-y-md">
+<div class="w-12 h-12 bg-primary-container/10 text-primary flex items-center justify-center rounded-xl">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Neighborhood Heroes</h3>
+<p class="text-body-md text-on-surface-variant">Our technicians are locals who know your area. They're top-rated by your neighbors and awarded the 'Hero' badge for exceptional service and punctuality.</p>
+<ul class="space-y-sm">
+<li class="flex items-center gap-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span> Verified Local Experts
+                                </li>
+<li class="flex items-center gap-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span> Average 4.8/5 Star Rating
+                                </li>
+</ul>
+</div>
+<div class="flex-1 w-full h-full min-h-[250px] relative rounded-xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A warm, engaging photograph of two Indian technicians in uniform, laughing and discussing a plan over a digital tablet in front of a beautiful local residence in Mangaluru. The background features lush coastal greenery and a modern house. The lighting is bright and cheerful, emphasizing community and collaboration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL5cl2unagQ56NkmqRYs4wpPm4HynO5ZhSa4hbvNx-upYL9FKK_gC-Dqu7hN-dB1foOxrDjiGCGm3y-KMyiOu2G2h1xFHTOo398llHk9WYvmBz36GIFIFI52aKmCw1eXxXjGev7FIFX1LPjrECLcl7Pzw0ecbmfOa0iCqgcDC9L1QbdpaOGSr--DTS4rggZWSUa1GcoyybqdHE33pnrAac02NHiMDOtORXFl_2FUUGqVwbSheEkSgm2g"/>
+</div>
+</div>
+<!-- Feature 2: Verified Trust -->
+<div class="md:col-span-4 bg-primary text-on-primary rounded-2xl p-xl flex flex-col justify-between border border-primary/20 shadow-lg">
+<div class="space-y-md">
+<span class="material-symbols-outlined text-[48px]">verified_user</span>
+<h3 class="font-headline-md text-headline-md">100% Verified Trust</h3>
+<p class="text-body-sm opacity-90 leading-relaxed">Every professional goes through a rigorous 3-step background check and skill assessment. Your safety is our priority.</p>
+</div>
+<div class="pt-xl border-t border-white/20">
+<p class="font-label-md text-label-md">Join 10k+ Happy Homes</p>
+</div>
+</div>
+<!-- Feature 3: Quick Booking -->
+<div class="md:col-span-4 bg-white rounded-2xl p-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+<div class="space-y-md">
+<h3 class="font-headline-md text-headline-md text-on-surface">60-Sec Booking</h3>
+<p class="text-body-sm text-on-surface-variant">No long phone calls. Select, book, and track your service in real-time through our modern platform.</p>
+</div>
+<div class="bg-surface-container rounded-xl p-md mt-md">
+<div class="flex justify-between items-center text-label-sm font-label-sm text-on-surface-variant">
+<span>Booking Progress</span>
+<span>85%</span>
+</div>
+<div class="w-full h-2 bg-white rounded-full mt-sm overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Feature 4: Community Reviews -->
+<div class="md:col-span-8 bg-secondary-container/20 rounded-2xl p-xl flex items-center justify-between border border-secondary/10">
+<div class="max-w-md space-y-md">
+<h3 class="font-headline-md text-headline-md text-secondary">Community Reviews</h3>
+<p class="text-body-md text-on-tertiary-fixed-variant">See what your neighbors in Hassan and Udupi are saying about our services. Authentic feedback from real home visits.</p>
+<div class="flex -space-x-4">
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="Close-up avatar of a smiling middle-aged Indian man with glasses, professional appearance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJtC444y8BmxoDOhvacrRcd-UM4J2_OfhULqXV098fCW_fOzfCzNuvxKQdB044QTrbEadychtviofbS2ZIm0P34_WjLlIwXoriUwwzVeM0HnlrMtLJA5YBiU3nvdOsUKxN0fbKSPHD7XCpv3_R5_wW03ypL6OJB--pirr06YPiI5-Ivmh0ot6AR2pGSB5_pCCbv1s9-kmOO_5LDFHBwYLAWj0Tm8OETA2Canv8egawU-3y_N8tOA0h7w"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="Close-up avatar of a young Indian woman with traditional earrings, smiling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaBiIR5FGqduAoDPPKTWPjBDvOtXvQi93S0Zqjqo1J29JMHh00sMNOXdwTC5sYmJGw8OETWZy3RNrVuCcUYm3hIBY04_OsQEvElMq5rMvVUyTtw4MSz_jzna6IbZZXc3X26hAaM_qJpNVaR7GIZQtDyTOkq8Q5B3i_mrgzBJNsv3kfFGoc1sVuxOEkzD6EFJQtdLisg-gK8BnydA33z9ZrFA5FipRKcBd3rdV6LnMfgtpYqf9DmdKJiA"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="Close-up avatar of an elderly Indian man, looking kind and happy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3RBGtocX8vV5ysXhxgcWdWGxpgEXC_kQ8uqvevmf8eH39CrtXqLB82a8WMbtzIWKjKtzH5q_F11LOY69pkXZnZddEx8VH0vpl-2u3rK4v1YmSn9WMtHXvJaykt29U924r1kM2gjZYdO1GAyHGPL8grMOfCt1QcleHUpHuSeSFMzFeWBdNJokLn1d8SvJCsLNjKD0o7Q4GNYy-H05y12wZ_Oe-VzEEDLQgtW8u1_XuNbK4ZZ4dOH--kw"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center bg-primary text-on-primary text-xs font-bold">
+                                    +5k
+                                </div>
+</div>
+</div>
+<div class="hidden lg:block w-32 h-32 relative">
+<div class="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
+<div class="relative bg-white rounded-full p-xl shadow-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[48px]" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-3xl">
+<div class="max-w-container-max mx-auto px-lg">
+<div class="relative bg-inverse-surface rounded-2xl overflow-hidden p-2xl md:p-3xl">
+<!-- Decorative Circle -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
+<div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-2xl">
+<div class="space-y-lg max-w-xl text-center md:text-left">
+<h2 class="font-headline-lg text-headline-lg text-white">Ready to fix your home issues?</h2>
+<p class="text-body-lg text-white/80">Experience the ServiceHub difference today. Join thousands of satisfied customers in coastal India.</p>
+<div class="flex flex-col sm:flex-row gap-md">
+<button class="bg-primary-container text-on-primary-container px-2xl py-md rounded-xl font-label-md text-label-md hover:bg-primary-fixed transition-all active:scale-95 shadow-lg">
+                                    Book a Service
+                                </button>
+<button class="bg-white/10 text-white border border-white/20 px-2xl py-md rounded-xl font-label-md text-label-md hover:bg-white/20 transition-all active:scale-95">
+                                    Partner with Us
+                                </button>
+</div>
+</div>
+<div class="w-full max-w-xs aspect-square glass-card rounded-2xl p-lg flex flex-col items-center justify-center gap-md border-white/10">
+<span class="material-symbols-outlined text-white text-[64px]">smartphone</span>
+<p class="text-white text-center font-label-md">Download our mobile app for better experience</p>
+<div class="flex gap-sm">
+<div class="px-md py-xs bg-white/20 rounded-lg text-[10px] text-white flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">play_arrow</span> App Store
+                                </div>
+<div class="px-md py-xs bg-white/20 rounded-lg text-[10px] text-white flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">tab_duplicate</span> Play Store
+                                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-surface-container-lowest border-t border-outline-variant/30 py-xl">
+<div class="max-w-container-max mx-auto px-lg flex flex-col md:flex-row justify-between items-start gap-2xl">
+<div class="space-y-md">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">ServiceHub</span>
+<p class="text-body-sm text-on-surface-variant max-w-xs">Connecting households with reliable local professionals across Mangaluru, Hassan, and Udupi since 2024.</p>
+<div class="flex gap-md">
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-primary hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">language</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-primary hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">public</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-xl w-full md:w-auto">
+<div class="space-y-md">
+<h4 class="font-label-md text-label-md text-on-surface">Company</h4>
+<nav class="flex flex-col gap-sm">
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">About Us</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Careers</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Terms of Service</a>
+</nav>
+</div>
+<div class="space-y-md">
+<h4 class="font-label-md text-label-md text-on-surface">Support</h4>
+<nav class="flex flex-col gap-sm">
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Safety Info</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Local Support</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Help Center</a>
+</nav>
+</div>
+<div class="space-y-md col-span-2 md:col-span-1">
+<h4 class="font-label-md text-label-md text-on-surface">Partners</h4>
+<nav class="flex flex-col gap-sm">
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Partner Registration</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Service Academy</a>
+</nav>
+</div>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-lg mt-2xl pt-lg border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center gap-md">
+<p class="text-body-sm text-on-surface-variant">© 2024 ServiceHub. All rights reserved.</p>
+<div class="flex gap-xl">
+<a class="text-body-sm text-on-surface-variant hover:underline" href="#">Privacy Policy</a>
+<a class="text-body-sm text-on-surface-variant hover:underline" href="#">Cookies Settings</a>
+</div>
+</div>
+</footer>
+<!-- Contextual FAB (Suppressed on Landing but kept for logic demonstration if needed on subpages) -->
+<!-- <button class="fixed bottom-lg right-lg bg-primary text-on-primary w-14 h-14 rounded-full shadow-2xl flex items-center justify-center md:hidden">
+        <span class="material-symbols-outlined">add</span>
+    </button> -->
+<script>
+        // Simple micro-interaction for search bar focus
+        const searchInput = document.querySelector('input[type="text"]');
+        const searchContainer = searchInput?.closest('.glass-card');
+        
+        if (searchInput && searchContainer) {
+            searchInput.addEventListener('focus', () => {
+                searchContainer.classList.add('ring-2', 'ring-primary/20', 'border-primary/50');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchContainer.classList.remove('ring-2', 'ring-primary/20', 'border-primary/50');
+            });
+        }
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-8');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-8');
+            observer.observe(section);
+        });
+    </script>
+</body></html>

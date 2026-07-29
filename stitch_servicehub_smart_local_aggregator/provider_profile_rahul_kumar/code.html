@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rahul Kumar - Master Electrician | ServiceHub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#5ed9d7",
+                        "inverse-surface": "#213145",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "surface-dim": "#cbdbf5",
+                        "primary": "#006a69",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#bcc9c8",
+                        "primary-container": "#0ea5a4",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-fixed-dim": "#4edea3",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "surface": "#f8f9ff",
+                        "background": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-container": "#252d41",
+                        "surface-tint": "#006a69",
+                        "surface-variant": "#d3e4fe",
+                        "on-secondary-container": "#00714d",
+                        "on-primary-fixed": "#002020",
+                        "tertiary-container": "#8c94ac",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#565e74",
+                        "on-primary-fixed-variant": "#00504f",
+                        "on-primary-container": "#003333",
+                        "inverse-primary": "#5ed9d7",
+                        "on-tertiary-fixed": "#131b2e",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#7df5f4",
+                        "on-surface": "#0b1c30",
+                        "outline": "#6d7a79",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#3d4949",
+                        "tertiary-fixed": "#dae2fd",
+                        "surface-container-low": "#eff4ff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#006c49",
+                        "on-background": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "2xl": "48px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "xl": "32px",
+                        "3xl": "64px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 w-full z-50 bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<div class="max-w-container-max mx-auto h-16 px-lg flex justify-between items-center">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">ServiceHub</span>
+<nav class="hidden md:flex gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Home</a>
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200" href="#">Services</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Help</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 duration-200" data-icon="location_on">location_on</span>
+<span class="material-symbols-outlined text-primary cursor-pointer active:scale-95 duration-200" data-icon="notifications">notifications</span>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border border-outline-variant/30 cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A clean, professional headshot of a service provider in a well-lit studio setting. The lighting is soft and flattering, emphasizing a trustworthy and friendly appearance. The background is a minimalist, neutral gray. The overall aesthetic is polished and corporate, suitable for a high-end service platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbrTy9H5p4tcM5ADr32ougOpfE_P5Wk7Wbz0gr7ezzY9XELnPMcuX9AALkpUC0fakXV-fMToJQMqjcJ-Zhk3yADRGKyKkBRJolzHV3DybnNHWESzg1BCgUsSFsvwT55BS9LgHipiahPCXJZAVWWnaQ0_-jIkLVplglC_1gfDCCftXPjpDk94JeWqj3xmBTVvQGzamqnvI9ohauASZVvbvNJZjv1pQ-qMtD7idbCwgXZbMul0ro7F1GGg"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-lg py-xl flex flex-col lg:flex-row gap-xl">
+<!-- Left Content Area -->
+<div class="flex-1 space-y-xl">
+<!-- Hero / Profile Header -->
+<section class="flex flex-col md:flex-row items-start gap-lg bg-surface-container-lowest p-xl rounded-xl border border-outline-variant/20 shadow-sm">
+<div class="relative">
+<div class="w-32 h-32 md:w-40 md:h-40 rounded-xl overflow-hidden border-4 border-white shadow-md">
+<img class="w-full h-full object-cover" data-alt="A high-resolution, professional portrait of Rahul Kumar, a Master Electrician, smiling confidently. He is wearing a clean, branded work polo. The setting is a brightly lit, modern workshop with subtle electrical tools visible in the blurred background. The lighting is crisp and emphasizes a reliable, expert persona." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOp1YS7SfceFr81DFtBx85D-x2aYWq9tRozNNp1InZt0qHRTekYk8oIleROosIIvhzoqt20IK3iRrUAiRM2_dJ-dDrYsRPf8znPgO9Oqz9117tes5zt0iNyW04I8CRanp1u6k11PvchNlqy294ZPitMrJOzYNNTIMQ99XjWSoqCIkI6oOEFEftMXiR3PNqk-b6hLsf6TldnnKByRF_cZp4AW5vYFMBbPn2LbhoTn1Z293uXze0waPwig"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="verified" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm">Verified</span>
+</div>
+</div>
+<div class="flex-1 space-y-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Rahul Kumar - Master Electrician</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Expert Electrical Solutions in Hassan &amp; surrounding regions</p>
+</div>
+<div class="flex flex-wrap gap-sm">
+<span class="px-md py-1 bg-surface-container rounded-full flex items-center gap-2 border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="shield_person">shield_person</span>
+<span class="font-label-md text-label-md">Police Verified</span>
+</span>
+<span class="px-md py-1 bg-surface-container rounded-full flex items-center gap-2 border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="security">security</span>
+<span class="font-label-md text-label-md">Insured</span>
+</span>
+<span class="px-md py-1 bg-surface-container rounded-full flex items-center gap-2 border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="workspace_premium">workspace_premium</span>
+<span class="font-label-md text-label-md">Community Hero</span>
+</span>
+</div>
+<div class="flex items-center gap-md pt-md border-t border-outline-variant/20">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-headline-md text-headline-md">4.9</span>
+</div>
+<span class="text-on-surface-variant font-body-sm text-body-sm">(124 Reviews)</span>
+<span class="h-4 w-[1px] bg-outline-variant/50 mx-md"></span>
+<span class="text-on-surface-variant font-body-sm text-body-sm">15+ Years Experience</span>
+</div>
+</div>
+</section>
+<!-- About Me -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">About Me</h2>
+<div class="bg-surface-container-low p-lg rounded-xl border border-outline-variant/10">
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        I am a certified Master Electrician with over 15 years of hands-on experience in residential and commercial electrical systems. My mission is to provide safe, efficient, and high-quality electrical solutions for the community in Hassan. From intricate smart home installations to complex industrial troubleshooting, I handle every project with precision and a commitment to safety standards.
+                    </p>
+</div>
+</section>
+<!-- Service Portfolio -->
+<section class="space-y-md">
+<div class="flex justify-between items-end">
+<h2 class="font-headline-md text-headline-md text-on-surface">Service Portfolio</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Bento Grid Style -->
+<div class="group relative overflow-hidden rounded-xl aspect-square cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A detailed shot of a perfectly organized residential circuit breaker panel, showing clean wiring and expert labeling. The lighting is bright and even, highlighting the professional craftsmanship. The aesthetic is clean and modern, representing high-quality electrical work in a contemporary home." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFj90jjXzLMdRhpjqJYhiRsZSVWNy4d43r_wDY1PjwNInFJGINqm-squ6xjzYe-0M93ZmxMFtjL0TXRnP0-wGC_HSCEkY0EOGJAufUfqghDtG56NLHnCjuvxWe1krzP2pQPEktM35TSCjC4hDuLNAvMO04RgHciFII1hPxNnfO8eyeObgfNZMSAw4FoXksao9T80JnI__eVFk7QjnX0HDLcEH28rO3NrLEITITq5B4EfRm3WXBN3g4Aw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent flex items-end p-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<p class="text-white font-label-md">Panel Upgrade - Hassan City</p>
+</div>
+</div>
+<div class="group relative overflow-hidden rounded-xl aspect-square cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A modern living room with elegant recessed ceiling lighting and a designer chandelier. The lighting is warm and inviting, showcasing a sophisticated smart home lighting installation. The room is styled with high-end furniture and soft textures, emphasizing a luxury residential atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxdDXubyCSTRdxbcyLpcOGDlD_pRqjTtphuRYhu1pUH448kBhT4fMIdxetz_H9ufzk7sqsBC9h2HU0TYWRnNPhZlHTiuHDMoSTMUlVR8uYHUJj2UyudMf_D-m_axIRcZHdPxLom9FRYn5b1MATZTU0xLCr7P6lleNQlDTm1UxJQb8PCv4acBKkL3H_z3tl2QsaTJdLamLHcHGbAtnoSq1pRzQVfhiz9OLi6goIzRFFhD0ATVA_DsToLA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent flex items-end p-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<p class="text-white font-label-md">Smart Home Setup</p>
+</div>
+</div>
+<div class="group relative overflow-hidden rounded-xl aspect-square cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A close-up of a newly installed electric vehicle charging station in a clean, modern garage. The charger is sleek and wall-mounted, with the charging cable neatly coiled. The surrounding area is well-lit and organized, reflecting a professional and future-ready service." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGSHfx_FG2_p4hbLiKzlJWrJeILIo7k4IZRbbnztSQkGrY45HzrjG6rPdfuY5uiph56AioZvnpxtIoV5yWA9KQ9lCeOXDyIrXRa2D2jETltc0hm1wz3FiNwf9dJvgiJnL87gQRxkkX5tVIS1stWkMITLa9YY6pC1dFo5hQzuVLTNn7ej5FGq2ILnVz8lBpQCe3BxG8a2KF5Lk14hX0EsvBzukHALfbj0JD77kon9kpw3qhGoEeChwdFQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent flex items-end p-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<p class="text-white font-label-md">EV Charger Install</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Pricing Table -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">Pricing Guide</h2>
+<div class="overflow-hidden border border-outline-variant/20 rounded-xl bg-surface-container-lowest shadow-sm">
+<table class="w-full border-collapse text-left">
+<thead class="bg-surface-container text-on-surface-variant font-label-md text-label-md">
+<tr>
+<th class="p-lg">Service Category</th>
+<th class="p-lg">Base Price</th>
+<th class="p-lg">Estimated Time</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface">
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors">
+<td class="p-lg flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+                                    Minor Repairs (Switches, Sockets)
+                                </td>
+<td class="p-lg font-bold">₹499</td>
+<td class="p-lg text-on-surface-variant">45 - 60 mins</td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors">
+<td class="p-lg flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="light_group">light_group</span>
+                                    Fixture Installation (Fans, Lights)
+                                </td>
+<td class="p-lg font-bold">₹799</td>
+<td class="p-lg text-on-surface-variant">1 - 2 hours</td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors">
+<td class="p-lg flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="construction">construction</span>
+                                    Comprehensive Panel Rewiring
+                                </td>
+<td class="p-lg font-bold">₹2,499+</td>
+<td class="p-lg text-on-surface-variant">4 - 6 hours</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Reviews -->
+<section class="space-y-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">Verified Reviews</h2>
+<div class="space-y-md">
+<!-- Review Card -->
+<div class="glass-card p-lg rounded-xl flex gap-md items-start shadow-sm transition-all hover:shadow-md">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center font-bold text-primary">AG</div>
+<div class="space-y-xs flex-1">
+<div class="flex justify-between items-center">
+<h4 class="font-label-md text-label-md">Arjun Gowda</h4>
+<div class="flex text-secondary scale-75 origin-right">
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="font-body-md text-body-md italic text-on-surface">"Excellent work. Rahul arrived on time and fixed our main board issue within an hour. Very professional and highly recommended for any electrical troubleshooting in Hassan."</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant pt-xs">2 days ago • Verified Booking</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Booking Widget -->
+<aside class="lg:w-[400px] space-y-lg">
+<div class="sticky top-24 glass-card p-xl rounded-xl border border-primary/20 shadow-xl space-y-lg">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Instant Booking</h3>
+<div class="px-2 py-1 bg-secondary-container/30 text-secondary font-label-sm text-label-sm rounded-lg flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                        Available Now
+                    </div>
+</div>
+<div class="space-y-md">
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Select Service Type</label>
+<select class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-md py-lg font-body-md focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+<option>Minor Electrical Repair (₹499)</option>
+<option>Lighting Installation (₹799)</option>
+<option>Full Home Inspection (₹1,299)</option>
+<option>Custom Request</option>
+</select>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Preferred Date</label>
+<div class="flex gap-sm overflow-x-auto pb-sm custom-scrollbar">
+<button class="flex-shrink-0 px-md py-md rounded-xl border border-primary bg-primary text-white text-center min-w-[70px]">
+<p class="text-xs">TODAY</p>
+<p class="font-bold">24</p>
+</button>
+<button class="flex-shrink-0 px-md py-md rounded-xl border border-outline-variant/30 hover:border-primary text-on-surface text-center min-w-[70px] transition-all">
+<p class="text-xs">MON</p>
+<p class="font-bold">25</p>
+</button>
+<button class="flex-shrink-0 px-md py-md rounded-xl border border-outline-variant/30 hover:border-primary text-on-surface text-center min-w-[70px] transition-all">
+<p class="text-xs">TUE</p>
+<p class="font-bold">26</p>
+</button>
+<button class="flex-shrink-0 px-md py-md rounded-xl border border-outline-variant/30 hover:border-primary text-on-surface text-center min-w-[70px] transition-all">
+<p class="text-xs">WED</p>
+<p class="font-bold">27</p>
+</button>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Select Time Slot</label>
+<div class="grid grid-cols-2 gap-sm">
+<button class="py-md border border-outline-variant/30 rounded-lg hover:border-primary font-label-md">09:00 AM</button>
+<button class="py-md border border-primary bg-primary/5 text-primary rounded-lg font-bold">11:30 AM</button>
+<button class="py-md border border-outline-variant/30 rounded-lg hover:border-primary font-label-md">02:00 PM</button>
+<button class="py-md border border-outline-variant/30 rounded-lg hover:border-primary font-label-md">04:30 PM</button>
+</div>
+</div>
+</div>
+<div class="pt-lg border-t border-outline-variant/20 space-y-md">
+<div class="flex justify-between font-label-md">
+<span class="text-on-surface-variant">Consultation Fee</span>
+<span>₹99</span>
+</div>
+<div class="flex justify-between font-headline-md">
+<span>Total Due</span>
+<span class="text-primary">₹598</span>
+</div>
+<button class="w-full py-xl bg-primary hover:bg-primary/90 text-white rounded-xl font-bold text-headline-md shadow-lg transform active:scale-95 transition-all duration-200">
+                        Book Appointment
+                    </button>
+</div>
+<div class="bg-surface-container-high/50 p-md rounded-xl flex items-center gap-md">
+<span class="material-symbols-outlined text-secondary" data-icon="lock">lock</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Your booking is protected by ServiceHub Guarantee.</p>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="mt-3xl bg-surface-container-highest dark:bg-surface-container-lowest border-t border-outline-variant/30">
+<div class="max-w-container-max mx-auto px-lg py-xl flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="space-y-sm">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">ServiceHub</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 ServiceHub. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-lg">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Safety Info</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Local Support</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Partner Registration</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-all" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple interaction for the booking widget
+        document.querySelectorAll('.grid button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.parentElement.querySelectorAll('button').forEach(b => {
+                    b.classList.remove('border-primary', 'bg-primary/5', 'text-primary', 'font-bold');
+                    b.classList.add('border-outline-variant/30', 'font-label-md');
+                });
+                this.classList.add('border-primary', 'bg-primary/5', 'text-primary', 'font-bold');
+                this.classList.remove('border-outline-variant/30', 'font-label-md');
+            });
+        });
+
+        // Horizontal scroll animation for date selector
+        const dateContainer = document.querySelector('.custom-scrollbar');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        dateContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - dateContainer.offsetLeft;
+            scrollLeft = dateContainer.scrollLeft;
+        });
+        dateContainer.addEventListener('mouseleave', () => { isDown = false; });
+        dateContainer.addEventListener('mouseup', () => { isDown = false; });
+        dateContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - dateContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            dateContainer.scrollLeft = scrollLeft - walk;
+        });
+    </script>
+</body></html>
