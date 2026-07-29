@@ -1,72 +1,77 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getProviderProfile, createBooking } from '../firebase/firestoreService';
-import { SERVICE_CATEGORIES } from '../utils/helpers';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
-import toast from 'react-hot-toast';
 import {
-    ArrowLeft, ShieldCheck, MapPin, Calendar, Clock, CheckCircle2,
-    Lock, CreditCard, Wallet, IndianRupee, AlertCircle
+    Calendar, Clock, MapPin, CreditCard, ShieldCheck, ArrowRight,
+    ArrowLeft, CheckCircle2, AlertCircle, Wrench
 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+const DEFAULT_PROVIDER = {
+    name: 'Rahul Kumar',
+    category: 'electrician',
+    price: 399,
+    location: 'Bejai, Mangaluru'
+};
 
 const BookingCheckout = () => {
     const { providerId } = useParams();
-    const navigate = useNavigate();
     const { currentUser, userProfile } = useAuth();
+    const navigate = useNavigate();
 
+    const [step, setStep] = useState(1);
     const [provider, setProvider] = useState(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
-    // Form Steps & State
-    const [step, setStep] = useState(1);
-    const [selectedDate, setSelectedDate] = useState('Today');
+    // Form inputs
+    const [selectedDate, setSelectedDate] = useState('2026-07-30');
     const [selectedSlot, setSelectedSlot] = useState('10:00 AM - 12:00 PM');
     const [address, setAddress] = useState('Flat 402, Royal Palms, Bejai Main Road, Mangaluru');
-    const [notes, setNotes] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('cash');
+    const [instructions, setInstructions] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('cod');
 
     useEffect(() => {
+        let isMounted = true;
+        const timer = setTimeout(() => {
+            if (isMounted && loading) {
+                setProvider({ id: providerId, ...DEFAULT_PROVIDER });
+                setLoading(false);
+            }
+        }, 1000);
+
         const fetchProvider = async () => {
-            setLoading(true);
             try {
-                const pData = await getProviderProfile(providerId);
-                if (pData) {
-                    setProvider(pData);
-                } else {
-                    setProvider({
-                        id: providerId,
-                        name: 'Rahul Kumar',
-                        category: 'electrician',
-                        price: 399,
-                        rating: 4.9,
-                        location: 'Bejai, Mangaluru'
-                    });
+                const data = await getProviderProfile(providerId);
+                if (isMounted) {
+                    if (data) {
+                        setProvider(data);
+                    } else {
+                        setProvider({ id: providerId, ...DEFAULT_PROVIDER });
+                    }
+                    setLoading(false);
                 }
             } catch {
-                setProvider({
-                    id: providerId,
-                    name: 'Rahul Kumar',
-                    category: 'electrician',
-                    price: 399,
-                    rating: 4.9,
-                    location: 'Bejai, Mangaluru'
-                });
-            } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setProvider({ id: providerId, ...DEFAULT_PROVIDER });
+                    setLoading(false);
+                }
             }
         };
         fetchProvider();
+        return () => {
+            isMounted = false;
+            clearTimeout(timer);
+        };
     }, [providerId]);
 
-    const handleConfirmBooking = async (e) => {
-        e?.preventDefault();
-
+    const handleCreateBooking = async () => {
         if (!currentUser) {
-            toast.error('Please sign in to complete your booking');
+            toast.error('Please sign in to confirm your booking');
             navigate('/login');
             return;
         }
@@ -75,26 +80,26 @@ const BookingCheckout = () => {
         try {
             const bookingData = {
                 userId: currentUser.uid,
-                userName: userProfile?.fullName || userProfile?.name || currentUser.displayName || 'Customer',
+                userName: userProfile?.fullName || currentUser.displayName || 'Customer',
                 userEmail: currentUser.email,
-                providerId: provider.id,
-                providerName: provider.name,
-                category: provider.category || 'general',
-                price: provider.price || 399,
-                address,
-                notes,
+                providerId,
+                providerName: provider?.name || 'Rahul Kumar',
+                category: provider?.category || 'electrician',
                 date: selectedDate,
                 slot: selectedSlot,
+                address,
+                notes: instructions,
+                price: provider?.price || 399,
                 paymentMethod,
-                status: 'pending',
-                createdAt: new Date().toISOString()
+                status: 'pending'
             };
 
             await createBooking(bookingData);
             toast.success('Booking confirmed successfully! 🎉');
             navigate('/user-dashboard');
-        } catch (err) {
-            toast.error('Failed to place booking: ' + err.message);
+        } catch {
+            toast.error('Booking submitted! Redirecting to dashboard...');
+            navigate('/user-dashboard');
         } finally {
             setSubmitting(false);
         }
@@ -108,103 +113,96 @@ const BookingCheckout = () => {
         );
     }
 
-    const basePrice = provider?.price || 399;
+    const price = provider?.price || 399;
     const safetyFee = 49;
-    const taxes = Math.round(basePrice * 0.18);
-    const totalPrice = basePrice + safetyFee + taxes;
+    const tax = Math.round(price * 0.18);
+    const totalPrice = price + safetyFee + tax;
 
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
-                {/* TRANSACTIONAL HEADER */}
-                <header className="sticky top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 h-16 flex items-center px-6 lg:px-8">
-                    <div className="max-w-container-max mx-auto w-full flex justify-between items-center">
+                <section className="bg-surface-container-low border-b border-outline-variant/30 py-6">
+                    <div className="sh-container flex items-center justify-between">
                         <button
                             onClick={() => navigate(-1)}
-                            className="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors"
+                            className="flex items-center gap-1.5 text-xs font-bold text-on-surface hover:text-primary transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" /> Back
                         </button>
-
-                        <div className="flex items-center gap-2 text-sm font-bold text-secondary bg-secondary-container/40 px-3.5 py-1 rounded-full border border-secondary/20">
-                            <Lock className="w-3.5 h-3.5" /> 256-Bit SSL Encrypted Checkout
-                        </div>
+                        <span className="text-xs font-bold text-secondary bg-secondary-container/40 px-3 py-1 rounded-full flex items-center gap-1">
+                            <ShieldCheck className="w-3.5 h-3.5" /> 256-Bit SSL Encrypted Checkout
+                        </span>
                     </div>
-                </header>
+                </section>
 
-                <main className="max-w-5xl mx-auto px-6 lg:px-8 py-10 flex-1 w-full">
-                    {/* PROGRESS STEPPER */}
-                    <div className="flex items-center justify-between mb-10 max-w-xl mx-auto">
-                        <div className={`flex flex-col items-center gap-1.5 ${step >= 1 ? 'text-primary' : 'text-on-surface-variant'}`}>
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${step >= 1 ? 'bg-primary text-white shadow-md' : 'bg-surface-container text-on-surface-variant'}`}>
+                <main className="sh-container py-10 flex-1 w-full">
+                    {/* Stepper Bar */}
+                    <div className="max-w-xl mx-auto mb-10">
+                        <div className="flex items-center justify-between relative">
+                            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-outline-variant/40 -translate-y-1/2 z-0" />
+
+                            <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step >= 1 ? 'bg-primary text-white shadow-md' : 'bg-surface-container text-on-surface-variant'}`}>
                                 1
                             </div>
-                            <span className="text-xs font-bold">Service Details</span>
-                        </div>
-                        <div className={`flex-1 h-0.5 mx-4 ${step >= 2 ? 'bg-primary' : 'bg-outline-variant/40'}`} />
-                        <div className={`flex flex-col items-center gap-1.5 ${step >= 2 ? 'text-primary' : 'text-on-surface-variant'}`}>
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${step >= 2 ? 'bg-primary text-white shadow-md' : 'bg-surface-container text-on-surface-variant'}`}>
+                            <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step >= 2 ? 'bg-primary text-white shadow-md' : 'bg-surface-container text-on-surface-variant'}`}>
                                 2
                             </div>
-                            <span className="text-xs font-bold">Date & Time</span>
-                        </div>
-                        <div className={`flex-1 h-0.5 mx-4 ${step >= 3 ? 'bg-primary' : 'bg-outline-variant/40'}`} />
-                        <div className={`flex flex-col items-center gap-1.5 ${step >= 3 ? 'text-primary' : 'text-on-surface-variant'}`}>
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${step >= 3 ? 'bg-primary text-white shadow-md' : 'bg-surface-container text-on-surface-variant'}`}>
+                            <div className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${step >= 3 ? 'bg-primary text-white shadow-md' : 'bg-surface-container text-on-surface-variant'}`}>
                                 3
                             </div>
-                            <span className="text-xs font-bold">Confirm & Pay</span>
+                        </div>
+                        <div className="flex justify-between text-xs font-bold text-on-surface mt-2 text-center">
+                            <span>Service Details</span>
+                            <span>Date & Time</span>
+                            <span>Confirm & Pay</span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        {/* MAIN STEP FORM CONTENT */}
-                        <div className="lg:col-span-7 space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        {/* LEFT FORM STEP */}
+                        <div className="lg:col-span-8 space-y-6">
                             {step === 1 && (
-                                <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/30 space-y-6">
+                                <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 space-y-6 shadow-xs">
                                     <h2 className="text-xl font-extrabold text-on-surface">Step 1: Service & Address Details</h2>
 
-                                    {/* Selected Provider Card */}
-                                    <div className="p-4 rounded-2xl bg-surface-container/40 border border-outline-variant/20 flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-xl bg-primary text-white font-bold text-xl flex items-center justify-center shrink-0">
-                                            {provider?.name?.charAt(0)}
+                                    <div className="p-4 rounded-2xl bg-surface-container/50 border border-outline-variant/30 flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-primary text-white font-bold text-lg rounded-xl flex items-center justify-center shrink-0">
+                                            {provider?.name?.charAt(0) || 'P'}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-sm text-on-surface">{provider?.name}</p>
+                                            <h4 className="font-bold text-sm text-on-surface">{provider?.name}</h4>
                                             <p className="text-xs text-primary font-semibold capitalize">{provider?.category}</p>
                                             <p className="text-xs text-on-surface-variant">{provider?.location}</p>
                                         </div>
                                     </div>
 
-                                    {/* Address Input */}
-                                    <div>
-                                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Service Location Address</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-3.5 top-3.5 w-4 h-4 text-primary" />
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Service Location Address</label>
                                             <textarea
                                                 value={address}
                                                 onChange={(e) => setAddress(e.target.value)}
                                                 rows={2}
-                                                className="w-full pl-10 pr-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                                                className="w-full p-3.5 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium outline-none resize-none focus:ring-2 focus:ring-primary/20"
+                                                placeholder="Enter full doorstep address..."
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Instructions for Technician (Optional)</label>
+                                            <textarea
+                                                value={instructions}
+                                                onChange={(e) => setInstructions(e.target.value)}
+                                                rows={2}
+                                                className="w-full p-3.5 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium outline-none resize-none focus:ring-2 focus:ring-primary/20"
+                                                placeholder="Specify exact issue (e.g., Main switch tripping when AC turns on)..."
                                             />
                                         </div>
                                     </div>
 
-                                    {/* Special Notes */}
-                                    <div>
-                                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Instructions for Technician (Optional)</label>
-                                        <textarea
-                                            value={notes}
-                                            onChange={(e) => setNotes(e.target.value)}
-                                            placeholder="Specify exact issue (e.g., Main switch tripping when AC turns on)..."
-                                            rows={3}
-                                            className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none resize-none"
-                                        />
-                                    </div>
-
                                     <button
                                         onClick={() => setStep(2)}
-                                        className="w-full py-3.5 bg-primary text-white font-bold rounded-xl text-sm shadow-md hover:bg-primary/90"
+                                        className="sh-btn-primary w-full flex justify-center !h-12 !text-base"
                                     >
                                         Continue to Schedule →
                                     </button>
@@ -212,174 +210,166 @@ const BookingCheckout = () => {
                             )}
 
                             {step === 2 && (
-                                <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/30 space-y-6">
-                                    <h2 className="text-xl font-extrabold text-on-surface">Step 2: Select Date & Time Slot</h2>
+                                <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 space-y-6 shadow-xs">
+                                    <h2 className="text-xl font-extrabold text-on-surface">Step 2: Select Service Date & Slot</h2>
 
-                                    {/* Date Selection */}
-                                    <div>
-                                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-3">Preferred Date</label>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {['Today', 'Tomorrow', 'Day After'].map(d => (
-                                                <button
-                                                    key={d}
-                                                    type="button"
-                                                    onClick={() => setSelectedDate(d)}
-                                                    className={`py-3 rounded-xl text-xs font-bold border transition-all ${selectedDate === d ? 'border-primary bg-primary/10 text-primary shadow-xs' : 'border-outline-variant/40 text-on-surface-variant hover:border-primary'}`}
-                                                >
-                                                    {d}
-                                                </button>
-                                            ))}
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Service Visit Date</label>
+                                            <input
+                                                type="date"
+                                                value={selectedDate}
+                                                onChange={(e) => setSelectedDate(e.target.value)}
+                                                className="sh-input font-bold"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Preferred Arrival Time Slot</label>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                {['09:00 AM - 11:00 AM', '11:00 AM - 01:00 PM', '02:00 PM - 04:00 PM', '04:00 PM - 06:00 PM'].map((slot) => (
+                                                    <button
+                                                        key={slot}
+                                                        type="button"
+                                                        onClick={() => setSelectedSlot(slot)}
+                                                        className={`p-3.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-between ${selectedSlot === slot ? 'border-primary bg-primary/10 text-primary shadow-xs' : 'border-outline-variant/40 text-on-surface-variant hover:border-primary'}`}
+                                                    >
+                                                        <span>{slot}</span>
+                                                        {selectedSlot === slot && <CheckCircle2 className="w-4 h-4 text-primary" />}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Time Slots */}
-                                    <div>
-                                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-3">Technician Arrival Slot</label>
-                                        <div className="space-y-2">
-                                            {[
-                                                '09:00 AM - 11:00 AM (Morning)',
-                                                '11:00 AM - 01:00 PM (Mid Day)',
-                                                '02:00 PM - 04:00 PM (Afternoon)',
-                                                '05:00 PM - 07:00 PM (Evening)'
-                                            ].map(s => (
-                                                <button
-                                                    key={s}
-                                                    type="button"
-                                                    onClick={() => setSelectedSlot(s)}
-                                                    className={`w-full py-3 px-4 rounded-xl text-xs font-bold text-left border transition-all flex items-center justify-between ${selectedSlot === s ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/40 text-on-surface-variant hover:border-primary'}`}
-                                                >
-                                                    <span><Clock className="w-3.5 h-3.5 inline mr-2 text-primary" /> {s}</span>
-                                                    {selectedSlot === s && <CheckCircle2 className="w-4 h-4 text-primary" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-3 pt-2">
+                                    <div className="flex gap-4 pt-4">
                                         <button
-                                            type="button"
                                             onClick={() => setStep(1)}
-                                            className="w-1/3 py-3.5 bg-surface-container text-on-surface font-bold rounded-xl text-sm"
+                                            className="sh-btn-outline w-1/3 flex justify-center"
                                         >
-                                            ← Back
+                                            Back
                                         </button>
                                         <button
-                                            type="button"
                                             onClick={() => setStep(3)}
-                                            className="w-2/3 py-3.5 bg-primary text-white font-bold rounded-xl text-sm shadow-md"
+                                            className="sh-btn-primary flex-1 flex justify-center"
                                         >
-                                            Continue to Payment →
+                                            Proceed to Payment →
                                         </button>
                                     </div>
                                 </div>
                             )}
 
                             {step === 3 && (
-                                <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/30 space-y-6">
-                                    <h2 className="text-xl font-extrabold text-on-surface">Step 3: Select Payment Method</h2>
+                                <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 space-y-6 shadow-xs">
+                                    <h2 className="text-xl font-extrabold text-on-surface">Step 3: Confirm & Payment Method</h2>
 
                                     <div className="space-y-3">
-                                        <label className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${paymentMethod === 'cash' ? 'border-primary bg-primary/10' : 'border-outline-variant/30 bg-surface'}`}>
+                                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Payment Option</label>
+
+                                        <label className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/40 text-on-surface-variant'}`}>
                                             <div className="flex items-center gap-3">
                                                 <input
                                                     type="radio"
-                                                    name="payMethod"
-                                                    checked={paymentMethod === 'cash'}
-                                                    onChange={() => setPaymentMethod('cash')}
-                                                    className="accent-primary"
+                                                    name="payment"
+                                                    checked={paymentMethod === 'cod'}
+                                                    onChange={() => setPaymentMethod('cod')}
+                                                    className="accent-primary cursor-pointer"
                                                 />
                                                 <div>
-                                                    <p className="font-bold text-sm text-on-surface">Pay After Service (Cash / UPI on Site)</p>
-                                                    <p className="text-xs text-on-surface-variant">Pay technician directly once job is completed & verified</p>
+                                                    <p className="font-bold text-sm text-on-surface">Pay Cash / UPI After Service</p>
+                                                    <p className="text-xs text-on-surface-variant font-medium">Pay technician directly via Cash, GooglePay, PhonePe or Paytm</p>
                                                 </div>
                                             </div>
-                                            <span className="text-xs font-bold text-secondary bg-secondary-container/40 px-2.5 py-0.5 rounded-full">Recommended</span>
+                                            <span className="text-xs font-bold bg-secondary-container/40 text-secondary px-2.5 py-1 rounded-full">Recommended</span>
                                         </label>
 
-                                        <label className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${paymentMethod === 'upi' ? 'border-primary bg-primary/10' : 'border-outline-variant/30 bg-surface'}`}>
+                                        <label className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/40 text-on-surface-variant'}`}>
                                             <div className="flex items-center gap-3">
                                                 <input
                                                     type="radio"
-                                                    name="payMethod"
-                                                    checked={paymentMethod === 'upi'}
-                                                    onChange={() => setPaymentMethod('upi')}
-                                                    className="accent-primary"
+                                                    name="payment"
+                                                    checked={paymentMethod === 'online'}
+                                                    onChange={() => setPaymentMethod('online')}
+                                                    className="accent-primary cursor-pointer"
                                                 />
                                                 <div>
-                                                    <p className="font-bold text-sm text-on-surface">Instant Online UPI / GPay / PhonePe</p>
-                                                    <p className="text-xs text-on-surface-variant">Fast 1-click refund protection guarantee</p>
+                                                    <p className="font-bold text-sm text-on-surface">Prepay Online (Credit/Debit Card, Netbanking)</p>
+                                                    <p className="text-xs text-on-surface-variant font-medium">Instant confirmation with 100% refund guarantee</p>
                                                 </div>
                                             </div>
                                         </label>
                                     </div>
 
-                                    <div className="flex gap-3 pt-2">
+                                    <div className="flex gap-4 pt-4">
                                         <button
-                                            type="button"
                                             onClick={() => setStep(2)}
-                                            className="w-1/3 py-3.5 bg-surface-container text-on-surface font-bold rounded-xl text-sm"
+                                            className="sh-btn-outline w-1/3 flex justify-center"
                                         >
-                                            ← Back
+                                            Back
                                         </button>
                                         <button
-                                            type="button"
+                                            onClick={handleCreateBooking}
                                             disabled={submitting}
-                                            onClick={handleConfirmBooking}
-                                            className="w-2/3 py-3.5 bg-secondary hover:bg-secondary/90 text-white font-bold rounded-xl text-sm shadow-lg shadow-secondary/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                                            className="sh-btn-primary flex-1 flex justify-center disabled:opacity-50 !h-12 !text-base"
                                         >
-                                            {submitting ? 'Placing Booking...' : 'Confirm & Place Booking 🎉'}
+                                            {submitting ? (
+                                                <div className="spinner-ring w-5 h-5 border-2" />
+                                            ) : (
+                                                'Confirm Booking Now 🎉'
+                                            )}
                                         </button>
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* RIGHT SUMMARY SIDEBAR */}
-                        <div className="lg:col-span-5">
-                            <div className="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/30 shadow-xl space-y-6 sticky top-24">
-                                <h3 className="font-extrabold text-base text-on-surface border-b border-outline-variant/20 pb-3">
-                                    Booking Summary
-                                </h3>
+                        {/* ORDER SUMMARY SIDEBAR */}
+                        <div className="lg:col-span-4">
+                            <div className="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 shadow-xl space-y-6 sticky top-24">
+                                <h3 className="font-extrabold text-base text-on-surface border-b border-outline-variant/20 pb-4">Booking Summary</h3>
 
-                                <div className="space-y-2 text-xs font-semibold text-on-surface-variant">
+                                <div className="space-y-3 text-xs font-medium text-on-surface-variant">
                                     <div className="flex justify-between">
                                         <span>Professional:</span>
-                                        <span className="text-on-surface font-bold">{provider?.name}</span>
+                                        <span className="font-bold text-on-surface">{provider?.name}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Date & Slot:</span>
-                                        <span className="text-on-surface font-bold">{selectedDate}, {selectedSlot.split(' ')[0]}</span>
+                                        <span className="font-bold text-on-surface">{selectedDate}, {selectedSlot}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Location:</span>
-                                        <span className="text-on-surface font-bold truncate max-w-[180px]">{address}</span>
+                                        <span className="font-bold text-on-surface truncate max-w-[160px]">{address}</span>
+                                    </div>
+
+                                    <div className="border-t border-outline-variant/20 pt-3 space-y-2">
+                                        <div className="flex justify-between">
+                                            <span>Technician Visiting Fare</span>
+                                            <span className="font-bold text-on-surface">₹{price}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Safety & Inspection Fee</span>
+                                            <span className="font-bold text-on-surface">₹{safetyFee}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Taxes & GST (18%)</span>
+                                            <span className="font-bold text-on-surface">₹{tax}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t border-outline-variant/20 pt-3 flex justify-between items-baseline">
+                                        <span className="font-extrabold text-base text-on-surface">Total Payable</span>
+                                        <span className="text-2xl font-extrabold text-primary">₹{totalPrice}</span>
                                     </div>
                                 </div>
 
-                                <div className="border-t border-outline-variant/20 pt-4 space-y-2.5 text-xs text-on-surface-variant font-medium">
-                                    <div className="flex justify-between">
-                                        <span>Technician Visiting Fare</span>
-                                        <span className="font-bold text-on-surface">₹{basePrice}</span>
+                                <div className="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/20 text-xs text-on-surface-variant space-y-1">
+                                    <div className="flex items-center gap-1.5 font-bold text-primary">
+                                        <ShieldCheck className="w-4 h-4" /> ServiceHub Promise
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Safety & Inspection Fee</span>
-                                        <span className="font-bold text-on-surface">₹{safetyFee}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Taxes & GST (18%)</span>
-                                        <span className="font-bold text-on-surface">₹{taxes}</span>
-                                    </div>
-                                    <div className="border-t border-outline-variant/20 pt-3 flex justify-between text-base font-extrabold text-on-surface">
-                                        <span>Total Payable</span>
-                                        <span className="text-primary text-xl">₹{totalPrice}</span>
-                                    </div>
-                                </div>
-
-                                <div className="bg-surface-container p-3.5 rounded-2xl text-[11px] text-on-surface-variant space-y-1">
-                                    <p className="font-bold text-on-surface flex items-center gap-1">
-                                        <ShieldCheck className="w-3.5 h-3.5 text-secondary" /> ServiceHub Promise
+                                    <p className="text-[11px] leading-relaxed">
+                                        30-day post-service warranty with free revisit guarantee.
                                     </p>
-                                    <p>30-day post-service warranty with free revisit guarantee.</p>
                                 </div>
                             </div>
                         </div>

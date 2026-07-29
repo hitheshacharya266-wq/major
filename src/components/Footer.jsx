@@ -3,7 +3,7 @@ import { Wrench, ShieldCheck, MapPin, PhoneCall, Mail, ChevronRight } from 'luci
 
 const Footer = () => {
     return (
-        <footer className="bg-surface-container-lowest border-t border-outline-variant/30 pt-16 pb-12 mt-20 text-on-surface">
+        <footer className="mt-auto bg-surface-container-lowest border-t border-outline-variant/30 pt-16 pb-12 text-on-surface w-full">
             <div className="sh-container">
                 {/* 5-Column Equal Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 pb-12 border-b border-outline-variant/20">
@@ -27,7 +27,7 @@ const Footer = () => {
                     {/* Popular Services */}
                     <div className="space-y-4">
                         <h4 className="font-extrabold text-xs uppercase tracking-wider text-on-surface">Popular Services</h4>
-                        <ul className="space-y-2 text-xs font-medium text-on-surface-variant">
+                        <ul className="space-y-2.5 text-xs font-medium text-on-surface-variant">
                             <li>
                                 <Link to="/search?category=electrician" className="hover:text-primary transition-colors flex items-center gap-1.5 group">
                                     <ChevronRight className="w-3 h-3 text-primary/40 group-hover:text-primary transition-colors shrink-0" /> Electrician Services
@@ -78,7 +78,7 @@ const Footer = () => {
                     {/* Support & Contact */}
                     <div className="space-y-4">
                         <h4 className="font-extrabold text-xs uppercase tracking-wider text-on-surface">Help & Support</h4>
-                        <ul className="space-y-2 text-xs font-medium text-on-surface-variant">
+                        <ul className="space-y-2.5 text-xs font-medium text-on-surface-variant">
                             <li>
                                 <Link to="/help" className="hover:text-primary transition-colors flex items-center gap-1.5 group">
                                     <ChevronRight className="w-3 h-3 text-primary/40 group-hover:text-primary transition-colors shrink-0" /> Help Center & FAQs

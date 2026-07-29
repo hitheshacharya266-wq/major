@@ -48,8 +48,8 @@ const Navbar = () => {
     return (
         <header className="sticky top-0 w-full z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 transition-all">
             <nav className="sh-container h-16 lg:h-20 flex items-center justify-between">
-                {/* Brand & Navigation Links */}
-                <div className="flex items-center gap-8 lg:gap-10">
+                {/* Brand Logo & Navigation Links */}
+                <div className="flex items-center gap-8 lg:gap-12">
                     <Link to="/" className="flex items-center gap-2.5 font-bold tracking-tight text-primary shrink-0">
                         <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-md shadow-primary/20 shrink-0">
                             <Wrench className="w-5 h-5" />
@@ -89,11 +89,10 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Location Picker & Profile / Auth CTAs */}
+                {/* Location Picker & Profile CTAs */}
                 <div className="flex items-center gap-3 sm:gap-4">
-                    {/* Location selector pill */}
-                    <div className="hidden sm:flex items-center gap-1.5 bg-surface-container/70 px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant border border-outline-variant/40 hover:bg-surface-variant transition-colors">
-                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <div className="hidden sm:flex items-center gap-2 bg-surface-container/70 px-4 py-2 rounded-full text-xs font-semibold text-on-surface-variant border border-outline-variant/40 hover:bg-surface-variant transition-colors">
+                        <MapPin className="w-4 h-4 text-primary shrink-0" />
                         <select
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
@@ -109,11 +108,11 @@ const Navbar = () => {
                         <div className="flex items-center gap-3">
                             <Link
                                 to="/notifications"
-                                className="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-full transition-colors relative"
+                                className="p-2.5 text-on-surface-variant hover:bg-surface-variant/50 rounded-full transition-colors relative"
                                 title="Notifications"
                             >
                                 <Bell className="w-5 h-5" />
-                                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-secondary rounded-full border-2 border-surface" />
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-surface" />
                             </Link>
 
                             <div className="relative" ref={dropdownRef}>
@@ -121,10 +120,10 @@ const Navbar = () => {
                                     onClick={() => setProfileOpen(!profileOpen)}
                                     className="flex items-center gap-1.5 p-1 rounded-full hover:ring-2 hover:ring-primary/20 transition-all"
                                 >
-                                    <div className="w-9 h-9 bg-primary text-white font-bold text-sm rounded-full flex items-center justify-center shadow-md shadow-primary/20">
+                                    <div className="w-9.5 h-9.5 bg-primary text-white font-bold text-sm rounded-full flex items-center justify-center shadow-md shadow-primary/20">
                                         {initial}
                                     </div>
-                                    <ChevronDown className="w-3.5 h-3.5 text-on-surface-variant" />
+                                    <ChevronDown className="w-4 h-4 text-on-surface-variant" />
                                 </button>
 
                                 <AnimatePresence>
@@ -167,11 +166,11 @@ const Navbar = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="flex items-center gap-3">
                             <Link to="/login" className="text-xs sm:text-sm font-bold text-on-surface-variant hover:text-primary px-3 py-2 transition-colors">
                                 Sign In
                             </Link>
-                            <Link to="/register" className="sh-btn-primary text-xs sm:text-sm !h-10 !px-4">
+                            <Link to="/register" className="sh-btn-primary text-xs sm:text-sm !h-10 !px-4.5">
                                 Register
                             </Link>
                         </div>
@@ -180,7 +179,7 @@ const Navbar = () => {
                     {/* Mobile Menu Toggle */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="md:hidden p-2 rounded-xl bg-surface-container text-on-surface-variant hover:bg-surface-variant transition-colors"
+                        className="md:hidden p-2.5 rounded-xl bg-surface-container text-on-surface-variant hover:bg-surface-variant transition-colors"
                         aria-label="Toggle navigation"
                     >
                         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
