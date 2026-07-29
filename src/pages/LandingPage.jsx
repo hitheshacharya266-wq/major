@@ -2,11 +2,19 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Search, MapPin, ShieldCheck, Clock, Award, CheckCircle2,
-    Wrench, ArrowRight
+    Wrench, ArrowRight, Star
 } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import Footer from '../components/Footer';
-import { SERVICE_CATEGORIES } from '../utils/helpers';
+
+const LANDING_CATEGORIES = [
+    { id: 'electrician', label: 'Electrician', icon: 'electrical_services', emoji: '⚡' },
+    { id: 'plumber', label: 'Plumber', icon: 'plumbing', emoji: '🔧' },
+    { id: 'ac', label: 'AC Repair', icon: 'ac_unit', emoji: '❄️' },
+    { id: 'cleaning', label: 'Cleaning', icon: 'cleaning_services', emoji: '🧹' },
+    { id: 'pest', label: 'Pest Control', icon: 'pest_control', emoji: '🛡️' },
+    { id: 'carpenter', label: 'Carpentry', icon: 'construction', emoji: '🪚' }
+];
 
 const LandingPage = () => {
     const [city, setCity] = useState('Mangaluru');
@@ -29,224 +37,189 @@ const LandingPage = () => {
         <PageTransition>
             <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
                 {/* HERO SECTION */}
-                <section className="hero-gradient pt-16 pb-20 border-b border-outline-variant/20">
-                    <div className="sh-container flex flex-col items-center text-center space-y-8">
-                        {/* Verified Pill Badge */}
-                        <div className="inline-flex items-center gap-2 bg-secondary-container/30 px-4 py-1.5 rounded-full border border-secondary/20 shadow-xs">
-                            <ShieldCheck className="w-4 h-4 text-secondary shrink-0" />
-                            <span className="text-xs font-bold text-secondary">
-                                Verified Local Professionals in Coastal Karnataka
-                            </span>
+                <section className="hero-gradient pt-12 pb-16 px-6 lg:px-8 border-b border-outline-variant/30">
+                    <div className="max-w-container-max mx-auto flex flex-col lg:flex-row items-center gap-12">
+                        {/* Hero Left Column */}
+                        <div className="flex-1 space-y-6 text-left">
+                            <div className="inline-flex items-center gap-2 bg-secondary-container/30 px-4 py-1.5 rounded-full border border-secondary/20 shadow-xs">
+                                <ShieldCheck className="w-4 h-4 text-secondary shrink-0" />
+                                <span className="font-label-sm text-label-sm text-secondary">
+                                    Verified Professionals in Coastal Karnataka
+                                </span>
+                            </div>
+
+                            <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface leading-tight">
+                                Find Trusted Local Services <br className="hidden md:block" /> in Your Neighborhood
+                            </h1>
+
+                            <p className="text-body-lg font-body-lg text-on-surface-variant max-w-2xl">
+                                Expert help for your home maintenance in Mangaluru, Hassan, and Udupi. Book verified professionals in under 60 seconds.
+                            </p>
+
+                            {/* Search/Location Bar */}
+                            <form onSubmit={handleSearch} className="glass-card p-2 rounded-2xl flex flex-col md:flex-row items-center gap-2 shadow-md max-w-3xl border border-outline-variant/40">
+                                <div className="flex-1 flex items-center gap-2 px-4 py-2 border-r border-outline-variant/30 w-full">
+                                    <MapPin className="w-5 h-5 text-on-surface-variant shrink-0" />
+                                    <select
+                                        value={city}
+                                        onChange={(e) => setCity(e.target.value)}
+                                        className="bg-transparent border-none outline-none font-body-md text-body-md w-full cursor-pointer"
+                                    >
+                                        <option value="Mangaluru">Mangaluru</option>
+                                        <option value="Udupi">Udupi</option>
+                                        <option value="Hassan">Hassan</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex-[1.5] flex items-center gap-2 px-4 py-2 w-full">
+                                    <Search className="w-5 h-5 text-on-surface-variant shrink-0" />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="PIN code or Service (e.g. Electrician)"
+                                        className="bg-transparent border-none outline-none font-body-md text-body-md w-full"
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="bg-primary text-on-primary px-6 py-3 rounded-xl font-label-md text-label-md hover:bg-primary/90 transition-all active:scale-95 w-full md:w-auto shrink-0"
+                                >
+                                    Search Now
+                                </button>
+                            </form>
+
+                            {/* Popular Search Pills */}
+                            <div className="flex flex-wrap gap-2 items-center">
+                                <span className="font-label-sm text-label-sm text-on-surface-variant">Popular:</span>
+                                {['AC Repair', 'Plumbing', 'Cleaning', 'Electrician', 'Carpentry'].map((tag) => (
+                                    <button
+                                        key={tag}
+                                        onClick={() => {
+                                            setSearchQuery(tag);
+                                            navigate(`/search?q=${encodeURIComponent(tag)}&city=${encodeURIComponent(city)}`);
+                                        }}
+                                        className="px-4 py-1 bg-surface-container rounded-full font-label-sm text-label-sm text-on-surface-variant cursor-pointer hover:bg-primary-container hover:text-on-primary-container transition-colors"
+                                    >
+                                        {tag}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* Main Display Heading */}
-                        <h1 className="font-extrabold text-3xl sm:text-5xl lg:text-6xl text-on-surface tracking-tight leading-[1.12] max-w-4xl">
-                            Find Trusted Local Services <br className="hidden sm:inline" /> in Your Neighborhood
-                        </h1>
-
-                        <p className="text-sm sm:text-base lg:text-lg text-on-surface-variant max-w-2xl font-medium leading-relaxed">
-                            Expert home maintenance & repairs in Mangaluru, Udupi, and Hassan. Book verified, background-checked professionals in 60 seconds.
-                        </p>
-
-                        {/* Search Bar Form */}
-                        <form onSubmit={handleSearch} className="glass-card p-2.5 sm:p-3 rounded-2xl flex flex-col sm:flex-row items-center gap-3 shadow-xl max-w-3xl w-full border border-outline-variant/40">
-                            <div className="flex items-center gap-2.5 px-4 py-3 sm:border-r border-outline-variant/30 w-full sm:w-1/3">
-                                <MapPin className="w-5 h-5 text-primary shrink-0" />
-                                <select
-                                    value={city}
-                                    onChange={(e) => setCity(e.target.value)}
-                                    className="bg-transparent border-none outline-none text-sm sm:text-base font-bold text-on-surface w-full cursor-pointer"
-                                >
-                                    <option value="Mangaluru">Mangaluru</option>
-                                    <option value="Udupi">Udupi</option>
-                                    <option value="Hassan">Hassan</option>
-                                </select>
-                            </div>
-
-                            <div className="flex items-center gap-2.5 px-4 py-3 w-full sm:flex-1">
-                                <Search className="w-5 h-5 text-on-surface-variant shrink-0" />
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search service (e.g. Electrician, Plumbing)..."
-                                    className="bg-transparent border-none outline-none text-sm text-on-surface placeholder-on-surface-variant/60 w-full font-medium"
+                        {/* Hero Right Hero Technician Image & Floating Badge */}
+                        <div className="flex-1 relative w-full max-w-lg lg:max-w-none">
+                            <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl relative border-4 border-white">
+                                <img
+                                    className="w-full h-full object-cover"
+                                    alt="Professional technician"
+                                    src="https://images.unsplash.com/photo-1540569014015-19a7be504e3a?auto=format&fit=crop&q=80&w=800"
                                 />
+                                {/* Floating Review Badge */}
+                                <div className="absolute bottom-6 left-6 glass-card p-4 rounded-xl flex items-center gap-3 shadow-lg border border-white/60">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shrink-0">
+                                        <img
+                                            className="w-full h-full object-cover"
+                                            alt="Customer"
+                                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="flex text-amber-500">
+                                            {'★'.repeat(5)}
+                                        </div>
+                                        <p className="font-label-sm text-label-sm text-on-surface font-bold">"Best service in Udupi!"</p>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+                </section>
 
-                            <button
-                                type="submit"
-                                className="sh-btn-primary w-full sm:w-auto shrink-0 !h-12 !px-7"
-                            >
-                                <Search className="w-4 h-4 shrink-0" /> Search Now
-                            </button>
-                        </form>
+                {/* BROWSE CATEGORIES SECTION */}
+                <section className="py-16 bg-surface">
+                    <div className="max-w-container-max mx-auto px-6 lg:px-8">
+                        <div className="flex justify-between items-end mb-8">
+                            <div className="space-y-1">
+                                <h2 className="font-headline-lg text-headline-lg text-on-surface">Browse Categories</h2>
+                                <p className="font-body-md text-body-md text-on-surface-variant">Over 50+ professional services at your doorstep.</p>
+                            </div>
+                            <Link to="/search" className="text-primary font-label-md text-label-md flex items-center gap-1 hover:underline">
+                                View All <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </div>
 
-                        {/* Popular Tags */}
-                        <div className="flex flex-wrap gap-2 items-center justify-center pt-2">
-                            <span className="text-xs font-bold text-on-surface-variant">Popular:</span>
-                            {['Electrician', 'Plumbing', 'AC Servicing', 'Carpentry', 'Cleaning'].map((tag) => (
-                                <button
-                                    key={tag}
-                                    onClick={() => {
-                                        setSearchQuery(tag);
-                                        navigate(`/search?q=${encodeURIComponent(tag)}&city=${encodeURIComponent(city)}`);
-                                    }}
-                                    className="px-3.5 py-1.5 bg-surface-container rounded-full text-xs font-semibold text-on-surface hover:bg-primary-container hover:text-white transition-colors cursor-pointer"
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-stretch">
+                            {LANDING_CATEGORIES.map((cat) => (
+                                <div
+                                    key={cat.id}
+                                    onClick={() => handleCategoryClick(cat.id)}
+                                    className="group cursor-pointer h-full"
                                 >
-                                    {tag}
-                                </button>
+                                    <div className="aspect-square bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-3 group-hover:border-primary group-hover:shadow-lg transition-all duration-300">
+                                        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors text-2xl">
+                                            {cat.emoji}
+                                        </div>
+                                        <span className="font-label-md text-label-md text-on-surface">{cat.label}</span>
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     </div>
                 </section>
 
-                {/* SERVICE CATEGORIES GRID */}
-                <section className="py-16 lg:py-20 sh-container w-full">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-                        <div>
-                            <span className="text-xs font-bold text-primary uppercase tracking-widest">Our Services</span>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface mt-1">Explore Popular Categories</h2>
+                {/* BENTO GRID TRUST SECTION */}
+                <section className="py-16 bg-surface-container-low border-y border-outline-variant/30">
+                    <div className="max-w-container-max mx-auto px-6 lg:px-8">
+                        <div className="text-center max-w-3xl mx-auto mb-12 space-y-2">
+                            <h2 className="font-headline-lg text-headline-lg text-on-surface">Why ServiceHub is Your Neighborhood Choice</h2>
+                            <p className="font-body-md text-body-md text-on-surface-variant">We bring trust and professional quality to every home in Mangaluru, Hassan, and Udupi.</p>
                         </div>
-                        <Link to="/search" className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-primary hover:underline">
-                            View all categories <ArrowRight className="w-4 h-4" />
-                        </Link>
-                    </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5 lg:gap-6 items-stretch">
-                        {SERVICE_CATEGORIES.map((cat) => (
-                            <div
-                                key={cat.id}
-                                onClick={() => handleCategoryClick(cat.id)}
-                                className="category-card group h-full flex flex-col items-center justify-between text-center"
-                            >
-                                <div className="icon-container" style={{ backgroundColor: `${cat.color}15` }}>
-                                    <span className="text-3xl">{cat.emoji}</span>
+                        <div className="grid md:grid-cols-12 gap-6 items-stretch">
+                            {/* Bento Feature 1: Neighborhood Heroes */}
+                            <div className="md:col-span-8 bg-white rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-center border border-outline-variant/30 shadow-xs">
+                                <div className="flex-1 space-y-4">
+                                    <div className="w-12 h-12 bg-primary/10 text-primary flex items-center justify-center rounded-xl">
+                                        <Award className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="font-headline-md text-headline-md text-on-surface">Neighborhood Heroes</h3>
+                                    <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                                        Our technicians are locals who know your area. They're top-rated by your neighbors and awarded the 'Hero' badge for exceptional service and punctuality.
+                                    </p>
+                                    <ul className="space-y-2 font-body-sm text-body-sm text-on-surface">
+                                        <li className="flex items-center gap-2">
+                                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0" /> Verified Local Experts
+                                        </li>
+                                        <li className="flex items-center gap-2">
+                                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0" /> Average 4.8/5 Star Rating
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div className="pt-3">
-                                    <h3 className="font-bold text-xs sm:text-sm text-on-surface group-hover:text-primary transition-colors">
-                                        {cat.label}
-                                    </h3>
-                                    <p className="text-[11px] text-on-surface-variant mt-0.5 font-medium">
-                                        {cat.count} Verified Pros
+                                <div className="flex-1 w-full h-full min-h-[220px] rounded-xl overflow-hidden relative border border-outline-variant/20">
+                                    <img
+                                        className="w-full h-full object-cover"
+                                        alt="Local technicians"
+                                        src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=600"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Bento Feature 2: 100% Verified Trust */}
+                            <div className="md:col-span-4 bg-primary text-white rounded-2xl p-8 flex flex-col justify-between border border-primary/20 shadow-lg space-y-6">
+                                <div className="space-y-3">
+                                    <ShieldCheck className="w-12 h-12" />
+                                    <h3 className="font-headline-md text-headline-md">100% Verified Trust</h3>
+                                    <p className="font-body-sm text-body-sm opacity-90 leading-relaxed">
+                                        Every professional goes through a rigorous 3-step background check and skill assessment. Your safety is our priority.
                                     </p>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* TRUST & SERVICE GUARANTEE */}
-                <section className="py-16 lg:py-20 bg-surface-container-low border-y border-outline-variant/30">
-                    <div className="sh-container">
-                        <div className="text-center max-w-2xl mx-auto mb-14 space-y-2">
-                            <span className="text-xs font-bold text-secondary uppercase tracking-widest">Why Choose ServiceHub</span>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold text-on-surface">The Premium Service Guarantee</h2>
-                            <p className="text-on-surface-variant text-xs sm:text-sm font-medium">
-                                Built for complete peace of mind with strict quality standards across Mangaluru, Udupi & Hassan.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
-                            <div className="sh-card h-full space-y-4">
-                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                    <ShieldCheck className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-base text-on-surface mb-1">100% Background Checked</h3>
-                                    <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
-                                        Every technician is identity-verified, police-checked, and skill-tested before joining our network.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="sh-card h-full space-y-4">
-                                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                                    <Award className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-base text-on-surface mb-1">Upfront Fixed Pricing</h3>
-                                    <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
-                                        No hidden fees or unexpected post-service charges. Know the exact cost before booking.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="sh-card h-full space-y-4">
-                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                    <Clock className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-base text-on-surface mb-1">60-Min Doorstep Arrival</h3>
-                                    <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
-                                        Local professionals dispatched near your neighborhood for urgent repairs and scheduled visits.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="sh-card h-full space-y-4">
-                                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-                                    <CheckCircle2 className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-base text-on-surface mb-1">30-Day Service Warranty</h3>
-                                    <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
-                                        If something goes wrong after the repair, we revisit and fix it completely free of charge.
-                                    </p>
+                                <div className="pt-6 border-t border-white/20">
+                                    <p className="font-label-md text-label-md">Join 10k+ Happy Homes</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-
-                {/* REGIONAL FOOTPRINT STATS BANNER */}
-                <section className="py-16 sh-container w-full">
-                    <div className="bg-primary text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
-                        <div className="space-y-3 max-w-xl text-center lg:text-left z-10">
-                            <span className="bg-white/20 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                Regional Footprint
-                            </span>
-                            <h2 className="text-2xl sm:text-4xl font-extrabold leading-tight">
-                                Empowering 10,000+ Households in Karnataka
-                            </h2>
-                            <p className="text-primary-fixed-dim text-xs sm:text-sm font-medium">
-                                Quick, transparent, and high-quality service at your fingertips.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4 sm:gap-8 z-10 w-full lg:w-auto text-center">
-                            <div className="space-y-1">
-                                <p className="text-2xl sm:text-4xl font-extrabold">140+</p>
-                                <p className="text-[11px] text-primary-fixed-dim font-medium">Verified Pros</p>
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-2xl sm:text-4xl font-extrabold">4.9 ★</p>
-                                <p className="text-[11px] text-primary-fixed-dim font-medium">Avg Rating</p>
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-2xl sm:text-4xl font-extrabold">3</p>
-                                <p className="text-[11px] text-primary-fixed-dim font-medium">Major Cities</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* PARTNER BANNER */}
-                <section className="pb-16 sh-container w-full">
-                    <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xs">
-                        <div className="space-y-2 max-w-2xl text-center md:text-left">
-                            <span className="text-xs font-bold text-primary uppercase tracking-widest">Join ServiceHub</span>
-                            <h3 className="text-xl sm:text-2xl font-extrabold text-on-surface">Are you a Skilled Local Service Provider?</h3>
-                            <p className="text-xs sm:text-sm text-on-surface-variant font-medium leading-relaxed">
-                                Expand your customer base in Mangaluru, Udupi & Hassan. Get instant job alerts, weekly payouts, and free onboarding.
-                            </p>
-                        </div>
-                        <Link
-                            to="/register?role=provider"
-                            className="sh-btn-secondary text-xs sm:text-sm shrink-0"
-                        >
-                            Register as Partner
-                        </Link>
                     </div>
                 </section>
 
