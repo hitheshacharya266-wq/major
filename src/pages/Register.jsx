@@ -6,7 +6,7 @@ import {
     validateEmail, validatePassword, validateName,
     SERVICE_CATEGORIES
 } from '../utils/helpers';
-import { UserPlus, Mail, Lock, User, Wrench, Eye, EyeOff, Briefcase, FileText, ChevronDown } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Wrench, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import Footer from '../components/Footer';
 import toast from 'react-hot-toast';
@@ -56,42 +56,43 @@ const Register = () => {
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
-                <main className="flex-1 flex items-center justify-center p-6 my-10">
+                <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
                     <div className="w-full max-w-lg space-y-6">
                         {/* Header */}
                         <div className="text-center space-y-2">
-                            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white mx-auto shadow-xl shadow-primary/20">
+                            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white mx-auto shadow-xl shadow-primary/20 shrink-0">
                                 <Wrench className="w-7 h-7" />
                             </div>
-                            <h1 className="text-3xl font-extrabold text-on-surface">Create an Account</h1>
-                            <p className="text-sm font-medium text-on-surface-variant">Join ServiceHub community in Coastal Karnataka</p>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface">Create an Account</h1>
+                            <p className="text-xs sm:text-sm font-medium text-on-surface-variant">Join ServiceHub community in Coastal Karnataka</p>
                         </div>
 
                         {/* Card */}
-                        <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/30 shadow-xl space-y-6">
+                        <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xl space-y-6">
                             {error && (
-                                <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl px-4 py-3 flex items-center gap-2">
-                                    <span>⚠️</span> <span>{error}</span>
+                                <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl px-4 py-3 flex items-center gap-2">
+                                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                                    <span>{error}</span>
                                 </div>
                             )}
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
                                     <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Full Name</label>
-                                    <div className="relative">
-                                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                                    <div className="relative flex items-center">
+                                        <User className="absolute left-3.5 w-4 h-4 text-on-surface-variant shrink-0" />
                                         <input type="text" name="name" value={formData.name} onChange={handleChange} required
-                                            className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                                            className="sh-input !pl-10"
                                             placeholder="John Doe" />
                                     </div>
                                 </div>
 
                                 <div>
                                     <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Email Address</label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                                    <div className="relative flex items-center">
+                                        <Mail className="absolute left-3.5 w-4 h-4 text-on-surface-variant shrink-0" />
                                         <input type="email" name="email" value={formData.email} onChange={handleChange} required
-                                            className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                                            className="sh-input !pl-10"
                                             placeholder="name@example.com" />
                                     </div>
                                 </div>
@@ -99,19 +100,19 @@ const Register = () => {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Password</label>
-                                        <div className="relative">
-                                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                                        <div className="relative flex items-center">
+                                            <Lock className="absolute left-3.5 w-4 h-4 text-on-surface-variant shrink-0" />
                                             <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} required
-                                                className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                                                className="sh-input !pl-10"
                                                 placeholder="••••••••" />
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Confirm</label>
-                                        <div className="relative">
-                                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                                        <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Confirm Password</label>
+                                        <div className="relative flex items-center">
+                                            <Lock className="absolute left-3.5 w-4 h-4 text-on-surface-variant shrink-0" />
                                             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required
-                                                className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                                                className="sh-input !pl-10"
                                                 placeholder="••••••••" />
                                         </div>
                                     </div>
@@ -143,7 +144,7 @@ const Register = () => {
                                         <div>
                                             <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Service Category</label>
                                             <select name="category" value={formData.category} onChange={handleChange}
-                                                className="w-full px-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-semibold text-on-surface outline-none">
+                                                className="sh-input font-bold cursor-pointer">
                                                 {SERVICE_CATEGORIES.map((cat) => (
                                                     <option key={cat.id} value={cat.id}>{cat.emoji} {cat.label}</option>
                                                 ))}
@@ -152,19 +153,19 @@ const Register = () => {
                                         <div>
                                             <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Service Bio & Experience</label>
                                             <textarea name="description" value={formData.description} onChange={handleChange} rows={2}
-                                                className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium outline-none resize-none"
+                                                className="w-full p-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium outline-none resize-none focus:ring-2 focus:ring-primary/20"
                                                 placeholder="Tell us about your experience..." />
                                         </div>
                                     </div>
                                 )}
 
                                 <button type="submit" disabled={loading}
-                                    className="w-full py-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/25 active:scale-95 text-base disabled:opacity-50 mt-4">
+                                    className="sh-btn-primary w-full disabled:opacity-50 mt-4">
                                     {loading ? <div className="spinner-ring w-5 h-5 border-2" /> : <><UserPlus className="w-5 h-5" /> Create Account</>}
                                 </button>
                             </form>
 
-                            <div className="border-t border-outline-variant/20 pt-6 text-center text-xs font-medium text-on-surface-variant">
+                            <div className="border-t border-outline-variant/20 pt-6 text-center text-xs font-semibold text-on-surface-variant">
                                 Already registered?{' '}
                                 <Link to="/login" className="text-primary font-bold hover:underline">Sign In →</Link>
                             </div>

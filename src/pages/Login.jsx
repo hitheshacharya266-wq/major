@@ -47,7 +47,7 @@ const Login = () => {
             <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
                 <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
                     <div className="w-full max-w-md space-y-6">
-                        {/* Brand Logo & Heading */}
+                        {/* Header */}
                         <div className="text-center space-y-2">
                             <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white mx-auto shadow-xl shadow-primary/20 shrink-0">
                                 <Wrench className="w-7 h-7" />
@@ -56,7 +56,7 @@ const Login = () => {
                             <p className="text-xs sm:text-sm font-medium text-on-surface-variant">Sign in to access your bookings & service dashboard</p>
                         </div>
 
-                        {/* Auth Form Card */}
+                        {/* Form Card */}
                         <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xl space-y-6">
                             {error && (
                                 <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl px-4 py-3 flex items-center gap-2">
@@ -75,7 +75,7 @@ const Login = () => {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             required
-                                            className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                            className="sh-input !pl-10"
                                             placeholder="name@example.com"
                                         />
                                     </div>
@@ -93,7 +93,7 @@ const Login = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
-                                            className="w-full pl-10 pr-10 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                            className="sh-input !pl-10 !pr-10"
                                             placeholder="••••••••"
                                         />
                                         <button
@@ -109,7 +109,7 @@ const Login = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/25 active:scale-95 text-sm sm:text-base disabled:opacity-50"
+                                    className="sh-btn-primary w-full disabled:opacity-50"
                                 >
                                     {loading ? (
                                         <div className="spinner-ring w-5 h-5 border-2" />

@@ -3,8 +3,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { logoutUser } from '../firebase/authService';
 import { getDashboardPath } from '../utils/helpers';
 import {
-    Wrench, Menu, X, Search, MapPin, User, LogOut,
-    LayoutDashboard, Shield, ChevronDown, Bell, HelpCircle
+    Wrench, Menu, X, MapPin, User, LogOut,
+    LayoutDashboard, Shield, ChevronDown, Bell
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -46,40 +46,42 @@ const Navbar = () => {
     const initial = displayName?.charAt(0)?.toUpperCase() || 'U';
 
     return (
-        <header className="sticky top-0 w-full z-50 bg-surface/85 backdrop-blur-md border-b border-outline-variant/30 shadow-xs transition-all">
-            <nav className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-20 flex items-center justify-between">
-                {/* Brand Logo & Desktop Nav Links */}
+        <header className="sticky top-0 w-full z-50 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 transition-all">
+            <nav className="sh-container h-16 lg:h-20 flex items-center justify-between">
+                {/* Brand & Navigation Links */}
                 <div className="flex items-center gap-8 lg:gap-10">
-                    <Link to="/" className="flex items-center gap-2.5 font-bold text-xl tracking-tight text-primary shrink-0">
+                    <Link to="/" className="flex items-center gap-2.5 font-bold tracking-tight text-primary shrink-0">
                         <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-md shadow-primary/20 shrink-0">
                             <Wrench className="w-5 h-5" />
                         </div>
-                        <span className="font-extrabold text-on-surface text-xl">Service<span className="text-primary">Hub</span></span>
+                        <span className="font-extrabold text-on-surface text-xl sm:text-2xl tracking-tight">
+                            Service<span className="text-primary">Hub</span>
+                        </span>
                     </Link>
 
-                    <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold">
+                    <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-bold">
                         <Link
                             to="/"
-                            className={`transition-colors py-1 ${location.pathname === '/' ? 'text-primary border-b-2 border-primary font-bold' : 'text-on-surface-variant hover:text-primary'}`}
+                            className={`transition-colors py-1 ${location.pathname === '/' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
                         >
                             Home
                         </Link>
                         <Link
                             to="/search"
-                            className={`transition-colors py-1 ${location.pathname === '/search' ? 'text-primary border-b-2 border-primary font-bold' : 'text-on-surface-variant hover:text-primary'}`}
+                            className={`transition-colors py-1 ${location.pathname === '/search' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
                         >
                             Services
                         </Link>
                         <Link
                             to="/help"
-                            className={`transition-colors py-1 ${location.pathname === '/help' ? 'text-primary border-b-2 border-primary font-bold' : 'text-on-surface-variant hover:text-primary'}`}
+                            className={`transition-colors py-1 ${location.pathname === '/help' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
                         >
-                            Help
+                            Help Center
                         </Link>
                         {currentUser && (
                             <Link
                                 to={getDashboardPath(role)}
-                                className={`transition-colors py-1 ${location.pathname.includes('dashboard') ? 'text-primary border-b-2 border-primary font-bold' : 'text-on-surface-variant hover:text-primary'}`}
+                                className={`transition-colors py-1 ${location.pathname.includes('dashboard') ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
                             >
                                 Dashboard
                             </Link>
@@ -87,7 +89,7 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Location Picker & Profile / Auth Controls */}
+                {/* Location Picker & Profile / Auth CTAs */}
                 <div className="flex items-center gap-3 sm:gap-4">
                     {/* Location selector pill */}
                     <div className="hidden sm:flex items-center gap-1.5 bg-surface-container/70 px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant border border-outline-variant/40 hover:bg-surface-variant transition-colors">
@@ -95,7 +97,7 @@ const Navbar = () => {
                         <select
                             value={city}
                             onChange={(e) => setCity(e.target.value)}
-                            className="bg-transparent border-none outline-none font-semibold text-on-surface cursor-pointer text-xs pr-1"
+                            className="bg-transparent border-none outline-none font-bold text-on-surface cursor-pointer text-xs pr-1"
                         >
                             <option value="Mangaluru">Mangaluru</option>
                             <option value="Udupi">Udupi</option>
@@ -166,27 +168,27 @@ const Navbar = () => {
                         </div>
                     ) : (
                         <div className="flex items-center gap-2 sm:gap-3">
-                            <Link to="/login" className="text-xs sm:text-sm font-semibold text-on-surface-variant hover:text-primary px-3 py-2 transition-colors">
+                            <Link to="/login" className="text-xs sm:text-sm font-bold text-on-surface-variant hover:text-primary px-3 py-2 transition-colors">
                                 Sign In
                             </Link>
-                            <Link to="/register" className="text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary/90 px-4.5 py-2.5 rounded-xl shadow-md shadow-primary/20 transition-all active:scale-95">
+                            <Link to="/register" className="sh-btn-primary text-xs sm:text-sm !h-10 !px-4">
                                 Register
                             </Link>
                         </div>
                     )}
 
-                    {/* Mobile Hamburger Toggle */}
+                    {/* Mobile Menu Toggle */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
                         className="md:hidden p-2 rounded-xl bg-surface-container text-on-surface-variant hover:bg-surface-variant transition-colors"
-                        aria-label="Toggle navigation menu"
+                        aria-label="Toggle navigation"
                     >
                         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                     </button>
                 </div>
             </nav>
 
-            {/* Mobile Drawer Menu */}
+            {/* Mobile Drawer */}
             <AnimatePresence>
                 {mobileOpen && (
                     <motion.div
@@ -195,10 +197,10 @@ const Navbar = () => {
                         exit={{ opacity: 0, height: 0 }}
                         className="md:hidden overflow-hidden border-t border-outline-variant/30 bg-surface-container-lowest"
                     >
-                        <div className="px-6 py-5 space-y-3 font-semibold text-sm">
+                        <div className="px-6 py-5 space-y-3 font-bold text-sm">
                             <Link to="/" onClick={() => setMobileOpen(false)} className="block py-2 text-on-surface hover:text-primary">Home</Link>
                             <Link to="/search" onClick={() => setMobileOpen(false)} className="block py-2 text-on-surface hover:text-primary">Services</Link>
-                            <Link to="/help" onClick={() => setMobileOpen(false)} className="block py-2 text-on-surface hover:text-primary">Help & Support</Link>
+                            <Link to="/help" onClick={() => setMobileOpen(false)} className="block py-2 text-on-surface hover:text-primary">Help Center</Link>
 
                             {currentUser ? (
                                 <>
