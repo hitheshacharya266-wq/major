@@ -106,7 +106,7 @@ const SearchResults = () => {
                 setProviders(DEMO_PROVIDERS);
                 setLoading(false);
             }
-        }, 1500);
+        }, 1200);
 
         const fetchProviders = async () => {
             try {
@@ -157,8 +157,8 @@ const SearchResults = () => {
         <PageTransition>
             <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
                 {/* RESULTS HEADER */}
-                <section className="bg-surface-container-low border-b border-outline-variant/30 py-8 px-6 lg:px-8">
-                    <div className="max-w-container-max mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <section className="bg-surface-container-low border-b border-outline-variant/30 py-8 px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-widest mb-1">
                                 <MapPin className="w-3.5 h-3.5" /> {cityParam} Coverage Area
@@ -166,30 +166,30 @@ const SearchResults = () => {
                             <h1 className="text-2xl lg:text-3xl font-extrabold text-on-surface">
                                 {filteredProviders.length} Verified Professionals Found
                             </h1>
-                            <p className="text-sm text-on-surface-variant mt-1">
+                            <p className="text-xs sm:text-sm text-on-surface-variant mt-1 font-medium">
                                 Top-rated background-checked technicians near {cityParam} and surrounding districts.
                             </p>
                         </div>
 
-                        {/* Search Input Bar */}
+                        {/* Search Refinement Input */}
                         <div className="glass-card p-1.5 rounded-xl flex items-center gap-2 max-w-md w-full border border-outline-variant/40">
                             <Search className="w-4 h-4 text-on-surface-variant ml-3 shrink-0" />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Refine service or name..."
-                                className="bg-transparent border-none outline-none text-sm text-on-surface w-full py-1.5"
+                                placeholder="Refine service or technician name..."
+                                className="bg-transparent border-none outline-none text-xs sm:text-sm text-on-surface w-full py-1.5 font-medium"
                             />
                         </div>
                     </div>
                 </section>
 
-                <main className="max-w-container-max mx-auto px-6 lg:px-8 py-10 flex-1 w-full">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <main className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                         {/* FILTERS SIDEBAR */}
                         <aside className="lg:col-span-3 space-y-6">
-                            {/* Map Preview Widget */}
+                            {/* Live Map Preview */}
                             <div className="rounded-2xl overflow-hidden border border-outline-variant/30 relative h-44 bg-surface-container shadow-xs">
                                 <div className="w-full h-full bg-cover bg-center grayscale-[15%] brightness-95" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=400')" }} />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -197,7 +197,7 @@ const SearchResults = () => {
                                     <MapPin className="w-8 h-8 text-primary fill-primary" />
                                 </div>
                                 <div className="absolute bottom-3 left-3 right-3 glass-panel p-2.5 rounded-xl border border-white/20 flex justify-between items-center text-xs font-bold text-on-surface shadow-md">
-                                    <span>{cityParam} Live Map</span>
+                                    <span>{cityParam} District Map</span>
                                     <span className="text-primary">View Full Map →</span>
                                 </div>
                             </div>
@@ -205,8 +205,8 @@ const SearchResults = () => {
                             {/* Filter Controls Card */}
                             <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30 shadow-xs space-y-6">
                                 <div className="flex items-center justify-between border-b border-outline-variant/20 pb-4">
-                                    <h3 className="font-bold text-base flex items-center gap-2">
-                                        <SlidersHorizontal className="w-4 h-4 text-primary" /> Filters
+                                    <h3 className="font-bold text-sm flex items-center gap-2 text-on-surface">
+                                        <SlidersHorizontal className="w-4 h-4 text-primary" /> Filter Options
                                     </h3>
                                     <button
                                         onClick={() => {
@@ -215,7 +215,7 @@ const SearchResults = () => {
                                             setMinRating(0);
                                             setPriceTier('all');
                                         }}
-                                        className="text-xs font-semibold text-primary hover:underline"
+                                        className="text-xs font-bold text-primary hover:underline"
                                     >
                                         Reset All
                                     </button>
@@ -243,8 +243,8 @@ const SearchResults = () => {
 
                                 {/* Category Selection */}
                                 <div>
-                                    <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-3">Service Category</h4>
-                                    <div className="space-y-2">
+                                    <h4 className="text-[11px] font-bold text-on-surface uppercase tracking-wider mb-3">Service Category</h4>
+                                    <div className="space-y-1.5">
                                         <button
                                             onClick={() => setSelectedCategory('')}
                                             className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all ${!selectedCategory ? 'bg-primary text-white shadow-xs' : 'bg-surface-container/50 text-on-surface-variant hover:bg-surface-container'}`}
@@ -258,15 +258,15 @@ const SearchResults = () => {
                                                 className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-between ${selectedCategory === cat.id ? 'bg-primary text-white shadow-xs' : 'bg-surface-container/50 text-on-surface-variant hover:bg-surface-container'}`}
                                             >
                                                 <span>{cat.emoji} {cat.label}</span>
-                                                <span className="opacity-75">({cat.count})</span>
+                                                <span className="opacity-75 text-[11px]">({cat.count})</span>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Price Filter */}
+                                {/* Budget Tier Filter */}
                                 <div>
-                                    <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-3">Budget Filter</h4>
+                                    <h4 className="text-[11px] font-bold text-on-surface uppercase tracking-wider mb-3">Budget Range</h4>
                                     <div className="grid grid-cols-3 gap-2">
                                         <button
                                             onClick={() => setPriceTier('low')}
@@ -278,20 +278,20 @@ const SearchResults = () => {
                                             onClick={() => setPriceTier('mid')}
                                             className={`py-2 rounded-xl text-xs font-bold border transition-all ${priceTier === 'mid' ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/40 text-on-surface-variant hover:border-primary'}`}
                                         >
-                                            ₹₹ Standard
+                                            ₹₹ Mid
                                         </button>
                                         <button
                                             onClick={() => setPriceTier('high')}
                                             className={`py-2 rounded-xl text-xs font-bold border transition-all ${priceTier === 'high' ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/40 text-on-surface-variant hover:border-primary'}`}
                                         >
-                                            ₹₹₹ Premium
+                                            ₹₹₹ High
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Rating Filter */}
+                                {/* Minimum Rating */}
                                 <div>
-                                    <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-3">Minimum Rating</h4>
+                                    <h4 className="text-[11px] font-bold text-on-surface uppercase tracking-wider mb-3">Minimum Rating</h4>
                                     <div className="space-y-2 text-xs font-medium text-on-surface">
                                         {[4.5, 4.0, 3.5].map(stars => (
                                             <label key={stars} className="flex items-center gap-2 cursor-pointer group">
@@ -300,9 +300,9 @@ const SearchResults = () => {
                                                     name="ratingFilter"
                                                     checked={minRating === stars}
                                                     onChange={() => setMinRating(stars)}
-                                                    className="accent-primary"
+                                                    className="accent-primary cursor-pointer"
                                                 />
-                                                <span className="group-hover:text-primary transition-colors flex items-center gap-1">
+                                                <span className="group-hover:text-primary transition-colors flex items-center gap-1 font-semibold">
                                                     {stars} ★ & above
                                                 </span>
                                             </label>
@@ -322,7 +322,7 @@ const SearchResults = () => {
                                         🔍
                                     </div>
                                     <h3 className="text-xl font-bold text-on-surface">No Service Providers Found</h3>
-                                    <p className="text-sm text-on-surface-variant max-w-md mx-auto">
+                                    <p className="text-xs sm:text-sm text-on-surface-variant max-w-md mx-auto">
                                         We couldn't find any professionals matching your exact filter criteria. Try clearing filters or searching for another service.
                                     </p>
                                     <button
@@ -332,7 +332,7 @@ const SearchResults = () => {
                                             setMinRating(0);
                                             setPriceTier('all');
                                         }}
-                                        className="bg-primary text-white font-bold px-6 py-2.5 rounded-xl text-sm shadow-md"
+                                        className="bg-primary text-white font-bold px-6 py-2.5 rounded-xl text-xs sm:text-sm shadow-md"
                                     >
                                         Clear All Filters
                                     </button>
@@ -345,7 +345,7 @@ const SearchResults = () => {
                                             key={provider.id}
                                             className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30 shadow-xs hover:shadow-lg hover:border-primary/40 transition-all flex flex-col sm:flex-row gap-6 relative"
                                         >
-                                            {/* Avatar / Image */}
+                                            {/* Avatar / Photo */}
                                             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-surface-container shrink-0 border border-outline-variant/20 relative">
                                                 {provider.image ? (
                                                     <img src={provider.image} alt={provider.name} className="w-full h-full object-cover" />
@@ -355,54 +355,56 @@ const SearchResults = () => {
                                                     </div>
                                                 )}
                                                 <div className="absolute top-2 left-2 bg-secondary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
-                                                    <ShieldCheck className="w-3 h-3" /> Verified
+                                                    <ShieldCheck className="w-3 h-3 shrink-0" /> Verified
                                                 </div>
                                             </div>
 
-                                            {/* Details */}
-                                            <div className="flex-1 space-y-3">
-                                                <div className="flex flex-wrap items-start justify-between gap-2">
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <h3 className="text-lg font-bold text-on-surface">{provider.name}</h3>
-                                                            <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize">
-                                                                {catInfo?.label || provider.category}
-                                                            </span>
+                                            {/* Content Details */}
+                                            <div className="flex-1 space-y-3 flex flex-col justify-between">
+                                                <div className="space-y-2">
+                                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <h3 className="text-lg font-bold text-on-surface">{provider.name}</h3>
+                                                                <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize">
+                                                                    {catInfo?.label || provider.category}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant mt-1 font-medium">
+                                                                <span className="flex items-center gap-1 text-amber-500 font-bold">
+                                                                    <Star className="w-3.5 h-3.5 fill-amber-400 shrink-0" />
+                                                                    {provider.rating || 4.9} ({provider.ratingCount || 100}+ reviews)
+                                                                </span>
+                                                                <span>•</span>
+                                                                <span className="flex items-center gap-1">
+                                                                    <MapPin className="w-3.5 h-3.5 text-primary shrink-0" /> {provider.location || 'Mangaluru'}
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex items-center gap-3 text-xs text-on-surface-variant mt-1 font-medium">
-                                                            <span className="flex items-center gap-1 text-amber-500 font-bold">
-                                                                <Star className="w-3.5 h-3.5 fill-amber-400" />
-                                                                {provider.rating || 4.9} ({provider.ratingCount || 100}+ jobs)
-                                                            </span>
-                                                            <span>•</span>
-                                                            <span className="flex items-center gap-1">
-                                                                <MapPin className="w-3.5 h-3.5 text-primary" /> {provider.location || 'Mangaluru'}
-                                                            </span>
+
+                                                        {/* Price Tag */}
+                                                        <div className="text-right">
+                                                            <p className="text-xl font-extrabold text-primary">₹{provider.price || 399}</p>
+                                                            <p className="text-[11px] text-on-surface-variant font-medium">per service / hr</p>
                                                         </div>
                                                     </div>
 
-                                                    {/* Rate */}
-                                                    <div className="text-right">
-                                                        <p className="text-xl font-extrabold text-primary">₹{provider.price || 399}</p>
-                                                        <p className="text-[11px] text-on-surface-variant font-medium">per service / hour</p>
+                                                    <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed font-medium">
+                                                        {provider.description || 'Experienced certified local service professional providing doorstep repairs and maintenance with 30-day warranty.'}
+                                                    </p>
+
+                                                    {/* Skill Badges */}
+                                                    <div className="flex flex-wrap gap-1.5 pt-1">
+                                                        {(provider.skills || ['Quick Arrival', 'Fixed Price', '30-Day Warranty']).map((skill, i) => (
+                                                            <span key={i} className="bg-surface-container px-2.5 py-0.5 rounded-md text-[11px] font-semibold text-on-surface-variant">
+                                                                ✓ {skill}
+                                                            </span>
+                                                        ))}
                                                     </div>
                                                 </div>
 
-                                                <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">
-                                                    {provider.description || 'Experienced certified local service professional providing doorstep repairs and maintenance with 30-day warranty.'}
-                                                </p>
-
-                                                {/* Skill Chips */}
-                                                <div className="flex flex-wrap gap-1.5 pt-1">
-                                                    {(provider.skills || ['Quick Arrival', 'Fixed Price', 'Warranty']).map((skill, i) => (
-                                                        <span key={i} className="bg-surface-container px-2.5 py-0.5 rounded-md text-[11px] font-semibold text-on-surface-variant">
-                                                            ✓ {skill}
-                                                        </span>
-                                                    ))}
-                                                </div>
-
-                                                {/* CTA Actions */}
-                                                <div className="flex items-center gap-3 pt-3 border-t border-outline-variant/20">
+                                                {/* Action CTAs */}
+                                                <div className="flex items-center justify-between gap-3 pt-3 border-t border-outline-variant/20">
                                                     <Link
                                                         to={`/provider/${provider.id}`}
                                                         className="px-4 py-2 bg-surface-container hover:bg-surface-variant text-on-surface font-bold text-xs rounded-xl transition-colors"
@@ -411,7 +413,7 @@ const SearchResults = () => {
                                                     </Link>
                                                     <Link
                                                         to={`/checkout/${provider.id}`}
-                                                        className="px-5 py-2 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-primary/20 active:scale-95 flex items-center gap-1.5 ml-auto"
+                                                        className="px-5 py-2 bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-primary/20 active:scale-95 flex items-center gap-1.5"
                                                     >
                                                         Instant Book <ArrowRight className="w-3.5 h-3.5" />
                                                     </Link>

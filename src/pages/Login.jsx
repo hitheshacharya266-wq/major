@@ -6,7 +6,7 @@ import {
     getDashboardPath, getFirebaseErrorMessage,
     validateEmail, validatePassword
 } from '../utils/helpers';
-import { LogIn, Mail, Lock, Wrench, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react';
+import { LogIn, Mail, Lock, Wrench, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import PageTransition from '../components/PageTransition';
 import Footer from '../components/Footer';
 import toast from 'react-hot-toast';
@@ -45,36 +45,37 @@ const Login = () => {
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
-                <main className="flex-1 flex items-center justify-center p-6 my-10">
+                <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
                     <div className="w-full max-w-md space-y-6">
-                        {/* Logo & Heading */}
+                        {/* Brand Logo & Heading */}
                         <div className="text-center space-y-2">
-                            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white mx-auto shadow-xl shadow-primary/20">
+                            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white mx-auto shadow-xl shadow-primary/20 shrink-0">
                                 <Wrench className="w-7 h-7" />
                             </div>
-                            <h1 className="text-3xl font-extrabold text-on-surface">Welcome back</h1>
-                            <p className="text-sm font-medium text-on-surface-variant">Sign in to manage your bookings & account</p>
+                            <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface">Welcome Back</h1>
+                            <p className="text-xs sm:text-sm font-medium text-on-surface-variant">Sign in to access your bookings & service dashboard</p>
                         </div>
 
-                        {/* Glass Auth Card */}
-                        <div className="bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/30 shadow-xl space-y-6">
+                        {/* Auth Form Card */}
+                        <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xl space-y-6">
                             {error && (
-                                <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl px-4 py-3 flex items-center gap-2">
-                                    <span>⚠️</span> <span>{error}</span>
+                                <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl px-4 py-3 flex items-center gap-2">
+                                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                                    <span>{error}</span>
                                 </div>
                             )}
 
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 <div>
                                     <label className="block text-xs font-bold text-on-surface uppercase tracking-wider mb-2">Email Address</label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                                    <div className="relative flex items-center">
+                                        <Mail className="absolute left-3.5 w-4 h-4 text-on-surface-variant shrink-0" />
                                         <input
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             required
-                                            className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                                            className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                             placeholder="name@example.com"
                                         />
                                     </div>
@@ -85,20 +86,20 @@ const Login = () => {
                                         <label className="text-xs font-bold text-on-surface uppercase tracking-wider">Password</label>
                                         <button type="button" className="text-xs font-bold text-primary hover:underline">Forgot?</button>
                                     </div>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                                    <div className="relative flex items-center">
+                                        <Lock className="absolute left-3.5 w-4 h-4 text-on-surface-variant shrink-0" />
                                         <input
                                             type={showPassword ? 'text' : 'password'}
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             required
-                                            className="w-full pl-10 pr-10 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none"
+                                            className="w-full pl-10 pr-10 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                             placeholder="••••••••"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
+                                            className="absolute right-3.5 text-on-surface-variant hover:text-on-surface"
                                         >
                                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                         </button>
@@ -108,7 +109,7 @@ const Login = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full py-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/25 active:scale-95 text-base disabled:opacity-50"
+                                    className="w-full py-3.5 bg-primary hover:bg-primary/90 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary/25 active:scale-95 text-sm sm:text-base disabled:opacity-50"
                                 >
                                     {loading ? (
                                         <div className="spinner-ring w-5 h-5 border-2" />
@@ -118,10 +119,10 @@ const Login = () => {
                                 </button>
                             </form>
 
-                            <div className="border-t border-outline-variant/20 pt-6 text-center text-xs font-medium text-on-surface-variant">
-                                New to ServiceHub?{' '}
+                            <div className="border-t border-outline-variant/20 pt-6 text-center text-xs font-semibold text-on-surface-variant">
+                                Don't have an account?{' '}
                                 <Link to="/register" className="text-primary font-bold hover:underline">
-                                    Create an account →
+                                    Create account →
                                 </Link>
                             </div>
                         </div>
