@@ -31,6 +31,16 @@ export const formatDate = (timestamp) => {
     });
 };
 
+/** Format a numeric price to INR currency string (e.g. 399 -> ₹399, null -> "Price not set") */
+export const formatCurrency = (amount) => {
+    if (amount === null || amount === undefined || amount === '' || isNaN(amount)) {
+        return 'Price not set';
+    }
+    const num = Number(amount);
+    if (num <= 0) return 'Price not set';
+    return `₹${num.toLocaleString('en-IN')}`;
+};
+
 // ─── New Utilities ────────────────────────────────────────
 
 /**

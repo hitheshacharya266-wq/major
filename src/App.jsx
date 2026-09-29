@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import UserDashboard from './pages/UserDashboard';
 import ProviderDashboard from './pages/ProviderDashboard';
+import ProviderSetup from './pages/ProviderSetup';
 import AdminDashboard from './pages/AdminDashboard';
 
 // Additional App Pages
@@ -53,32 +54,26 @@ function App() {
 
                     <AnimatePresence mode="wait">
                         <Routes>
-                            {/* Public Pages */}
+                            {/* Public routes per Stitch contract */}
                             <Route path="/" element={<LandingPage />} />
                             <Route path="/search" element={<SearchResults />} />
                             <Route path="/provider/:id" element={<ProviderProfile />} />
-                            <Route path="/checkout/:providerId" element={<BookingCheckout />} />
                             <Route path="/help" element={<HelpSupport />} />
-
-                            {/* Public Auth routes */}
                             <Route path="/login" element={<RedirectIfAuth><Login /></RedirectIfAuth>} />
                             <Route path="/register" element={<RedirectIfAuth><Register /></RedirectIfAuth>} />
 
-                            {/* User Protected Routes */}
+                            {/* Protected Routes — Redirect to /login if unauthenticated */}
+                            <Route path="/checkout/:providerId" element={<ProtectedRoute><BookingCheckout /></ProtectedRoute>} />
                             <Route path="/user-dashboard" element={<ProtectedRoute allowedRoles={['user']}><UserDashboard /></ProtectedRoute>} />
                             <Route path="/my-bookings" element={<ProtectedRoute allowedRoles={['user', 'provider', 'admin']}><UserDashboard /></ProtectedRoute>} />
-
-                            {/* Provider Protected Routes */}
                             <Route path="/provider-dashboard" element={<ProtectedRoute allowedRoles={['provider']}><ProviderDashboard /></ProtectedRoute>} />
-
-                            {/* Admin Protected Routes */}
+                            <Route path="/provider-setup" element={<ProtectedRoute allowedRoles={['provider']}><ProviderSetup /></ProtectedRoute>} />
                             <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
 
-                            {/* Shared Authenticated Pages */}
-                            <Route path="/notifications" element={<Notifications />} />
-                            <Route path="/chat" element={<Chat />} />
-                            <Route path="/profile" element={<UserProfile />} />
-                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+                            <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                            <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
                             {/* Catch-all */}
                             <Route path="*" element={<Navigate to="/" replace />} />

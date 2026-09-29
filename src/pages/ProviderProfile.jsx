@@ -1,196 +1,231 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getProviderProfile } from '../firebase/firestoreService';
-import { SERVICE_CATEGORIES } from '../utils/helpers';
+import { useParams, Link } from 'react-router-dom';
+import { getProviderProfile, getProviderReviews, getProviderStats } from '../firebase/firestoreService';
+import { SERVICE_CATEGORIES, formatCurrency } from '../utils/helpers';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
+import ProviderAvatar from '../components/ProviderAvatar';
 import {
     Star, ShieldCheck, MapPin, Clock, Award, PhoneCall, CheckCircle2,
-    ArrowRight, Check
+    ArrowRight, Check, Wrench, AlertCircle, MessageSquare
 } from 'lucide-react';
-
-const DEMO_REVIEWS = [
-    { id: 1, name: 'Anish Rai', rating: 5, date: '2 days ago', text: 'Prompt arrival at Bejai! Fixed our complete circuit breaker issue in 45 minutes. Very professional and tidy worker.' },
-    { id: 2, name: 'Pooja Hegde', rating: 5, date: '1 week ago', text: 'Clean installation of heavy AC wiring in our apartment. Highly recommended for any electrical work in Mangaluru!' },
-    { id: 3, name: 'Kiran Shenoy', rating: 4.8, date: '2 weeks ago', text: 'Transparent pricing and polite behavior. Replaced inverter fuse quickly.' }
-];
-
-const DEFAULT_PROFILE = {
-    name: 'Rahul Kumar',
-    category: 'electrician',
-    rating: 4.9,
-    ratingCount: 128,
-    price: 399,
-    experience: '8+ Years',
-    location: 'Bejai, Mangaluru',
-    available: true,
-    description: 'Certified master electrician specializing in residential and commercial electrical solutions. Expertise includes complete house rewiring, high-voltage AC points, DB box troubleshooting, and smart LED fixture setup.',
-    image: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?auto=format&fit=crop&q=80&w=400',
-    services: [
-        { title: 'Electrical Inspection & Diagnostic', price: 299, time: '30 mins' },
-        { title: 'AC Heavy Power Point Installation', price: 499, time: '45 mins' },
-        { title: 'Main Distribution Box (DB) Repair', price: 799, time: '60 mins' },
-        { title: 'Complete Room Rewiring', price: 1499, time: '2-3 hrs' }
-    ]
-};
 
 const ProviderProfile = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [provider, setProvider] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [stats, setStats] = useState({ completedJobsCount: 0, rating: null, ratingCount: 0 });
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
 
     useEffect(() => {
         let isMounted = true;
-        const timer = setTimeout(() => {
-            if (isMounted && loading) {
-                setProvider({ id, ...DEFAULT_PROFILE });
-                setLoading(false);
-            }
-        }, 1000);
 
-        const fetchProvider = async () => {
+        const fetchProviderData = async () => {
             try {
-                const data = await getProviderProfile(id);
+                const [data, revs, st] = await Promise.all([
+                    getProviderProfile(id),
+                    getProviderReviews(id),
+                    getProviderStats(id)
+                ]);
+
                 if (isMounted) {
                     if (data) {
-                        setProvider(data);
+                        setProvider({
+                            ...data,
+                            id: data.uid || data.id,
+                            rating: st.rating ?? data.rating ?? null,
+                            ratingCount: st.ratingCount ?? data.ratingCount ?? 0,
+                            completedJobsCount: st.completedJobsCount || 0
+                        });
+                        setReviews(revs || []);
+                        setStats(st || { completedJobsCount: 0, rating: null, ratingCount: 0 });
                     } else {
-                        setProvider({ id, ...DEFAULT_PROFILE });
+                        setProvider(null);
                     }
                     setLoading(false);
                 }
-            } catch {
+            } catch (err) {
+                console.error('Error loading provider profile:', err);
                 if (isMounted) {
-                    setProvider({ id, ...DEFAULT_PROFILE });
+                    setProvider(null);
                     setLoading(false);
                 }
             }
         };
-        fetchProvider();
+        fetchProviderData();
         return () => {
             isMounted = false;
-            clearTimeout(timer);
         };
     }, [id]);
 
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-surface">
-                <LoadingSpinner text="Loading provider profile..." />
+                <LoadingSpinner text="Loading verified provider profile..." />
             </div>
         );
     }
 
-    const catInfo = SERVICE_CATEGORIES.find(c => c.id === provider?.category);
+    if (!provider) {
+        return (
+            <PageTransition>
+                <div className="min-h-screen flex flex-col bg-surface font-sans text-on-surface">
+                    <main className="max-w-xl mx-auto px-4 py-16 flex-1 flex flex-col items-center justify-center text-center space-y-4">
+                        <div className="w-16 h-16 rounded-2xl bg-error/10 text-error flex items-center justify-center">
+                            <AlertCircle className="w-8 h-8" />
+                        </div>
+                        <h2 className="text-2xl font-black text-on-surface">Provider Profile Not Found</h2>
+                        <p className="text-sm text-on-surface-variant max-w-md">
+                            The provider profile you are trying to view does not exist or has been removed.
+                        </p>
+                        <Link
+                            to="/search"
+                            className="px-6 py-3 bg-primary text-on-primary font-bold text-xs sm:text-sm rounded-xl shadow-md hover:bg-primary/90 transition-all inline-flex items-center gap-2 mt-2"
+                        >
+                            Browse All Verified Providers
+                        </Link>
+                    </main>
+                    <Footer />
+                </div>
+            </PageTransition>
+        );
+    }
+
+    const catInfo = SERVICE_CATEGORIES.find(c => String(c.id).toLowerCase() === String(provider.category || '').toLowerCase());
+    const displayRating = provider.rating && provider.ratingCount > 0 ? provider.rating : null;
 
     return (
         <PageTransition>
-            <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface">
-                <main className="sh-container py-10 flex-1 w-full">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                        {/* LEFT MAIN CONTENT AREA */}
-                        <div className="lg:col-span-8 space-y-8">
-                            {/* Profile Header Card */}
-                            <section className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-xs flex flex-col sm:flex-row items-start gap-6 relative">
-                                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden bg-surface-container shrink-0 border border-outline-variant/30 relative">
-                                    {provider?.image ? (
-                                        <img src={provider.image} alt={provider.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-primary text-white font-extrabold text-4xl flex items-center justify-center">
-                                            {provider?.name?.charAt(0) || 'P'}
-                                        </div>
-                                    )}
-                                </div>
+            <div className="min-h-screen flex flex-col bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+                <main className="max-w-container-max mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 flex-1 w-full space-y-6 sm:space-y-8">
+                    {/* Provider Cover Banner & Profile Card */}
+                    <section className="bg-white rounded-2xl sm:rounded-[32px] border border-outline-variant/40 shadow-sm overflow-hidden relative">
+                        {/* Cover Banner Header */}
+                        <div className="h-40 sm:h-52 md:h-64 w-full bg-gradient-to-r from-primary/90 via-primary-container to-secondary-container relative">
+                            <div className="absolute inset-0 bg-black/20" />
+                        </div>
 
-                                <div className="flex-1 space-y-3">
+                        {/* Profile Info Row */}
+                        <div className="p-5 sm:p-10 relative flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 -mt-16 sm:-mt-20 md:-mt-24 relative z-10 w-full md:w-auto">
+                                <ProviderAvatar name={provider.name} gender={provider.gender} category={provider.category} photoURL={provider.photoURL || provider.image} size="2xl" showCategoryBadge className="border-4 border-white shadow-xl" />
+                                <div className="space-y-2 sm:space-y-3 w-full">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className="bg-secondary-container/40 text-secondary text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 border border-secondary/20">
-                                            <ShieldCheck className="w-3.5 h-3.5" /> Background Verified
+                                        <span className="bg-secondary-container/30 text-secondary text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full flex items-center gap-1 border border-secondary/20 shadow-xs">
+                                            <ShieldCheck className="w-3.5 h-3.5 text-secondary shrink-0" /> Verified Pro
                                         </span>
-                                        <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full capitalize">
-                                            {catInfo?.label || provider?.category}
-                                        </span>
-                                    </div>
-
-                                    <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface">{provider?.name}</h1>
-
-                                    <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-on-surface-variant">
-                                        <span className="flex items-center gap-1 text-amber-500 font-bold">
-                                            <Star className="w-4 h-4 fill-amber-400" />
-                                            {provider?.rating || 4.9} ({provider?.ratingCount || 128} reviews)
-                                        </span>
-                                        <span>•</span>
-                                        <span className="flex items-center gap-1">
-                                            <MapPin className="w-3.5 h-3.5 text-primary" /> {provider?.location || 'Mangaluru'}
-                                        </span>
-                                        <span>•</span>
-                                        <span className="flex items-center gap-1">
-                                            <Award className="w-3.5 h-3.5 text-primary" /> {provider?.experience || '6+ Years'} Experience
+                                        <span className="bg-primary/10 text-primary text-[11px] sm:text-xs font-bold px-3 py-0.5 sm:py-1 rounded-full capitalize">
+                                            {catInfo?.emoji} {catInfo?.label || provider.category}
                                         </span>
                                     </div>
-                                </div>
-                            </section>
 
-                            {/* Trust Badges */}
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/30 text-center space-y-1">
-                                    <ShieldCheck className="w-5 h-5 text-primary mx-auto" />
-                                    <p className="text-xs font-bold text-on-surface">Insured Pro</p>
-                                    <p className="text-[10px] text-on-surface-variant">Up to ₹50,000 cover</p>
-                                </div>
-                                <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/30 text-center space-y-1">
-                                    <Clock className="w-5 h-5 text-secondary mx-auto" />
-                                    <p className="text-xs font-bold text-on-surface">Fast Arrival</p>
-                                    <p className="text-[10px] text-on-surface-variant">Within 60 minutes</p>
-                                </div>
-                                <div className="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant/30 text-center space-y-1">
-                                    <CheckCircle2 className="w-5 h-5 text-primary mx-auto" />
-                                    <p className="text-xs font-bold text-on-surface">30-Day Warranty</p>
-                                    <p className="text-[10px] text-on-surface-variant">Free re-visit guarantee</p>
+                                    <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-on-surface tracking-tight">
+                                        {provider.name}
+                                    </h1>
+
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold text-on-surface-variant">
+                                        {displayRating ? (
+                                            <span className="flex items-center gap-1 text-amber-600 font-extrabold">
+                                                <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                                                {displayRating} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+                                            </span>
+                                        ) : (
+                                            <span className="flex items-center gap-1 text-on-surface-variant font-medium">
+                                                <Star className="w-4 h-4 text-outline" /> New Provider (No reviews yet)
+                                            </span>
+                                        )}
+                                        <span className="hidden sm:inline">•</span>
+                                        <span className="flex items-center gap-1">
+                                            <MapPin className="w-3.5 h-3.5 text-primary" /> {provider.location || 'Mangaluru'}
+                                        </span>
+                                        <span className="hidden sm:inline">•</span>
+                                        <span className="flex items-center gap-1">
+                                            <Award className="w-3.5 h-3.5 text-primary" /> {provider.experienceYears || '3+'} Yrs Exp
+                                        </span>
+                                        <span className="hidden sm:inline">•</span>
+                                        <span className="text-primary font-bold">
+                                            {provider.completedJobsCount || 0} {provider.completedJobsCount === 1 ? 'Job Completed' : 'Jobs Completed'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
+                            {/* Header Action Buttons */}
+                            <div className="flex items-center gap-3 w-full md:w-auto shrink-0 pt-2 md:pt-0">
+                                <Link
+                                    to={`/checkout/${provider.id}`}
+                                    className="w-full md:w-auto h-11 sm:h-13 px-6 bg-primary text-on-primary font-extrabold text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-md hover:bg-primary/90 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                    <span>Instant Book Service</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </Link>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Trust Highlights Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                        <div className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-outline-variant/40 shadow-xs text-center space-y-2">
+                            <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-1">
+                                <ShieldCheck className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-sm sm:text-base text-on-surface">Background Checked</h4>
+                            <p className="text-xs text-on-surface-variant font-medium">3-step identity & skill verified technician</p>
+                        </div>
+                        <div className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-outline-variant/40 shadow-xs text-center space-y-2">
+                            <div className="w-11 h-11 rounded-2xl bg-secondary-container/40 text-secondary flex items-center justify-center mx-auto mb-1">
+                                <Clock className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-sm sm:text-base text-on-surface">60-Min Fast Arrival</h4>
+                            <p className="text-xs text-on-surface-variant font-medium">Guaranteed doorstep arrival for local bookings</p>
+                        </div>
+                        <div className="bg-white p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-outline-variant/40 shadow-xs text-center space-y-2">
+                            <div className="w-11 h-11 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-1">
+                                <CheckCircle2 className="w-5 h-5" />
+                            </div>
+                            <h4 className="font-bold text-sm sm:text-base text-on-surface">30-Day Warranty</h4>
+                            <p className="text-xs text-on-surface-variant font-medium">Free re-visit if any issue recurs within 30 days</p>
+                        </div>
+                    </div>
+
+                    {/* Main Section: Details + Sticky Sidebar Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+                        {/* LEFT MAIN DETAILS (8 Cols) */}
+                        <div className="lg:col-span-8 space-y-6 sm:space-y-8">
                             {/* Tabs Navigation */}
-                            <div className="border-b border-outline-variant/30 flex gap-6 text-sm font-bold">
+                            <div className="border-b border-outline-variant/30 flex gap-6 text-sm sm:text-base font-bold overflow-x-auto">
                                 <button
                                     onClick={() => setActiveTab('overview')}
-                                    className={`pb-3 transition-colors ${activeTab === 'overview' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                                    className={`pb-3 sm:pb-4 transition-colors cursor-pointer shrink-0 ${activeTab === 'overview' ? 'text-primary border-b-2 border-primary font-black' : 'text-on-surface-variant hover:text-primary'}`}
                                 >
                                     Overview & About
                                 </button>
                                 <button
-                                    onClick={() => setActiveTab('services')}
-                                    className={`pb-3 transition-colors ${activeTab === 'services' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
-                                >
-                                    Services & Pricing
-                                </button>
-                                <button
                                     onClick={() => setActiveTab('reviews')}
-                                    className={`pb-3 transition-colors ${activeTab === 'reviews' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                                    className={`pb-3 sm:pb-4 transition-colors cursor-pointer shrink-0 ${activeTab === 'reviews' ? 'text-primary border-b-2 border-primary font-black' : 'text-on-surface-variant hover:text-primary'}`}
                                 >
-                                    Customer Reviews ({DEMO_REVIEWS.length})
+                                    Customer Reviews ({reviews.length})
                                 </button>
                             </div>
 
                             {/* Tab Content */}
                             {activeTab === 'overview' && (
-                                <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 space-y-6">
-                                    <div>
-                                        <h3 className="font-bold text-lg text-on-surface mb-2">About Professional</h3>
-                                        <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-medium">
-                                            {provider?.description}
+                                <div className="bg-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl border border-outline-variant/40 shadow-xs space-y-6 sm:space-y-8">
+                                    <div className="space-y-3">
+                                        <h3 className="text-lg sm:text-xl font-bold text-on-surface">About {provider.name}</h3>
+                                        <p className="text-xs sm:text-base text-on-surface-variant leading-relaxed font-normal">
+                                            {provider.description || 'Experienced local professional providing reliable home services.'}
                                         </p>
                                     </div>
 
-                                    <div>
-                                        <h3 className="font-bold text-base text-on-surface mb-3">Skills & Specializations</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {(provider?.skills || ['AC Power Wiring', 'Fuse Box Repair', 'MCB Diagnostic', 'Geyser Fitting', 'Commercial Maintenance']).map((s, i) => (
-                                                <span key={i} className="bg-surface-container px-3 py-1.5 rounded-xl text-xs font-semibold text-on-surface flex items-center gap-1.5">
-                                                    <Check className="w-3.5 h-3.5 text-primary" /> {s}
+                                    <div className="space-y-4">
+                                        <h3 className="text-base sm:text-lg font-bold text-on-surface">Skills & Specializations</h3>
+                                        <div className="flex flex-wrap gap-2 sm:gap-2.5">
+                                            {(Array.isArray(provider.skills) ? provider.skills : (provider.skills || 'General Service').split(',')).map((s, i) => (
+                                                <span key={i} className="bg-surface-container border border-outline-variant/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-on-surface flex items-center gap-2">
+                                                    <Check className="w-4 h-4 text-primary" /> {s.trim()}
                                                 </span>
                                             ))}
                                         </div>
@@ -198,87 +233,84 @@ const ProviderProfile = () => {
                                 </div>
                             )}
 
-                            {activeTab === 'services' && (
-                                <div className="bg-surface-container-lowest p-6 sm:p-8 rounded-3xl border border-outline-variant/30 space-y-4">
-                                    <h3 className="font-bold text-lg text-on-surface mb-4">Available Rate Card</h3>
-                                    {(provider?.services || DEFAULT_PROFILE.services).map((srv, i) => (
-                                        <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-surface-container/40 border border-outline-variant/20">
-                                            <div>
-                                                <p className="font-bold text-sm text-on-surface">{srv.title}</p>
-                                                <p className="text-xs text-on-surface-variant font-medium">Est. Time: {srv.time}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className="text-lg font-extrabold text-primary">₹{srv.price}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
                             {activeTab === 'reviews' && (
-                                <div className="space-y-4">
-                                    {DEMO_REVIEWS.map(rev => (
-                                        <div key={rev.id} className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/30 space-y-2">
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">
-                                                        {rev.name.charAt(0)}
-                                                    </div>
-                                                    <span className="font-bold text-sm text-on-surface">{rev.name}</span>
-                                                </div>
-                                                <span className="text-xs text-on-surface-variant font-medium">{rev.date}</span>
-                                            </div>
-                                            <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
-                                                {'★'.repeat(Math.floor(rev.rating))} {rev.rating} / 5
-                                            </div>
-                                            <p className="text-xs text-on-surface-variant leading-relaxed font-medium">{rev.text}</p>
+                                <div className="space-y-4 sm:space-y-6">
+                                    {reviews.length === 0 ? (
+                                        <div className="bg-white p-8 sm:p-12 rounded-2xl sm:rounded-3xl border border-outline-variant/40 text-center space-y-3">
+                                            <MessageSquare className="w-10 h-10 text-outline mx-auto" />
+                                            <h4 className="font-bold text-base text-on-surface">No Reviews Yet</h4>
+                                            <p className="text-xs sm:text-sm text-on-surface-variant max-w-sm mx-auto">
+                                                This provider has not received any customer reviews yet. Book a service and be the first to rate your experience!
+                                            </p>
                                         </div>
-                                    ))}
+                                    ) : (
+                                        reviews.map(rev => (
+                                            <div key={rev.id} className="bg-white p-5 sm:p-8 rounded-2xl sm:rounded-3xl border border-outline-variant/40 shadow-xs space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">
+                                                            {rev.customerName?.charAt(0)?.toUpperCase() || 'C'}
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-bold text-xs sm:text-sm text-on-surface block">{rev.customerName}</span>
+                                                            <span className="text-[11px] text-on-surface-variant font-medium">Verified Home Visit Customer</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 text-amber-500 font-extrabold text-xs sm:text-sm">
+                                                        <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                                                        {rev.rating} / 5
+                                                    </div>
+                                                </div>
+                                                <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-normal">{rev.comment}</p>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             )}
                         </div>
 
-                        {/* STICKY BOOKING CARD */}
-                        <div className="lg:col-span-4">
-                            <div className="sticky top-24 bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/30 shadow-xl space-y-6">
-                                <div className="flex items-center justify-between border-b border-outline-variant/20 pb-4">
+                        {/* STICKY BOOKING SIDEBAR (4 Cols) */}
+                        <div className="lg:col-span-4 lg:sticky lg:top-24">
+                            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 border border-outline-variant/40 shadow-xl space-y-6">
+                                <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
                                     <div>
-                                        <span className="text-xs text-on-surface-variant font-medium">Visiting Charge</span>
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-3xl font-extrabold text-primary">₹{provider?.price || 399}</span>
-                                            <span className="text-xs text-on-surface-variant">/ service</span>
+                                        <span className="text-[11px] text-on-surface-variant font-bold uppercase tracking-wider">Visiting Charge</span>
+                                        <div className="flex items-baseline gap-1 mt-0.5">
+                                            <span className="text-2xl sm:text-3xl font-black text-primary">{formatCurrency(provider.price)}</span>
+                                            <span className="text-xs text-on-surface-variant font-bold">/ service</span>
                                         </div>
                                     </div>
-                                    <span className="bg-secondary-container/40 text-secondary text-xs font-bold px-2.5 py-1 rounded-full">
+                                    <span className="bg-secondary-container/40 text-secondary text-xs font-bold px-3 py-1 rounded-full border border-secondary/20">
                                         Available Today
                                     </span>
                                 </div>
 
-                                <div className="space-y-3 text-xs text-on-surface-variant font-medium">
-                                    <div className="flex items-center gap-2">
+                                <div className="space-y-3 text-xs sm:text-sm text-on-surface-variant font-medium">
+                                    <div className="flex items-center gap-2.5">
                                         <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                                         <span>Instant booking with 60-min arrival guarantee</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2.5">
                                         <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                                         <span>No cancellation fee before technician dispatch</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2.5">
                                         <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                                         <span>Pay after service completion via Cash / UPI</span>
                                     </div>
                                 </div>
 
                                 <Link
-                                    to={`/checkout/${provider?.id || id}`}
-                                    className="sh-btn-primary w-full flex justify-center !h-12 !text-base"
+                                    to={`/checkout/${provider.id}`}
+                                    className="w-full h-12 sm:h-14 bg-primary text-on-primary font-bold text-xs sm:text-base rounded-xl sm:rounded-2xl shadow-lg hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
                                 >
-                                    Book Professional Now <ArrowRight className="w-5 h-5" />
+                                    <span>Book Professional Now</span>
+                                    <ArrowRight className="w-5 h-5" />
                                 </Link>
 
                                 <button
-                                    onClick={() => alert(`Direct Helpline: +91 9876543210`)}
-                                    className="sh-btn-outline w-full flex justify-center !h-11 !text-xs"
+                                    onClick={() => alert(`Direct Partner Support Helpline: +91 9876543210`)}
+                                    className="w-full h-11 sm:h-12 bg-surface-container text-on-surface font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl hover:bg-surface-variant transition-colors flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                     <PhoneCall className="w-4 h-4 text-primary" /> Call Partner Helpdesk
                                 </button>

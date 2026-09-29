@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAllUsers, getAllProviders } from '../firebase/firestoreService';
-import { SERVICE_CATEGORIES } from '../utils/helpers';
+import { SERVICE_CATEGORIES, formatCurrency } from '../utils/helpers';
+import ProviderAvatar from '../components/ProviderAvatar';
 import { Users, Wrench, Shield, Search, CheckCircle2, ShieldCheck, Mail, MapPin } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageTransition from '../components/PageTransition';
@@ -172,10 +173,13 @@ const AdminDashboard = () => {
                                 <tbody className="divide-y divide-outline-variant/20 text-xs font-medium">
                                     {filteredProviders.map((p, i) => (
                                         <tr key={p.id || i} className="hover:bg-surface-container/30 transition-colors">
-                                            <td className="py-4 px-6 font-bold text-on-surface">{p.name}</td>
+                                            <td className="py-4 px-6 font-bold text-on-surface flex items-center gap-2.5">
+                                                <ProviderAvatar name={p.name} gender={p.gender} category={p.category} photoURL={p.photoURL || p.image} size="xs" />
+                                                <span>{p.name}</span>
+                                            </td>
                                             <td className="py-4 px-6 font-bold capitalize text-primary">{p.category}</td>
-                                            <td className="py-4 px-6 text-amber-600 font-bold">★ {p.rating || 4.9}</td>
-                                            <td className="py-4 px-6 font-bold text-on-surface">₹{p.price || 399}</td>
+                                            <td className="py-4 px-6 text-amber-600 font-bold">{p.rating ? `★ ${p.rating}` : 'New provider'}</td>
+                                            <td className="py-4 px-6 font-bold text-on-surface">{formatCurrency(p.price)}</td>
                                             <td className="py-4 px-6">
                                                 <span className={`font-bold px-2.5 py-0.5 rounded-full ${p.available ? 'bg-secondary-container/40 text-secondary' : 'bg-surface-container text-on-surface-variant'}`}>
                                                     {p.available ? 'On Duty' : 'Offline'}

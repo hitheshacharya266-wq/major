@@ -7,6 +7,7 @@
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut,
     updateProfile
 } from 'firebase/auth';
@@ -32,14 +33,20 @@ export const registerUser = async (email, password, fullName, role, providerData
     await updateProfile(user, { displayName: fullName });
 
     if (role === 'provider') {
+        const normCat = String(providerData.category || 'electrician').trim().toLowerCase();
         // Create a service provider document (for provider-specific queries)
         await setDoc(doc(db, 'serviceProviders', user.uid), {
             uid: user.uid,
             name: fullName,
+            fullName,
             email,
-            category: providerData.category || 'general',
+            category: normCat,
             description: providerData.description || '',
-            rating: 0,
+            price: providerData.price ? Number(providerData.price) : null,
+            experienceYears: providerData.experienceYears || '3',
+            location: providerData.location || 'Mangaluru',
+            skills: providerData.skills || ['General Repair'],
+            rating: null,
             ratingCount: 0,
             available: true,
             createdAt: serverTimestamp()
@@ -80,3 +87,11 @@ export const loginUser = async (email, password) => {
 export const logoutUser = async () => {
     await signOut(auth);
 };
+
+/**
+ * Send password reset email via Firebase Auth.
+ */
+export const resetPasswordEmail = async (email) => {
+    await sendPasswordResetEmail(auth, email);
+};
+

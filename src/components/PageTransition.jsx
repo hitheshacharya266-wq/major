@@ -36,6 +36,8 @@ const PageTransition = ({ children }) => {
             initial="initial"
             animate="animate"
             exit="exit"
+            className="w-full flex-1 flex flex-col items-center"
+            style={{ width: '100%' }}
         >
             {children}
         </motion.div>
