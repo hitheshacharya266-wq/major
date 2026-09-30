@@ -425,39 +425,54 @@ export const getProviderReviews = async (providerId) => {
     }
 };
 
-/** Calculate real completed jobs & average rating for a provider */
-export const getProviderStats = async (providerId) => {
+/**
+ * Calculate real completed jobs & average rating for a provider.
+ * Keeps 'bookings' private by only querying it when explicitly requested by authenticated callers.
+ * Reviews query remains public and isolated.
+ */
+export const getProviderStats = async (providerId, includeBookings = false) => {
     if (!providerId) return { completedJobsCount: 0, rating: null, ratingCount: 0 };
-    try {
-        // Fetch completed bookings count
-        const qBookings = query(
-            collection(db, 'bookings'),
-            where('providerId', '==', providerId),
-            where('status', '==', 'completed')
-        );
-        const snapBookings = await getDocs(qBookings);
-        const completedJobsCount = snapBookings.docs.length;
 
-        // Fetch reviews
+    let completedJobsCount = 0;
+    let rating = null;
+    let ratingCount = 0;
+
+    // 1. Fetch completed bookings count ONLY if includeBookings is explicitly true.
+    // Public visitors must NEVER query the protected 'bookings' collection.
+    if (includeBookings) {
+        try {
+            const qBookings = query(
+                collection(db, 'bookings'),
+                where('providerId', '==', providerId),
+                where('status', '==', 'completed')
+            );
+            const snapBookings = await getDocs(qBookings);
+            completedJobsCount = snapBookings.docs.length;
+        } catch (err) {
+            // Bookings are protected by security rules; quietly handle without breaking provider stats
+            console.warn('Bookings access restricted or unavailable for provider stats:', err?.message || err);
+        }
+    }
+
+    // 2. Fetch rating and count from public reviews collection
+    try {
         const qReviews = query(
             collection(db, 'reviews'),
             where('providerId', '==', providerId)
         );
         const snapReviews = await getDocs(qReviews);
         const reviews = snapReviews.docs.map(d => d.data());
-        const ratingCount = reviews.length;
+        ratingCount = reviews.length;
 
-        let rating = null;
         if (ratingCount > 0) {
             const totalScore = reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0);
             rating = Math.round((totalScore / ratingCount) * 10) / 10;
         }
-
-        return { completedJobsCount, rating, ratingCount };
     } catch (err) {
-        console.error('Error fetching provider stats:', err);
-        return { completedJobsCount: 0, rating: null, ratingCount: 0 };
+        console.warn('Reviews access restricted or unavailable for provider stats:', err?.message || err);
     }
+
+    return { completedJobsCount, rating, ratingCount };
 };
 
 

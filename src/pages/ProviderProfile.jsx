@@ -24,26 +24,41 @@ const ProviderProfile = () => {
 
         const fetchProviderData = async () => {
             try {
-                const [data, revs, st] = await Promise.all([
-                    getProviderProfile(id),
-                    getProviderReviews(id),
-                    getProviderStats(id)
-                ]);
+                const data = await getProviderProfile(id);
+                if (!data) {
+                    if (isMounted) {
+                        setProvider(null);
+                        setLoading(false);
+                    }
+                    return;
+                }
+
+                let revs = [];
+                let st = { completedJobsCount: 0, rating: null, ratingCount: 0 };
+
+                try {
+                    revs = await getProviderReviews(id);
+                } catch (revErr) {
+                    console.warn('Error loading provider reviews:', revErr);
+                }
+
+                try {
+                    // Do not query protected bookings for public visitors
+                    st = await getProviderStats(id, false);
+                } catch (stErr) {
+                    console.warn('Error loading provider stats:', stErr);
+                }
 
                 if (isMounted) {
-                    if (data) {
-                        setProvider({
-                            ...data,
-                            id: data.uid || data.id,
-                            rating: st.rating ?? data.rating ?? null,
-                            ratingCount: st.ratingCount ?? data.ratingCount ?? 0,
-                            completedJobsCount: st.completedJobsCount || 0
-                        });
-                        setReviews(revs || []);
-                        setStats(st || { completedJobsCount: 0, rating: null, ratingCount: 0 });
-                    } else {
-                        setProvider(null);
-                    }
+                    setProvider({
+                        ...data,
+                        id: data.uid || data.id,
+                        rating: st.rating ?? data.rating ?? null,
+                        ratingCount: st.ratingCount ?? data.ratingCount ?? (revs ? revs.length : 0),
+                        completedJobsCount: data.completedJobsCount ?? data.completedJobs ?? st.completedJobsCount ?? 0
+                    });
+                    setReviews(revs || []);
+                    setStats(st || { completedJobsCount: 0, rating: null, ratingCount: 0 });
                     setLoading(false);
                 }
             } catch (err) {

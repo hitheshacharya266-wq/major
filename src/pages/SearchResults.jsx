@@ -32,16 +32,23 @@ const SearchResults = () => {
             try {
                 const dbProviders = await getAllProviders();
                 
-                // Enhance each provider with real rating & completed jobs statistics
+                // Enhance each provider with real rating from reviews without touching protected bookings
                 const enhanced = await Promise.all(
                     dbProviders.map(async (p) => {
-                        const stats = await getProviderStats(p.uid || p.id);
+                        const providerId = p.uid || p.id;
+                        let stats = { rating: null, ratingCount: 0, completedJobsCount: 0 };
+                        try {
+                            // Public stats query only checks reviews, NEVER protected bookings
+                            stats = await getProviderStats(providerId, false);
+                        } catch (statsErr) {
+                            console.warn(`Could not load stats for provider ${providerId}:`, statsErr);
+                        }
                         return {
                             ...p,
-                            id: p.uid || p.id,
+                            id: providerId,
                             rating: stats.rating ?? p.rating ?? null,
-                            ratingCount: stats.ratingCount ?? p.ratingCount ?? 0,
-                            completedJobsCount: stats.completedJobsCount || 0
+                            ratingCount: (stats.ratingCount > 0 ? stats.ratingCount : null) ?? p.ratingCount ?? 0,
+                            completedJobsCount: p.completedJobsCount ?? p.completedJobs ?? stats.completedJobsCount ?? 0
                         };
                     })
                 );
@@ -351,12 +358,12 @@ const SearchResults = () => {
                                                         <span className="w-1 h-1 bg-outline-variant/60 rounded-full" />
                                                         <span className="flex items-center gap-1 font-bold text-amber-600">
                                                             <Star className="w-3 h-3 fill-amber-400 text-amber-500 shrink-0" />
-                                                            {provider.rating ? provider.rating : '4.8'} <span className="text-on-surface-variant font-medium">({provider.ratingCount || 120})</span>
+                                                            {provider.rating ? provider.rating : 'New'} <span className="text-on-surface-variant font-medium">({provider.ratingCount || 0})</span>
                                                         </span>
                                                     </div>
 
                                                     <p className="text-[11px] text-on-surface-variant font-medium">
-                                                        {provider.completedJobsCount || 3} jobs completed
+                                                        {provider.completedJobsCount || 0} {provider.completedJobsCount === 1 ? 'job completed' : 'jobs completed'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -382,11 +389,11 @@ const SearchResults = () => {
                                                                 <span className="w-1 h-1 bg-outline-variant/60 rounded-full" />
                                                                 <span className="flex items-center gap-1 font-bold text-amber-600">
                                                                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500 shrink-0" />
-                                                                    {provider.rating ? provider.rating : '4.8'} <span className="text-on-surface-variant font-medium">({provider.ratingCount || 120})</span>
+                                                                    {provider.rating ? provider.rating : 'New'} <span className="text-on-surface-variant font-medium">({provider.ratingCount || 0})</span>
                                                                 </span>
                                                                 <span className="w-1 h-1 bg-outline-variant/60 rounded-full" />
                                                                 <span className="text-on-surface-variant font-medium">
-                                                                    {provider.completedJobsCount || 3} {provider.completedJobsCount === 1 ? 'job' : 'jobs'} completed
+                                                                    {provider.completedJobsCount || 0} {provider.completedJobsCount === 1 ? 'job' : 'jobs'} completed
                                                                 </span>
                                                             </div>
                                                         </div>
