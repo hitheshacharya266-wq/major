@@ -65,7 +65,7 @@ const LandingPage = () => {
                                             <option value="Udupi">Udupi</option>
                                         </select>
                                     </div>
-                                    <div className="flex-1 flex items-center gap-2 px-3 py-2 w-full">
+                                    <div className="flex-1 flex items-center gap-2 px-3 py-2 w-full min-w-0">
                                         <span className="material-symbols-outlined text-on-surface-variant text-[18px] shrink-0">search</span>
                                         <input
                                             value={searchQuery}
@@ -126,7 +126,7 @@ const LandingPage = () => {
                                     View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                                 </Link>
                             </div>
-                            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
+                            <div className="grid grid-cols-2 min-[400px]:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6 w-full max-w-full">
                                 {LANDING_CATEGORIES.map((cat) => (
                                     <div key={cat.id} onClick={() => handleCategoryClick(cat.id)} className="group cursor-pointer">
                                         <div className="bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-2 sm:gap-3 group-hover:border-primary group-hover:shadow-md transition-all duration-300 p-3 sm:p-4 text-center">

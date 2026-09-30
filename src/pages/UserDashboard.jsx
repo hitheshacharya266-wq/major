@@ -205,7 +205,7 @@ const UserDashboard = () => {
                                                 <ProviderAvatar name={b.providerName || 'Service Technician'} gender={b.gender} category={b.category || b.serviceType} photoURL={b.photoURL || b.image} size="md" showCategoryBadge />
                                                 <div className="space-y-1 flex-1 min-w-0">
                                                     <div className="flex flex-wrap items-center gap-2">
-                                                        <span className="font-black text-sm sm:text-base text-on-surface">{b.providerName || 'Service Technician'}</span>
+                                                        <span className="font-black text-sm sm:text-base text-on-surface truncate">{b.providerName || 'Service Technician'}</span>
                                                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${b.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : b.status === 'accepted' ? 'bg-blue-50 text-blue-700 border border-blue-200' : b.status === 'rejected' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}`}>
                                                             {b.status || 'PENDING'}
                                                         </span>

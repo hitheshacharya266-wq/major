@@ -121,7 +121,7 @@ const HelpSupport = () => {
                                                 isOpen ? 'bg-[#e6f4f1] text-[#004d4c]' : 'text-[#0b1c30] hover:bg-surface-container/30'
                                             }`}
                                         >
-                                            <span className="flex-1 min-w-0 pr-3 leading-snug">{faq.q}</span>
+                                            <span className="flex-1 min-w-0 pr-3 leading-snug break-words">{faq.q}</span>
                                             {isOpen ? (
                                                 <Minus className="w-5 h-5 text-[#004d4c] shrink-0 ml-3" />
                                             ) : (

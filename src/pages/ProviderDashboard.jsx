@@ -226,10 +226,10 @@ const ProviderDashboard = () => {
                     ) : (
                         <div className="space-y-4">
                             {filteredBookings.map(b => (
-                                <div key={b.id} className="bg-white rounded-2xl p-5 sm:p-6 border border-outline-variant/30 shadow-xs flex flex-col sm:flex-row justify-between gap-4">
-                                    <div className="space-y-2">
+                                <div key={b.id} className="bg-white rounded-2xl p-5 sm:p-6 border border-outline-variant/30 shadow-xs flex flex-col sm:flex-row justify-between gap-4 w-full max-w-full min-w-0">
+                                    <div className="space-y-2 w-full max-w-full min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-extrabold text-sm sm:text-base text-on-surface">Customer: {b.userName || 'Local Customer'}</span>
+                                            <span className="font-extrabold text-sm sm:text-base text-on-surface truncate">Customer: {b.userName || 'Local Customer'}</span>
                                             <span className={`text-[10px] sm:text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase ${b.status === 'completed' ? 'bg-secondary-container/40 text-secondary' : b.status === 'accepted' ? 'bg-primary/10 text-primary' : 'bg-amber-50 text-amber-700'}`}>
                                                 {b.status}
                                             </span>

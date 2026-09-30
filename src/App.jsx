@@ -31,7 +31,7 @@ function App() {
     return (
         <AuthProvider>
             <Router>
-                <div className="min-h-screen bg-surface font-sans text-on-surface">
+                <div className="min-h-screen flex flex-col bg-surface font-sans text-on-surface overflow-x-hidden w-full max-w-full">
                     <Navbar />
 
                     <Toaster
