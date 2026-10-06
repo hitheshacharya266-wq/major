@@ -52,8 +52,8 @@ const LandingPage = () => {
                                 </p>
                                 
                                 {/* Search/Location Bar */}
-                                <form onSubmit={handleSearch} className="bg-white p-2 sm:p-2.5 rounded-2xl sm:rounded-2xl flex flex-col sm:flex-row items-center gap-2 shadow-md border border-outline-variant/30 w-full max-w-2xl">
-                                    <div className="w-full sm:w-44 shrink-0 flex items-center gap-2 px-3 py-2 border-b sm:border-b-0 sm:border-r border-outline-variant/30">
+                                <form onSubmit={handleSearch} className="bg-white p-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 shadow-lg border border-outline-variant/30 rounded-2xl w-full max-w-2xl">
+                                    <div className="w-full sm:w-44 flex items-center gap-2 px-3 py-2 border-b sm:border-b-0 sm:border-r border-outline-variant/20 shrink-0">
                                         <span className="material-symbols-outlined text-primary text-[18px] shrink-0">location_on</span>
                                         <select
                                             value={city}
@@ -65,7 +65,7 @@ const LandingPage = () => {
                                             <option value="Udupi">Udupi</option>
                                         </select>
                                     </div>
-                                    <div className="flex-1 flex items-center gap-2 px-3 py-2 w-full min-w-0">
+                                    <div className="flex-1 min-w-0 flex items-center gap-2 px-3 py-2 w-full">
                                         <span className="material-symbols-outlined text-on-surface-variant text-[18px] shrink-0">search</span>
                                         <input
                                             value={searchQuery}
@@ -77,7 +77,7 @@ const LandingPage = () => {
                                     </div>
                                     <button
                                         type="submit"
-                                        className="bg-[#004d4c] text-white px-6 py-3 rounded-xl font-extrabold text-xs sm:text-sm hover:bg-[#004d4c]/90 transition-all active:scale-95 w-full sm:w-auto shrink-0 cursor-pointer shadow-md shadow-[#004d4c]/20 whitespace-nowrap"
+                                        className="w-full sm:w-auto shrink-0 whitespace-nowrap px-6 py-3.5 rounded-xl font-extrabold text-sm bg-[#004d4c] text-white hover:bg-[#004d4c]/90 transition-all active:scale-95 shadow-md cursor-pointer"
                                     >
                                         Search Now
                                     </button>
@@ -130,8 +130,8 @@ const LandingPage = () => {
                                 {LANDING_CATEGORIES.map((cat) => (
                                     <div key={cat.id} onClick={() => handleCategoryClick(cat.id)} className="group cursor-pointer">
                                         <div className="bg-white rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center gap-2 sm:gap-3 group-hover:border-primary group-hover:shadow-md transition-all duration-300 p-3 sm:p-4 text-center">
-                                            <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-[#e6f4f1] flex items-center justify-center text-[#004d4c] group-hover:bg-[#004d4c] group-hover:text-white transition-colors shrink-0">
-                                                <span className="material-symbols-outlined text-[22px] sm:text-[26px]">{cat.icon}</span>
+                                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#e6f4f1] flex items-center justify-center text-[#004d4c] group-hover:bg-[#004d4c] group-hover:text-white transition-colors shrink-0">
+                                                <span className="material-symbols-outlined text-2xl sm:text-3xl shrink-0">{cat.icon}</span>
                                             </div>
                                             <span className="font-extrabold text-xs sm:text-sm text-on-surface">{cat.label}</span>
                                         </div>

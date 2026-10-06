@@ -25,3 +25,7 @@ dist-ssr
 
 .vercel
 .env*
+
+# Local duplicate project and visual audit files
+major/
+visual-audit/

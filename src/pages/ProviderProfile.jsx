@@ -136,7 +136,7 @@ const ProviderProfile = () => {
                                         </span>
                                     </div>
 
-                                    <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-on-surface tracking-tight break-words">
+                                    <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-on-surface tracking-tight">
                                         {provider.name}
                                     </h1>
 

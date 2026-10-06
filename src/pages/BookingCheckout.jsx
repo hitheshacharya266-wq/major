@@ -365,11 +365,11 @@ const BookingCheckout = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span>Date & Slot:</span>
-                                        <span className="font-bold text-on-surface text-right truncate max-w-[180px]">{selectedDate}, {selectedSlot}</span>
+                                        <span className="font-bold text-on-surface text-right truncate max-w-[60%]">{selectedDate}, {selectedSlot}</span>
                                     </div>
                                     <div className="flex justify-between items-center gap-2">
                                         <span className="shrink-0">Location:</span>
-                                        <span className="font-bold text-on-surface text-right truncate max-w-[180px]">{address}</span>
+                                        <span className="font-bold text-on-surface text-right truncate max-w-[60%]">{address}</span>
                                     </div>
 
                                     <div className="border-t border-outline-variant/20 pt-3 space-y-2">

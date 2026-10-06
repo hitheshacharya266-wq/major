@@ -165,7 +165,7 @@ const ProviderDashboard = () => {
 
                 <main className="max-w-container-max mx-auto px-4 sm:px-8 py-6 sm:py-10 flex-1 w-full space-y-8">
                     {/* STATS OVERVIEW */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
                         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl shrink-0">
                                 🔔
