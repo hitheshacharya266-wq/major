@@ -33,13 +33,18 @@
 }
 
 /* ─── GOOGLE STITCH STRICT RESET & ROOT LAYOUT ──────────── */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Keep the reset in Tailwind's base layer so component utility classes retain
+   their intended padding and margins.  An unlayered reset here otherwise wins
+   the cascade over every Tailwind utility in v4. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 html, body {
