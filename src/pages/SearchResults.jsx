@@ -113,7 +113,7 @@ const SearchResults = () => {
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col bg-[#f8f9ff] font-sans text-on-surface overflow-x-hidden w-full max-w-full">
-                <main className="max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-5 sm:py-8 flex-1 w-full max-w-full min-w-0 space-y-5 sm:space-y-6">
+                <main className="max-w-[1320px] mx-auto px-4 sm:px-6 md:px-8 py-5 sm:py-8 flex-1 w-full min-w-0 space-y-5 sm:space-y-6">
                     
                     {/* Header Banner & Prominent Search Box */}
                     <div className="space-y-4 w-full max-w-full min-w-0">
