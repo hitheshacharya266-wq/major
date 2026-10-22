@@ -13,16 +13,18 @@ import {
     updateDoc,
     query,
     where,
-    orderBy,
     onSnapshot,
     serverTimestamp
 } from 'firebase/firestore';
 import {
     ref,
     uploadBytes,
-    getDownloadURL
+    getDownloadURL,
+    deleteObject
 } from 'firebase/storage';
 import { db, storage } from './config';
+
+import { uploadPortfolioImageToCloudinary } from '../services/cloudinaryService';
 
 /** Helper: Timeout wrapper to prevent async hanging */
 const withTimeout = (promise, ms = 15000, errorMessage = 'Operation timed out') => {
@@ -71,6 +73,8 @@ export const uploadProviderProfileImage = async (uid, file) => {
         let msg = err.message || 'Image upload failed.';
         if (err.code === 'storage/unauthorized') {
             msg = 'Storage permission denied. Please check your Firebase Storage security rules.';
+        } else if (err.code === 'storage/bucket-not-found' || err.status_ === 404 || err.code === 'storage/unknown' || err.code === 'storage/retry-limit-exceeded' || err.message?.includes('timed out')) {
+            msg = 'Firebase Storage is not enabled yet in your Firebase Console (project: service-aggregator-b2530). Please click "Get Started" under Storage in the Firebase Console to activate your storage bucket.';
         } else if (err.code === 'storage/canceled') {
             msg = 'Image upload was canceled.';
         } else if (err.code === 'storage/quota-exceeded') {
@@ -78,6 +82,37 @@ export const uploadProviderProfileImage = async (uid, file) => {
         }
         throw new Error(msg);
     }
+};
+
+/** Upload provider portfolio work image to Cloudinary and return persistent secure URL and metadata */
+export const uploadProviderPortfolioImage = async (uid, file, onProgress) => {
+    if (!file || !uid) throw new Error('File and Provider ID are required.');
+    return await uploadPortfolioImageToCloudinary(file, uid, onProgress);
+};
+
+/**
+ * Best-effort deletion for legacy Firebase Storage paths.
+ * Note: Unsigned Cloudinary uploads cannot be deleted from the client without an API secret.
+ * Removing the image item from Firestore removes it from the provider's active portfolio immediately.
+ */
+export const deleteStorageFile = async (storagePath) => {
+    if (!storagePath || storagePath.startsWith('http') || !storagePath.includes('/')) return;
+    try {
+        const fileRef = ref(storage, storagePath);
+        await deleteObject(fileRef);
+    } catch (err) {
+        console.warn('Storage delete warning (safe to ignore if file already removed):', err);
+    }
+};
+
+/** Update the portfolio array for a specific provider in Firestore */
+export const updateProviderPortfolio = async (uid, portfolioItems) => {
+    if (!uid) throw new Error('Provider UID is required');
+    const providerRef = doc(db, 'serviceProviders', uid);
+    await setDoc(providerRef, {
+        portfolio: portfolioItems,
+        updatedAt: serverTimestamp()
+    }, { merge: true });
 };
 
 // ─── User Profiles ────────────────────────────────────────
@@ -330,6 +365,7 @@ export const saveProviderProfile = async (uid, profileData) => {
         image: profileData.photoURL || profileData.image || '',
         available: profileData.available !== false,
         verified: profileData.verified !== undefined ? profileData.verified : true,
+        ...(Array.isArray(profileData.portfolio) ? { portfolio: profileData.portfolio } : {}),
         updatedAt: serverTimestamp()
     };
 

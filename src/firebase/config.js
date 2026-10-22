@@ -20,4 +20,13 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
+// Avoid indefinite 10-minute retry hangs when Storage bucket is not yet created in Firebase Console
+try {
+    storage.maxUploadRetryTime = 10000;
+    storage.maxOperationRetryTime = 10000;
+} catch {
+    // Ignore in unsupported environments
+}
+
 export default app;
+

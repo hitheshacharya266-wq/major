@@ -4,11 +4,94 @@
 
 /** Service categories with display info */
 export const SERVICE_CATEGORIES = [
-    { id: 'plumber', label: 'Plumber', emoji: '🔧' },
-    { id: 'electrician', label: 'Electrician', emoji: '⚡' },
-    { id: 'carpenter', label: 'Carpenter', emoji: '🪚' },
-    { id: 'mechanic', label: 'Mechanic', emoji: '🔩' },
+    { id: 'plumber', label: 'Plumber', emoji: '🔧', icon: 'plumbing' },
+    { id: 'electrician', label: 'Electrician', emoji: '⚡', icon: 'electrical_services' },
+    { id: 'carpenter', label: 'Carpenter', emoji: '🪚', icon: 'construction' },
+    { id: 'mechanic', label: 'Mechanic', emoji: '🔩', icon: 'build' },
+    { id: 'ac_repair', label: 'AC Repair', emoji: '❄️', icon: 'ac_unit' },
+    { id: 'cleaning', label: 'Cleaning', emoji: '🧹', icon: 'cleaning_services' },
+    { id: 'pest_control', label: 'Pest Control', emoji: '🦟', icon: 'pest_control' },
 ];
+
+/** Category alias map for normalization (case-insensitive, handles plural/singular/aliases) */
+const CATEGORY_ALIASES = {
+    // Plumber
+    'plumber': 'plumber',
+    'plumbers': 'plumber',
+    'plumbing': 'plumber',
+
+    // Electrician
+    'electrician': 'electrician',
+    'electricians': 'electrician',
+    'electrical': 'electrician',
+    'electricity': 'electrician',
+
+    // Carpenter
+    'carpenter': 'carpenter',
+    'carpenters': 'carpenter',
+    'carpentry': 'carpenter',
+    'woodwork': 'carpenter',
+
+    // Mechanic
+    'mechanic': 'mechanic',
+    'mechanics': 'mechanic',
+    'mechanical': 'mechanic',
+    'auto': 'mechanic',
+    'automobile': 'mechanic',
+
+    // AC Repair
+    'ac': 'ac_repair',
+    'ac_repair': 'ac_repair',
+    'ac-repair': 'ac_repair',
+    'ac repair': 'ac_repair',
+    'acrepair': 'ac_repair',
+    'air conditioner': 'ac_repair',
+    'air conditioning': 'ac_repair',
+    'hvac': 'ac_repair',
+
+    // Cleaning
+    'cleaning': 'cleaning',
+    'cleaner': 'cleaning',
+    'cleaners': 'cleaning',
+    'deep cleaning': 'cleaning',
+    'house cleaning': 'cleaning',
+
+    // Pest Control
+    'pest': 'pest_control',
+    'pest_control': 'pest_control',
+    'pest-control': 'pest_control',
+    'pest control': 'pest_control',
+    'pestcontrol': 'pest_control',
+
+    // Painter
+    'painter': 'painter',
+    'painters': 'painter',
+    'painting': 'painter',
+
+    // Appliance
+    'appliance': 'appliance',
+    'appliances': 'appliance',
+    'appliance repair': 'appliance',
+};
+
+/**
+ * Normalizes any category string (ID, label, plural, alias, with spaces/dashes) to canonical ID.
+ * @param {string} cat - Category string
+ * @returns {string} canonical category ID
+ */
+export const normalizeCategory = (cat) => {
+    if (!cat) return '';
+    const cleaned = String(cat).trim().toLowerCase().replace(/[-_\s]+/g, ' ');
+    if (CATEGORY_ALIASES[cleaned]) return CATEGORY_ALIASES[cleaned];
+    const withUnderscore = cleaned.replace(/\s+/g, '_');
+    if (CATEGORY_ALIASES[withUnderscore]) return CATEGORY_ALIASES[withUnderscore];
+    const found = SERVICE_CATEGORIES.find(c =>
+        c.id.toLowerCase() === cleaned ||
+        c.label.toLowerCase() === cleaned ||
+        c.id.toLowerCase() === withUnderscore
+    );
+    return found ? found.id : withUnderscore;
+};
 
 /** Booking status badge colors (Tailwind classes) */
 export const STATUS_STYLES = {

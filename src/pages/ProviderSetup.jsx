@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getProviderProfile, saveProviderProfile } from '../firebase/firestoreService';
 import { SERVICE_CATEGORIES } from '../utils/helpers';
 import ProviderAvatar from '../components/ProviderAvatar';
+import PortfolioManager from '../components/PortfolioManager';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
@@ -16,6 +17,7 @@ const ProviderSetup = () => {
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [portfolio, setPortfolio] = useState([]);
 
     const [formData, setFormData] = useState({
         name: currentUser?.displayName || userProfile?.fullName || '',
@@ -39,6 +41,9 @@ const ProviderSetup = () => {
             try {
                 const existing = await getProviderProfile(currentUser.uid);
                 if (isMounted && existing) {
+                    if (Array.isArray(existing.portfolio)) {
+                        setPortfolio(existing.portfolio);
+                    }
                     setFormData(prev => ({
                         ...prev,
                         name: existing.name || existing.fullName || prev.name,
@@ -130,6 +135,7 @@ const ProviderSetup = () => {
                 ...formData,
                 gender: formData.gender, // Explicit gender persisted to Firestore
                 price: numericPrice,
+                portfolio,
                 photoURL: formData.photoURL || '',
                 image: formData.photoURL || ''
             };
@@ -364,6 +370,15 @@ const ProviderSetup = () => {
                                         className="w-full h-12 px-4 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-xs sm:text-sm font-semibold transition-all"
                                     />
                                 </div>
+                            </div>
+
+                            {/* Service Portfolio Work Showcase Section */}
+                            <div className="pt-6 border-t border-outline-variant/30 space-y-4">
+                                <PortfolioManager
+                                    providerId={currentUser?.uid}
+                                    initialPortfolio={portfolio}
+                                    onPortfolioUpdated={(updated) => setPortfolio(updated)}
+                                />
                             </div>
 
                             {/* Submit Button (Full Width, Centered, Prominent) */}

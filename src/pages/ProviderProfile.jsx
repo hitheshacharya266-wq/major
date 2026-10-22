@@ -6,6 +6,7 @@ import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
 import ProviderAvatar from '../components/ProviderAvatar';
+import PortfolioGalleryModal from '../components/PortfolioGalleryModal';
 
 const ProviderProfile = () => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ const ProviderProfile = () => {
   const [selectedSlot, setSelectedSlot] = useState('11:30 AM');
   const [selectedDate, setSelectedDate] = useState('TODAY 24');
   const [selectedService, setSelectedService] = useState('main');
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -197,42 +199,62 @@ const ProviderProfile = () => {
               </section>
 
               {/* Service Portfolio */}
-              <section className="space-y-3 sm:space-y-4 w-full max-w-full min-w-0">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-on-surface tracking-tight">Service Portfolio</h2>
-                  <button type="button" className="text-primary font-semibold text-xs sm:text-sm hover:underline cursor-pointer">View All</button>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full max-w-full">
-                  {/* Neutral portfolio placeholders per design specification */}
-                  <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-square cursor-pointer bg-surface-container border border-outline-variant/30 shadow-xs w-full max-w-full">
-                    <div className="w-full h-full bg-surface-container flex flex-col items-center justify-center p-3 text-outline-variant transition-transform duration-500 group-hover:scale-105">
-                      <span className="material-symbols-outlined text-2xl sm:text-3xl lg:text-4xl mb-1.5 sm:mb-2 text-primary/60 shrink-0">home_repair_service</span>
-                      <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-on-surface-variant/70 text-center truncate max-w-full">Portfolio Image</span>
+              {(() => {
+                const portfolioImages = Array.isArray(provider?.portfolio) ? provider.portfolio : [];
+                return (
+                  <section className="space-y-3 sm:space-y-4 w-full max-w-full min-w-0">
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-on-surface tracking-tight">Service Portfolio</h2>
+                      {portfolioImages.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setGalleryOpen(true)}
+                          className="text-primary font-semibold text-xs sm:text-sm hover:underline cursor-pointer"
+                        >
+                          View All ({portfolioImages.length})
+                        </button>
+                      )}
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-on-surface/30 to-transparent flex items-end p-2.5 sm:p-4 lg:p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <p className="text-white font-semibold text-xs sm:text-sm truncate">Past Work</p>
-                    </div>
-                  </div>
-                  <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-square cursor-pointer bg-surface-container border border-outline-variant/30 shadow-xs w-full max-w-full">
-                    <div className="w-full h-full bg-surface-container flex flex-col items-center justify-center p-3 text-outline-variant transition-transform duration-500 group-hover:scale-105">
-                      <span className="material-symbols-outlined text-2xl sm:text-3xl lg:text-4xl mb-1.5 sm:mb-2 text-primary/60 shrink-0">build</span>
-                      <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-on-surface-variant/70 text-center truncate max-w-full">Portfolio Image</span>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-on-surface/30 to-transparent flex items-end p-2.5 sm:p-4 lg:p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <p className="text-white font-semibold text-xs sm:text-sm truncate">Professional Service</p>
-                    </div>
-                  </div>
-                  <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-square cursor-pointer bg-surface-container border border-outline-variant/30 shadow-xs w-full max-w-full">
-                    <div className="w-full h-full bg-surface-container flex flex-col items-center justify-center p-3 text-outline-variant transition-transform duration-500 group-hover:scale-105">
-                      <span className="material-symbols-outlined text-2xl sm:text-3xl lg:text-4xl mb-1.5 sm:mb-2 text-primary/60 shrink-0">check_circle</span>
-                      <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-on-surface-variant/70 text-center truncate max-w-full">Portfolio Image</span>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-on-surface/30 to-transparent flex items-end p-2.5 sm:p-4 lg:p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <p className="text-white font-semibold text-xs sm:text-sm truncate">Verified Results</p>
-                    </div>
-                  </div>
-                </div>
-              </section>
+
+                    {portfolioImages.length === 0 ? (
+                      <div className="p-6 sm:p-8 rounded-2xl bg-surface-container-low border border-outline-variant/30 text-center space-y-2 w-full max-w-full">
+                        <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center mx-auto text-primary/70">
+                          <span className="material-symbols-outlined text-xl">photo_library</span>
+                        </div>
+                        <h3 className="text-xs sm:text-sm font-extrabold text-on-surface">No Portfolio Images Yet</h3>
+                        <p className="text-[11px] sm:text-xs text-on-surface-variant font-medium max-w-md mx-auto leading-relaxed">
+                          {provider.name} has not uploaded project photos yet. Check their customer reviews below or book a consultation.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full max-w-full">
+                        {portfolioImages.slice(0, 6).map((imgItem, idx) => {
+                          const url = typeof imgItem === 'object' ? imgItem.url : imgItem;
+                          const title = typeof imgItem === 'object' ? imgItem.title || imgItem.name : `Work Photo ${idx + 1}`;
+                          return (
+                            <div
+                              key={idx}
+                              onClick={() => setGalleryOpen(true)}
+                              className="group relative overflow-hidden rounded-xl sm:rounded-2xl aspect-square cursor-pointer bg-surface-container border border-outline-variant/30 shadow-xs w-full max-w-full"
+                              title="Click to view in gallery"
+                            >
+                              <img
+                                src={url}
+                                alt={title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5 sm:p-4 lg:p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <p className="text-white font-semibold text-xs sm:text-sm truncate">{title}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </section>
+                );
+              })()}
 
               {/* Pricing Guide */}
               <section className="space-y-3 sm:space-y-4 w-full max-w-full min-w-0">
@@ -420,6 +442,15 @@ const ProviderProfile = () => {
             </aside>
           </div>
         </main>
+
+        {/* Full Portfolio Gallery Lightbox Modal */}
+        <PortfolioGalleryModal
+          isOpen={galleryOpen}
+          onClose={() => setGalleryOpen(false)}
+          images={Array.isArray(provider?.portfolio) ? provider.portfolio : []}
+          providerName={provider.name}
+        />
+
         <Footer />
       </div>
     </PageTransition>

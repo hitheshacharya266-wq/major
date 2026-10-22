@@ -13,9 +13,10 @@ import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
 import ProviderAvatar from '../components/ProviderAvatar';
+import PortfolioModal from '../components/PortfolioModal';
 import {
     CheckCircle2, XCircle, Clock, MapPin, Wrench, ShieldCheck,
-    ToggleLeft, ToggleRight, DollarSign, Award, Bell, User
+    ToggleLeft, ToggleRight, DollarSign, Award, Bell, User, Image as ImageIcon
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -25,10 +26,10 @@ const ProviderDashboard = () => {
     const [provider, setProvider] = useState(null);
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
+    const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
 
     useEffect(() => {
         if (!currentUser) return;
-        setLoading(true);
 
         getProviderProfile(currentUser.uid)
             .then(profile => {
@@ -135,6 +136,19 @@ const ProviderDashboard = () => {
 
                         {/* Availability Toggle & Edit Profile Actions */}
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                            <button
+                                type="button"
+                                onClick={() => setPortfolioModalOpen(true)}
+                                className="h-12 px-4 bg-white border border-outline-variant/40 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-on-surface hover:bg-surface-container transition-colors shadow-xs cursor-pointer"
+                            >
+                                <ImageIcon className="w-4 h-4 text-primary" />
+                                <span>Manage Portfolio</span>
+                                {Array.isArray(provider?.portfolio) && provider.portfolio.length > 0 && (
+                                    <span className="bg-[#e6f4f1] text-[#004d4c] px-2 py-0.5 rounded-full text-[10px] font-extrabold">
+                                        {provider.portfolio.length}
+                                    </span>
+                                )}
+                            </button>
                             <Link
                                 to="/provider-setup"
                                 className="h-12 px-4 bg-white border border-outline-variant/40 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-on-surface hover:bg-surface-container transition-colors shadow-xs"
@@ -275,6 +289,17 @@ const ProviderDashboard = () => {
                         </div>
                     )}
                 </main>
+
+                {/* Portfolio Management Modal */}
+                <PortfolioModal
+                    isOpen={portfolioModalOpen}
+                    onClose={() => setPortfolioModalOpen(false)}
+                    providerId={currentUser?.uid}
+                    portfolio={provider?.portfolio || []}
+                    onPortfolioUpdated={(updatedPortfolio) => {
+                        setProvider(prev => ({ ...prev, portfolio: updatedPortfolio }));
+                    }}
+                />
 
                 <Footer />
             </div>

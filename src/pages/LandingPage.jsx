@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import PageTransition from '../components/PageTransition';
 import Footer from '../components/Footer';
+import { SERVICE_CATEGORIES, normalizeCategory } from '../utils/helpers';
 
 const LANDING_CATEGORIES = [
-    { id: 'electrician', label: 'Electrician', icon: 'electrical_services' },
     { id: 'plumber', label: 'Plumber', icon: 'plumbing' },
-    { id: 'ac', label: 'AC Repair', icon: 'ac_unit' },
-    { id: 'cleaning', label: 'Cleaning', icon: 'cleaning_services' },
-    { id: 'pest', label: 'Pest Control', icon: 'pest_control' },
-    { id: 'carpenter', label: 'Carpentry', icon: 'construction' }
+    { id: 'electrician', label: 'Electrician', icon: 'electrical_services' },
+    { id: 'carpenter', label: 'Carpenter', icon: 'construction' },
+    { id: 'mechanic', label: 'Mechanic', icon: 'build' },
+    { id: 'ac_repair', label: 'AC Repair', icon: 'ac_unit' },
+    { id: 'cleaning', label: 'Cleaning', icon: 'cleaning_services' }
 ];
 
 const LandingPage = () => {
@@ -19,14 +20,22 @@ const LandingPage = () => {
 
     const handleSearch = (e) => {
         e?.preventDefault();
+        const trimmed = searchQuery.trim();
         const queryParams = new URLSearchParams();
         if (city) queryParams.set('city', city);
-        if (searchQuery.trim()) queryParams.set('q', searchQuery.trim());
+        if (trimmed) {
+            const canonicalCat = normalizeCategory(trimmed);
+            if (canonicalCat && SERVICE_CATEGORIES.some(c => c.id === canonicalCat)) {
+                queryParams.set('category', canonicalCat);
+            }
+            queryParams.set('q', trimmed);
+        }
         navigate(`/search?${queryParams.toString()}`);
     };
 
     const handleCategoryClick = (catId) => {
-        navigate(`/search?category=${catId}&city=${encodeURIComponent(city)}`);
+        const canonicalCat = normalizeCategory(catId);
+        navigate(`/search?category=${encodeURIComponent(canonicalCat)}&city=${encodeURIComponent(city)}`);
     };
 
     return (
@@ -86,12 +95,12 @@ const LandingPage = () => {
                                 {/* Popular Search Pills */}
                                 <div className="flex flex-wrap gap-2 items-center text-xs">
                                     <span className="font-extrabold text-on-surface-variant/80">Popular:</span>
-                                    {['AC Repair', 'Plumbing', 'Cleaning'].map((tag) => (
+                                    {['Plumber', 'Electrician', 'Carpenter', 'Mechanic', 'AC Repair'].map((tag) => (
                                         <span
                                             key={tag}
                                             onClick={() => {
-                                                setSearchQuery(tag);
-                                                navigate(`/search?q=${encodeURIComponent(tag)}&city=${encodeURIComponent(city)}`);
+                                                const canonicalCat = normalizeCategory(tag);
+                                                navigate(`/search?category=${encodeURIComponent(canonicalCat)}&city=${encodeURIComponent(city)}`);
                                             }}
                                             className="px-3 py-1 bg-white border border-outline-variant/30 rounded-full text-xs font-extrabold text-on-surface-variant cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-colors shadow-2xs"
                                         >

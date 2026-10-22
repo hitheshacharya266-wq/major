@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { getAllProviders, getProviderStats } from '../firebase/firestoreService';
-import { SERVICE_CATEGORIES, formatCurrency } from '../utils/helpers';
+import { SERVICE_CATEGORIES, normalizeCategory, formatCurrency } from '../utils/helpers';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
@@ -9,21 +9,30 @@ import ProviderAvatar from '../components/ProviderAvatar';
 import { Search, Star, ShieldCheck, ArrowRight, Filter, SlidersHorizontal } from 'lucide-react';
 
 const SearchResults = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const categoryParam = searchParams.get('category') || '';
     const queryParam = searchParams.get('q') || '';
     const cityParam = searchParams.get('city') || 'Mangaluru';
 
+    // Derive selected category directly from URL for perfect synchronization across navigation, history, and reloads
+    const selectedCategory = normalizeCategory(categoryParam);
+
     const [providers, setProviders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState(categoryParam);
     const [searchQuery, setSearchQuery] = useState(queryParam);
+    const [prevQueryParam, setPrevQueryParam] = useState(queryParam);
     const [distanceRange, setDistanceRange] = useState(10);
     const [minRating, setMinRating] = useState(0);
     const [priceTier, setPriceTier] = useState('all');
-    const [availability, setAvailability] = useState('now');
+    const [availability, setAvailability] = useState('today');
     const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+    // Keep search query input in sync when queryParam changes from external navigation
+    if (prevQueryParam !== queryParam) {
+        setPrevQueryParam(queryParam);
+        setSearchQuery(queryParam);
+    }
 
     useEffect(() => {
         let isMounted = true;
@@ -74,17 +83,21 @@ const SearchResults = () => {
 
     // Filter providers with robust case-insensitive category & query matching
     const filteredProviders = useMemo(() => {
-        const normSelectedCat = String(selectedCategory || '').trim().toLowerCase();
+        const normSelectedCat = normalizeCategory(selectedCategory);
         const normSearchQuery = String(searchQuery || '').trim().toLowerCase();
+        const queryCat = normalizeCategory(normSearchQuery);
 
         return providers.filter(p => {
-            const pCat = String(p.category || '').trim().toLowerCase();
-            const matchesCategory = !normSelectedCat || pCat === normSelectedCat;
+            const normProviderCat = normalizeCategory(p.category);
+            const matchesCategory = !normSelectedCat || normProviderCat === normSelectedCat;
 
             const matchesQuery = !normSearchQuery ||
                 String(p.name || '').toLowerCase().includes(normSearchQuery) ||
-                pCat.includes(normSearchQuery) ||
-                String(p.description || '').toLowerCase().includes(normSearchQuery);
+                String(p.description || '').toLowerCase().includes(normSearchQuery) ||
+                normProviderCat.includes(normSearchQuery) ||
+                normSearchQuery.includes(normProviderCat) ||
+                (queryCat && queryCat === normProviderCat) ||
+                (Array.isArray(p.skills) && p.skills.some(s => String(s).toLowerCase().includes(normSearchQuery)));
 
             const pRating = typeof p.rating === 'number' ? p.rating : 4.8;
             const matchesRating = pRating >= minRating;
@@ -95,19 +108,49 @@ const SearchResults = () => {
                 (priceTier === 'mid' && priceVal > 350 && priceVal <= 500) ||
                 (priceTier === 'high' && priceVal > 500);
 
-            const matchesAvailable = p.available !== false;
+            // 'now' requires actively available/online, 'today' / 'all' includes all registered providers
+            const matchesAvailable = availability === 'now' ? (p.available === true) : true;
 
             return matchesCategory && matchesQuery && matchesRating && matchesPrice && matchesAvailable;
         });
-    }, [providers, selectedCategory, searchQuery, minRating, priceTier]);
+    }, [providers, selectedCategory, searchQuery, minRating, priceTier, availability]);
+
+    const handleCategorySelect = (catId) => {
+        const normCat = normalizeCategory(catId);
+        const newCat = selectedCategory === normCat ? '' : normCat;
+
+        const newParams = new URLSearchParams(searchParams);
+        if (newCat) {
+            newParams.set('category', newCat);
+        } else {
+            newParams.delete('category');
+        }
+        // If current text query is a category alias conflicting with the selected category, clear it
+        if (searchQuery && normalizeCategory(searchQuery) && normalizeCategory(searchQuery) !== newCat) {
+            setSearchQuery('');
+            newParams.delete('q');
+        }
+        setSearchParams(newParams);
+    };
+
+    const handleQueryChange = (val) => {
+        setSearchQuery(val);
+        const newParams = new URLSearchParams(searchParams);
+        if (val.trim()) {
+            newParams.set('q', val.trim());
+        } else {
+            newParams.delete('q');
+        }
+        setSearchParams(newParams, { replace: true });
+    };
 
     const resetFilters = () => {
-        setSelectedCategory('');
         setSearchQuery('');
         setMinRating(0);
         setPriceTier('all');
         setDistanceRange(10);
-        setAvailability('now');
+        setAvailability('today');
+        setSearchParams(cityParam ? { city: cityParam } : {});
     };
 
     return (
@@ -133,7 +176,7 @@ const SearchResults = () => {
                                 <input
                                     type="text"
                                     value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onChange={(e) => handleQueryChange(e.target.value)}
                                     placeholder="Search plumber, electrician, AC, mechanic..."
                                     className="w-full min-w-0 bg-transparent border-none outline-none text-xs sm:text-sm font-semibold text-on-surface"
                                 />
@@ -144,7 +187,7 @@ const SearchResults = () => {
                         <div className="flex items-center justify-between gap-2 pt-1 w-full max-w-full min-w-0">
                             <div className="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none flex-1 min-w-0 max-w-full">
                                 <button
-                                    onClick={() => setSelectedCategory('')}
+                                    onClick={() => handleCategorySelect('')}
                                     className={`h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl text-xs font-extrabold shrink-0 transition-all cursor-pointer flex items-center justify-center ${!selectedCategory
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'bg-white border border-outline-variant/40 text-on-surface-variant hover:border-[#004d4c]'}`}
@@ -152,11 +195,11 @@ const SearchResults = () => {
                                     All Services
                                 </button>
                                 {SERVICE_CATEGORIES.map(cat => {
-                                    const isSelected = String(selectedCategory || '').trim().toLowerCase() === String(cat.id || '').trim().toLowerCase();
+                                    const isSelected = normalizeCategory(selectedCategory) === normalizeCategory(cat.id);
                                     return (
                                         <button
                                             key={cat.id}
-                                            onClick={() => setSelectedCategory(isSelected ? '' : cat.id)}
+                                            onClick={() => handleCategorySelect(cat.id)}
                                             className={`h-9 sm:h-10 px-3 sm:px-3.5 rounded-xl text-xs font-extrabold shrink-0 flex items-center gap-1.5 transition-all cursor-pointer ${isSelected
                                                 ? 'bg-[#004d4c] text-white shadow-xs'
                                                 : 'bg-white border border-outline-variant/40 text-on-surface-variant hover:border-[#004d4c]'}`}
@@ -323,7 +366,7 @@ const SearchResults = () => {
                                 </div>
                             ) : (
                                 filteredProviders.map(provider => {
-                                    const catInfo = SERVICE_CATEGORIES.find(c => c.id === provider.category);
+                                    const catInfo = SERVICE_CATEGORIES.find(c => normalizeCategory(c.id) === normalizeCategory(provider.category));
                                     
                                     // Fallback price logic matching reference screenshot
                                     const priceVal = (typeof provider.price === 'number' && provider.price > 0)
