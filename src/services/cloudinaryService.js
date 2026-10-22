@@ -155,6 +155,110 @@ export const uploadPortfolioImageToCloudinary = (file, providerId, onProgress) =
 };
 
 /**
+ * Upload a single provider profile photo directly to Cloudinary using an unsigned upload preset.
+ * Uploads to dedicated folder: `servicehub/profile-photos/${providerId}`
+ *
+ * @param {File} file - The image file to upload
+ * @param {string} providerId - Provider UID
+ * @param {Function} [onProgress] - Optional progress callback receiving progress percentage (0 - 100)
+ * @returns {Promise<object>} Uploaded image metadata (url, publicId, dimensions, format, etc.)
+ */
+export const uploadProfilePhotoToCloudinary = (file, providerId, onProgress) => {
+    return new Promise((resolve, reject) => {
+        try {
+            validateImageFile(file);
+        } catch (validationErr) {
+            return reject(validationErr);
+        }
+
+        if (!isCloudinaryConfigured()) {
+            return reject(new Error(
+                'Cloudinary is not configured. Please ensure VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET are set in your .env.local file and restart Vite.'
+            ));
+        }
+
+        const cleanCloudName = String(CLOUD_NAME).trim();
+        const cleanPreset = String(UPLOAD_PRESET).trim();
+        const uploadUrl = `https://api.cloudinary.com/v1_1/${encodeURIComponent(cleanCloudName)}/image/upload`;
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', cleanPreset);
+
+        // Dedicated folder namespace for provider profile photos
+        if (providerId) {
+            formData.append('folder', `servicehub/profile-photos/${providerId}`);
+        } else {
+            formData.append('folder', 'servicehub/profile-photos');
+        }
+
+        // Dedicated tagging for provider profile photos
+        formData.append('tags', 'servicehub,profile-photo,provider');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', uploadUrl, true);
+        xhr.timeout = 45000; // 45 seconds timeout
+
+        // Track upload progress
+        if (xhr.upload && typeof onProgress === 'function') {
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percent = Math.min(100, Math.round((event.loaded / event.total) * 100));
+                    onProgress(percent);
+                }
+            };
+        }
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    const fileBaseName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
+
+                    const result = {
+                        id: `profile_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+                        url: data.secure_url || data.url,
+                        publicId: data.public_id || '',
+                        width: data.width || null,
+                        height: data.height || null,
+                        format: data.format || file.name.split('.').pop() || '',
+                        bytes: data.bytes || file.size,
+                        title: fileBaseName,
+                        fileName: file.name,
+                        createdAt: data.created_at || new Date().toISOString()
+                    };
+
+                    resolve(result);
+                } catch (parseErr) {
+                    reject(new Error(`Failed to parse Cloudinary response: ${parseErr.message}`));
+                }
+            } else {
+                let errorMessage = `Upload failed with HTTP status ${xhr.status}.`;
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse?.error?.message) {
+                        errorMessage = errorResponse.error.message;
+                    }
+                } catch {
+                    // Fallback to generic status message
+                }
+                reject(new Error(errorMessage));
+            }
+        };
+
+        xhr.onerror = () => {
+            reject(new Error('Network error occurred while uploading profile photo to Cloudinary. Please check your internet connection.'));
+        };
+
+        xhr.ontimeout = () => {
+            reject(new Error('Upload to Cloudinary timed out after 45 seconds. Please try again with a faster network connection or smaller file.'));
+        };
+
+        xhr.send(formData);
+    });
+};
+
+/**
  * Helper to build an optimized Cloudinary delivery URL with automatic format and compression.
  * Returns the original URL if it is not a Cloudinary URL.
  *

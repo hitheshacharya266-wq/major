@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 /**
  * Category Icon / Emoji Map
@@ -140,9 +140,17 @@ const ProviderAvatar = ({
     showCategoryBadge = false,
     className = ''
 }) => {
+    const [prevPhotoURL, setPrevPhotoURL] = useState(photoURL);
+    const [imageError, setImageError] = useState(false);
+
+    if (prevPhotoURL !== photoURL) {
+        setPrevPhotoURL(photoURL);
+        setImageError(false);
+    }
+
     const initial = name?.trim()?.charAt(0)?.toUpperCase() || 'P';
     const normGender = String(gender || '').trim().toLowerCase();
-    const hasPhoto = photoURL && typeof photoURL === 'string' && (photoURL.startsWith('http://') || photoURL.startsWith('https://'));
+    const hasPhoto = !imageError && photoURL && typeof photoURL === 'string' && (photoURL.startsWith('http://') || photoURL.startsWith('https://'));
     const categoryInfo = CATEGORY_BADGES[category] || null;
 
     const sizeClasses = {
@@ -157,7 +165,7 @@ const ProviderAvatar = ({
     const containerSizeClass = sizeClasses[size] || sizeClasses.md;
 
     // Render logic:
-    // 1. If persistent HTTP photoURL exists, render real photo.
+    // 1. If persistent HTTP photoURL exists and loads, render real photo.
     // 2. If gender === 'male', render MaleAvatarSVG.
     // 3. If gender === 'female', render FemaleAvatarSVG.
     // 4. Fallback: Render clean initials avatar.
@@ -168,7 +176,9 @@ const ProviderAvatar = ({
                 <img
                     src={photoURL}
                     alt={name}
+                    onError={() => setImageError(true)}
                     className="w-full h-full object-cover rounded-[inherit]"
+                    loading="lazy"
                 />
             );
         }

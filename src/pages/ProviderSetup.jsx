@@ -5,11 +5,12 @@ import { getProviderProfile, saveProviderProfile } from '../firebase/firestoreSe
 import { SERVICE_CATEGORIES } from '../utils/helpers';
 import ProviderAvatar from '../components/ProviderAvatar';
 import PortfolioManager from '../components/PortfolioManager';
+import ProfilePhotoModal from '../components/ProfilePhotoModal';
 import PageTransition from '../components/PageTransition';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
 import toast from 'react-hot-toast';
-import { User, Wrench, MapPin, DollarSign, Award, FileText, Phone, ArrowRight, ShieldCheck, Sparkles, UserCheck } from 'lucide-react';
+import { User, Wrench, MapPin, DollarSign, Award, FileText, Phone, ArrowRight, ShieldCheck, Sparkles, UserCheck, Camera } from 'lucide-react';
 
 const ProviderSetup = () => {
     const { currentUser, userProfile } = useAuth();
@@ -18,6 +19,7 @@ const ProviderSetup = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [portfolio, setPortfolio] = useState([]);
+    const [photoModalOpen, setPhotoModalOpen] = useState(false);
 
     const [formData, setFormData] = useState({
         name: currentUser?.displayName || userProfile?.fullName || '',
@@ -185,26 +187,49 @@ const ProviderSetup = () => {
                         {/* Setup Form */}
                         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
                             
-                            {/* Live Avatar Preview Badge */}
-                            <div className="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex items-center gap-4">
-                                <ProviderAvatar
-                                    name={formData.name || 'Provider'}
-                                    gender={formData.gender}
-                                    category={formData.category}
-                                    photoURL={formData.photoURL}
-                                    size="lg"
-                                    showCategoryBadge
-                                />
-                                <div className="space-y-0.5 text-left">
-                                    <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
-                                        <Sparkles className="w-3.5 h-3.5" /> ServiceHub Professional Character Avatar
+                            {/* Live Avatar Preview Badge with Photo Edit Actions */}
+                            <div className="p-4 sm:p-5 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 min-w-0">
+                                    <div
+                                        className="relative group shrink-0 cursor-pointer"
+                                        onClick={() => setPhotoModalOpen(true)}
+                                        title="Click to edit profile photo"
+                                    >
+                                        <ProviderAvatar
+                                            name={formData.name || 'Provider'}
+                                            gender={formData.gender}
+                                            category={formData.category}
+                                            photoURL={formData.photoURL}
+                                            size="lg"
+                                            showCategoryBadge
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white shadow-xs">
+                                            <Camera className="w-4 h-4" />
+                                        </div>
                                     </div>
-                                    <p className="text-xs text-on-surface font-extrabold truncate max-w-[200px] sm:max-w-[300px]">
-                                        {formData.name.trim() || 'Your Name Here'}
-                                    </p>
-                                    <p className="text-[11px] text-on-surface-variant font-medium capitalize">
-                                        Gender: <span className="font-bold text-on-surface">{formData.gender}</span> • Category: <span className="font-bold text-on-surface">{formData.category}</span>
-                                    </p>
+                                    <div className="space-y-0.5 text-left min-w-0">
+                                        <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
+                                            <Sparkles className="w-3.5 h-3.5" /> ServiceHub Professional Character Avatar
+                                        </div>
+                                        <p className="text-xs text-on-surface font-extrabold truncate max-w-[200px] sm:max-w-[300px]">
+                                            {formData.name.trim() || 'Your Name Here'}
+                                        </p>
+                                        <p className="text-[11px] text-on-surface-variant font-medium capitalize">
+                                            Gender: <span className="font-bold text-on-surface">{formData.gender}</span> • Category: <span className="font-bold text-on-surface">{formData.category}</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Photo Action Buttons */}
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <button
+                                        type="button"
+                                        onClick={() => setPhotoModalOpen(true)}
+                                        className="px-3.5 py-2 bg-white border border-outline-variant/50 hover:border-primary hover:bg-primary/5 rounded-xl text-xs font-bold text-on-surface transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                                    >
+                                        <Camera className="w-3.5 h-3.5 text-primary" />
+                                        <span>{formData.photoURL ? 'Change Photo' : 'Upload Photo'}</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -402,6 +427,24 @@ const ProviderSetup = () => {
                         </form>
                     </div>
                 </main>
+
+                {/* Profile Photo Modal */}
+                <ProfilePhotoModal
+                    isOpen={photoModalOpen}
+                    onClose={() => setPhotoModalOpen(false)}
+                    providerId={currentUser?.uid}
+                    currentPhotoURL={formData.photoURL || ''}
+                    providerName={formData.name || 'Provider'}
+                    gender={formData.gender}
+                    category={formData.category}
+                    onPhotoUpdated={(newUrl) => {
+                        setFormData(prev => ({
+                            ...prev,
+                            photoURL: newUrl
+                        }));
+                    }}
+                />
+
                 <Footer />
             </div>
         </PageTransition>

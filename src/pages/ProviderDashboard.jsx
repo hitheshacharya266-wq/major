@@ -14,9 +14,11 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
 import ProviderAvatar from '../components/ProviderAvatar';
 import PortfolioModal from '../components/PortfolioModal';
+import ProfilePhotoModal from '../components/ProfilePhotoModal';
 import {
     CheckCircle2, XCircle, Clock, MapPin, Wrench, ShieldCheck,
-    ToggleLeft, ToggleRight, DollarSign, Award, Bell, User, Image as ImageIcon
+    ToggleLeft, ToggleRight, DollarSign, Award, Bell, User, Image as ImageIcon,
+    Camera
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -27,6 +29,7 @@ const ProviderDashboard = () => {
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
     const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
+    const [photoModalOpen, setPhotoModalOpen] = useState(false);
 
     useEffect(() => {
         if (!currentUser) return;
@@ -119,7 +122,23 @@ const ProviderDashboard = () => {
                 <section className="bg-surface-container-low border-b border-outline-variant/30 py-6 sm:py-8">
                     <div className="max-w-container-max mx-auto px-4 sm:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3.5">
-                            <ProviderAvatar name={provider?.name || 'Service Partner'} gender={provider?.gender} category={provider?.category} photoURL={provider?.photoURL || provider?.image} size="md" showCategoryBadge />
+                            <div
+                                className="relative group shrink-0 cursor-pointer"
+                                onClick={() => setPhotoModalOpen(true)}
+                                title="Click to edit profile photo"
+                            >
+                                <ProviderAvatar
+                                    name={provider?.name || 'Service Partner'}
+                                    gender={provider?.gender}
+                                    category={provider?.category}
+                                    photoURL={provider?.photoURL || provider?.image}
+                                    size="md"
+                                    showCategoryBadge
+                                />
+                                <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white shadow-xs">
+                                    <Camera className="w-4 h-4" />
+                                </div>
+                            </div>
                             <div className="space-y-0.5">
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs font-extrabold text-primary uppercase tracking-widest">Partner Workstation</span>
@@ -136,6 +155,15 @@ const ProviderDashboard = () => {
 
                         {/* Availability Toggle & Edit Profile Actions */}
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                            <button
+                                type="button"
+                                onClick={() => setPhotoModalOpen(true)}
+                                className="h-12 px-4 bg-white border border-outline-variant/40 rounded-2xl flex items-center justify-center gap-2 text-xs font-bold text-on-surface hover:bg-surface-container transition-colors shadow-xs cursor-pointer"
+                                title="Edit or upload profile photo"
+                            >
+                                <Camera className="w-4 h-4 text-primary" />
+                                <span>{provider?.photoURL || provider?.image ? 'Edit Photo' : 'Add Photo'}</span>
+                            </button>
                             <button
                                 type="button"
                                 onClick={() => setPortfolioModalOpen(true)}
@@ -298,6 +326,24 @@ const ProviderDashboard = () => {
                     portfolio={provider?.portfolio || []}
                     onPortfolioUpdated={(updatedPortfolio) => {
                         setProvider(prev => ({ ...prev, portfolio: updatedPortfolio }));
+                    }}
+                />
+
+                {/* Profile Photo Modal */}
+                <ProfilePhotoModal
+                    isOpen={photoModalOpen}
+                    onClose={() => setPhotoModalOpen(false)}
+                    providerId={currentUser?.uid}
+                    currentPhotoURL={provider?.photoURL || provider?.image || ''}
+                    providerName={provider?.name || 'Service Partner'}
+                    gender={provider?.gender}
+                    category={provider?.category}
+                    onPhotoUpdated={(newUrl) => {
+                        setProvider(prev => ({
+                            ...prev,
+                            photoURL: newUrl,
+                            image: newUrl
+                        }));
                     }}
                 />
 

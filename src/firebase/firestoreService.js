@@ -18,70 +18,46 @@ import {
 } from 'firebase/firestore';
 import {
     ref,
-    uploadBytes,
-    getDownloadURL,
     deleteObject
 } from 'firebase/storage';
 import { db, storage } from './config';
 
-import { uploadPortfolioImageToCloudinary } from '../services/cloudinaryService';
+import {
+    uploadPortfolioImageToCloudinary,
+    uploadProfilePhotoToCloudinary
+} from '../services/cloudinaryService';
 
-/** Helper: Timeout wrapper to prevent async hanging */
-const withTimeout = (promise, ms = 15000, errorMessage = 'Operation timed out') => {
-    return Promise.race([
-        promise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error(errorMessage)), ms))
-    ]);
+/** Upload provider profile image to Cloudinary and return persistent secure URL and metadata */
+export const uploadProviderProfileImage = async (uid, file, onProgress) => {
+    if (!file || !uid) throw new Error('File and Provider ID are required.');
+    const result = await uploadProfilePhotoToCloudinary(file, uid, onProgress);
+    return result;
 };
 
-/** Upload provider profile image to Firebase Storage and return persistent download URL */
-export const uploadProviderProfileImage = async (uid, file) => {
-    if (!file || !uid) return null;
-    
-    // 1. Validate File Type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type.toLowerCase())) {
-        throw new Error('Please select a valid image file (JPG, PNG, or WEBP).');
-    }
-    
-    // 2. Validate File Size (Max 5 MB)
-    if (file.size > 5 * 1024 * 1024) {
-        throw new Error('Image must be smaller than 5 MB.');
-    }
+/**
+ * Update provider's profile photo in Firestore and companion user document.
+ * Sets both `photoURL` and `image` to maintain complete consistency across all queries.
+ * Passing an empty string or null removes the photo and restores the default character avatar.
+ */
+export const updateProviderProfilePhoto = async (uid, photoURL) => {
+    if (!uid) throw new Error('Provider UID is required');
+    const cleanUrl = photoURL ? String(photoURL).trim() : '';
 
-    try {
-        const fileExt = file.name.split('.').pop() || 'jpg';
-        const storageRef = ref(storage, `providerProfiles/${uid}/profile_${Date.now()}.${fileExt}`);
-        
-        // Execute upload with 15s timeout protection
-        const snapshot = await withTimeout(
-            uploadBytes(storageRef, file),
-            15000,
-            'Profile photo upload timed out. Please check your network connection.'
-        );
-        
-        // Retrieve download URL with 10s timeout protection
-        const downloadURL = await withTimeout(
-            getDownloadURL(snapshot.ref),
-            10000,
-            'Failed to generate image download URL.'
-        );
-        
-        return downloadURL;
-    } catch (err) {
-        console.error('Firebase Storage upload error:', err);
-        let msg = err.message || 'Image upload failed.';
-        if (err.code === 'storage/unauthorized') {
-            msg = 'Storage permission denied. Please check your Firebase Storage security rules.';
-        } else if (err.code === 'storage/bucket-not-found' || err.status_ === 404 || err.code === 'storage/unknown' || err.code === 'storage/retry-limit-exceeded' || err.message?.includes('timed out')) {
-            msg = 'Firebase Storage is not enabled yet in your Firebase Console (project: service-aggregator-b2530). Please click "Get Started" under Storage in the Firebase Console to activate your storage bucket.';
-        } else if (err.code === 'storage/canceled') {
-            msg = 'Image upload was canceled.';
-        } else if (err.code === 'storage/quota-exceeded') {
-            msg = 'Firebase Storage quota exceeded.';
-        }
-        throw new Error(msg);
-    }
+    // 1. Update serviceProviders/{uid}
+    const providerRef = doc(db, 'serviceProviders', uid);
+    await setDoc(providerRef, {
+        photoURL: cleanUrl,
+        image: cleanUrl,
+        updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    // 2. Also update users/{uid} profile document for identity consistency
+    await updateDoc(doc(db, 'users', uid), {
+        photoURL: cleanUrl,
+        updatedAt: serverTimestamp()
+    }).catch(() => {});
+
+    return cleanUrl;
 };
 
 /** Upload provider portfolio work image to Cloudinary and return persistent secure URL and metadata */

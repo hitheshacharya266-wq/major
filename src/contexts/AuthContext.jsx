@@ -50,7 +50,19 @@ export const AuthProvider = ({ children }) => {
         return unsubscribe;
     }, []);
 
-    const value = { currentUser, userProfile, loading };
+    const refreshUserProfile = async () => {
+        if (auth.currentUser) {
+            try {
+                const profile = await getUserProfile(auth.currentUser.uid);
+                setUserProfile(profile);
+                setCurrentUser({ ...auth.currentUser });
+            } catch (err) {
+                console.error('Failed to refresh user profile:', err);
+            }
+        }
+    };
+
+    const value = { currentUser, userProfile, loading, refreshUserProfile };
 
     return (
         <AuthContext.Provider value={value}>
