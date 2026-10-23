@@ -25,7 +25,12 @@ dist-ssr
 
 .vercel
 .env*
+.env.local
 !.env.example
+
+# Firebase Service Account Credentials
+service-account*.json
+*serviceAccount*.json
 
 # Local duplicate project and visual audit files
 major/

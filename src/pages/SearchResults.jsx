@@ -88,6 +88,11 @@ const SearchResults = () => {
         const queryCat = normalizeCategory(normSearchQuery);
 
         return providers.filter(p => {
+            // Exclude suspended and deactivated providers from customer search
+            if (p.status === 'suspended' || p.status === 'deactivated') {
+                return false;
+            }
+
             const normProviderCat = normalizeCategory(p.category);
             const matchesCategory = !normSelectedCat || normProviderCat === normSelectedCat;
 

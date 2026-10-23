@@ -49,6 +49,9 @@ export const registerUser = async (email, password, fullName, role, providerData
             rating: null,
             ratingCount: 0,
             available: true,
+            verified: false,
+            verificationStatus: 'pending',
+            status: 'active',
             createdAt: serverTimestamp()
         });
     }

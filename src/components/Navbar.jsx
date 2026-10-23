@@ -5,14 +5,14 @@ import { subscribeToUserNotifications } from '../firebase/firestoreService';
 import { getDashboardPath } from '../utils/helpers';
 import {
     Wrench, Menu, X, User, LogOut,
-    LayoutDashboard, ChevronDown, Bell, Settings
+    LayoutDashboard, ChevronDown, Bell, Settings, Shield
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
-    const { currentUser, userProfile } = useAuth();
+    const { currentUser, userProfile, isAdmin } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -25,7 +25,6 @@ const Navbar = () => {
 
     useEffect(() => {
         if (!currentUser) {
-            setUnreadCount(0);
             return;
         }
         const unsubscribe = subscribeToUserNotifications(
@@ -61,6 +60,7 @@ const Navbar = () => {
     }, []);
 
     const role = userProfile?.role;
+    const effectiveDashboardPath = isAdmin ? '/admin-dashboard' : getDashboardPath(role);
     const displayName = userProfile?.fullName || userProfile?.name || currentUser?.displayName || 'User';
     const initial = displayName?.charAt(0)?.toUpperCase() || 'U';
 
@@ -96,10 +96,10 @@ const Navbar = () => {
                             </Link>
                             {currentUser && (
                                 <Link
-                                    to={getDashboardPath(role)}
+                                    to={effectiveDashboardPath}
                                     className={`transition-colors cursor-pointer py-1 ${location.pathname.includes('dashboard') ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-primary'}`}
                                 >
-                                    Dashboard
+                                    {isAdmin ? 'Admin Dashboard' : 'Dashboard'}
                                 </Link>
                             )}
                         </div>
@@ -153,7 +153,7 @@ const Navbar = () => {
 
                                     <AnimatePresence>
                                         {profileOpen && (
-                                            <motion.div
+                                            <Motion.div
                                                 initial={{ opacity: 0, y: 8, scale: 0.95 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
@@ -164,14 +164,20 @@ const Navbar = () => {
                                                     <p className="text-sm font-bold text-on-surface truncate">{displayName}</p>
                                                     <p className="text-xs text-on-surface-variant truncate">{currentUser.email}</p>
                                                     <span className="mt-1.5 inline-block px-2.5 py-0.5 rounded-md bg-secondary-container/40 text-secondary text-[10px] font-extrabold uppercase tracking-wider">
-                                                        {role || 'User'}
+                                                        {isAdmin ? 'Administrator' : (role || 'User')}
                                                     </span>
                                                 </div>
 
                                                 <div className="p-1.5 space-y-0.5 text-xs font-semibold">
-                                                    <Link to={getDashboardPath(role)} onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-on-surface hover:bg-surface-container hover:text-primary transition-colors">
-                                                        <LayoutDashboard className="w-4 h-4 text-primary shrink-0" /> Dashboard
-                                                    </Link>
+                                                    {isAdmin ? (
+                                                        <Link to="/admin-dashboard" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-primary font-bold bg-primary/10 hover:bg-primary/20 transition-colors mb-1">
+                                                            <Shield className="w-4 h-4 text-primary shrink-0" /> Admin Control Panel
+                                                        </Link>
+                                                    ) : (
+                                                        <Link to={effectiveDashboardPath} onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-on-surface hover:bg-surface-container hover:text-primary transition-colors">
+                                                            <LayoutDashboard className="w-4 h-4 text-primary shrink-0" /> Dashboard
+                                                        </Link>
+                                                    )}
                                                     <Link to="/profile" onClick={() => setProfileOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-on-surface hover:bg-surface-container hover:text-primary transition-colors">
                                                         <User className="w-4 h-4 text-primary shrink-0" /> Account Profile
                                                     </Link>
@@ -185,7 +191,7 @@ const Navbar = () => {
                                                         <LogOut className="w-4 h-4 shrink-0" /> Sign Out
                                                     </button>
                                                 </div>
-                                            </motion.div>
+                                            </Motion.div>
                                         )}
                                     </AnimatePresence>
                                 </div>
@@ -216,7 +222,7 @@ const Navbar = () => {
             {/* Mobile Navigation Drawer */}
             <AnimatePresence>
                 {mobileOpen && (
-                    <motion.div
+                    <Motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -229,7 +235,15 @@ const Navbar = () => {
 
                             {currentUser ? (
                                 <>
-                                    <Link to={getDashboardPath(role)} onClick={() => setMobileOpen(false)} className="block py-2.5 text-primary font-extrabold border-b border-outline-variant/10">Dashboard</Link>
+                                    {isAdmin ? (
+                                        <Link to="/admin-dashboard" onClick={() => setMobileOpen(false)} className="block py-2.5 text-primary font-black border-b border-outline-variant/10 flex items-center gap-2">
+                                            <Shield className="w-4 h-4" /> Admin Control Panel
+                                        </Link>
+                                    ) : (
+                                        <Link to={effectiveDashboardPath} onClick={() => setMobileOpen(false)} className="block py-2.5 text-primary font-extrabold border-b border-outline-variant/10">Dashboard</Link>
+                                    )}
+                                    <Link to="/profile" onClick={() => setMobileOpen(false)} className="block py-2.5 text-on-surface hover:text-primary border-b border-outline-variant/10">Account Profile</Link>
+                                    <Link to="/settings" onClick={() => setMobileOpen(false)} className="block py-2.5 text-on-surface hover:text-primary border-b border-outline-variant/10">Settings</Link>
                                     <button onClick={handleLogout} className="w-full text-left py-2.5 text-red-600 font-extrabold cursor-pointer">Sign Out</button>
                                 </>
                             ) : (
@@ -239,7 +253,7 @@ const Navbar = () => {
                                 </div>
                             )}
                         </div>
-                    </motion.div>
+                    </Motion.div>
                 )}
             </AnimatePresence>
         </header>

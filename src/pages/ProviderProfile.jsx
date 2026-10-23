@@ -7,6 +7,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
 import ProviderAvatar from '../components/ProviderAvatar';
 import PortfolioGalleryModal from '../components/PortfolioGalleryModal';
+import ReportModal from '../components/ReportModal';
+import { AlertTriangle, ShieldAlert } from 'lucide-react';
 
 const ProviderProfile = () => {
   const { id } = useParams();
@@ -17,6 +19,7 @@ const ProviderProfile = () => {
   const [selectedDate, setSelectedDate] = useState('TODAY 24');
   const [selectedService, setSelectedService] = useState('main');
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,7 +83,7 @@ const ProviderProfile = () => {
       </div>
     );
   }
-  
+
   if (!provider) {
     return (
       <PageTransition>
@@ -104,14 +107,14 @@ const ProviderProfile = () => {
   }
 
   const category = SERVICE_CATEGORIES.find(item => String(item.id).toLowerCase() === String(provider.category || '').toLowerCase());
-  
+
   let parsedSkills = [];
   if (Array.isArray(provider.skills)) {
       parsedSkills = provider.skills;
   } else if (typeof provider.skills === 'string' && provider.skills.trim()) {
       parsedSkills = provider.skills.split(',').map(s => s.trim());
   }
-  
+
   const price = provider.price;
   const displayRating = provider.rating && provider.ratingCount > 0 ? provider.rating : null;
 
@@ -125,11 +128,11 @@ const ProviderProfile = () => {
               {/* Hero / Profile Header */}
               <section className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl border border-outline-variant/30 shadow-xs flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-7 w-full max-w-full min-w-0">
                 <div className="relative shrink-0">
-                  <ProviderAvatar 
-                      name={provider.name} 
-                      gender={provider.gender} 
-                      category={provider.category} 
-                      photoURL={provider.photoURL || provider.image} 
+                  <ProviderAvatar
+                      name={provider.name}
+                      gender={provider.gender}
+                      category={provider.category}
+                      photoURL={provider.photoURL || provider.image}
                       size="2xl"
                       className="!w-24 !h-24 sm:!w-32 sm:!h-32 md:!w-40 md:!h-40 !rounded-2xl overflow-hidden border-3 sm:border-4 border-white shadow-md !text-4xl sm:!text-5xl"
                   />
@@ -138,7 +141,7 @@ const ProviderProfile = () => {
                     <span>Verified</span>
                   </div>
                 </div>
-                
+
                 <div className="flex-1 space-y-3 min-w-0 w-full max-w-full flex flex-col items-center sm:items-start text-center sm:text-left">
                   <div className="w-full max-w-full min-w-0">
                     <h1 className="font-bold text-xl sm:text-2xl lg:text-3xl text-on-surface leading-snug break-words max-w-full [overflow-wrap:anywhere]">
@@ -148,7 +151,7 @@ const ProviderProfile = () => {
                       Expert {category?.label || provider.category || 'Local'} Solutions in {provider.location || 'your area'} &amp; surrounding regions
                     </p>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center sm:justify-start w-full max-w-full">
                     <span className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 bg-surface-container/70 rounded-full flex items-center gap-1.5 border border-outline-variant/30 text-[11px] sm:text-xs font-semibold text-on-surface max-w-full">
                       <span className="material-symbols-outlined text-primary text-[16px] sm:text-[18px] shrink-0">shield_person</span>
@@ -169,7 +172,7 @@ const ProviderProfile = () => {
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center gap-2.5 sm:gap-4 pt-3 sm:pt-3.5 border-t border-outline-variant/20 flex-wrap justify-center sm:justify-start w-full max-w-full text-xs sm:text-sm">
                     <div className="flex items-center gap-1 text-secondary">
                       <span className="material-symbols-outlined text-lg sm:text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
@@ -356,11 +359,11 @@ const ProviderProfile = () => {
                     <span>Available Now</span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3 sm:space-y-4 w-full max-w-full">
                   <div className="space-y-1 sm:space-y-1.5 w-full max-w-full">
                     <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Select Service Type</label>
-                    <select 
+                    <select
                       value={selectedService}
                       onChange={(e) => setSelectedService(e.target.value)}
                       className="w-full bg-surface-container-low/80 border border-outline-variant/40 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none cursor-pointer"
@@ -370,7 +373,7 @@ const ProviderProfile = () => {
                       <option value="custom">Custom Request</option>
                     </select>
                   </div>
-                  
+
                   <div className="space-y-1 sm:space-y-1.5 w-full max-w-full">
                     <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Preferred Date</label>
                     <div className="flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 w-full max-w-full [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
@@ -378,13 +381,13 @@ const ProviderProfile = () => {
                           const [dayStr, dateNum] = dateStr.split(' ');
                           const isSelected = selectedDate === dateStr;
                           return (
-                              <button 
-                                key={dateStr} 
+                              <button
+                                key={dateStr}
                                 type="button"
                                 onClick={() => setSelectedDate(dateStr)}
                                 className={`flex-1 min-w-[64px] sm:min-w-[72px] px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                                  isSelected 
-                                    ? 'border-primary bg-primary text-white shadow-sm' 
+                                  isSelected
+                                    ? 'border-primary bg-primary text-white shadow-sm'
                                     : 'border-outline-variant/30 hover:border-primary text-on-surface bg-surface-container-lowest/50'
                                 }`}
                               >
@@ -395,18 +398,18 @@ const ProviderProfile = () => {
                       })}
                     </div>
                   </div>
-                  
+
                   <div className="space-y-1 sm:space-y-1.5 w-full max-w-full">
                     <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Select Time Slot</label>
                     <div className="grid grid-cols-2 gap-2 sm:gap-2.5 w-full max-w-full">
                       {['09:00 AM', '11:30 AM', '02:00 PM', '04:30 PM'].map(slot => (
-                        <button 
-                          key={slot} 
+                        <button
+                          key={slot}
                           type="button"
-                          onClick={() => setSelectedSlot(slot)} 
+                          onClick={() => setSelectedSlot(slot)}
                           className={`py-2 sm:py-2.5 px-2 sm:px-3 border rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center truncate ${
-                            selectedSlot === slot 
-                              ? 'border-primary bg-primary/10 text-primary font-bold shadow-2xs' 
+                            selectedSlot === slot
+                              ? 'border-primary bg-primary/10 text-primary font-bold shadow-2xs'
                               : 'border-outline-variant/30 hover:border-primary bg-surface-container-lowest/50 text-on-surface'
                           }`}
                         >
@@ -416,7 +419,7 @@ const ProviderProfile = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="pt-3.5 sm:pt-4 border-t border-outline-variant/20 space-y-2.5 sm:space-y-3 w-full max-w-full">
                   <div className="flex items-center justify-between text-xs sm:text-sm font-medium gap-2">
                     <span className="text-on-surface-variant">Consultation Fee</span>
@@ -426,14 +429,39 @@ const ProviderProfile = () => {
                     <span className="text-sm sm:text-base lg:text-lg font-bold text-on-surface">Total Due</span>
                     <span className="text-xl sm:text-2xl font-black text-primary shrink-0">{price ? formatCurrency(price + 99) : 'TBD'}</span>
                   </div>
-                  <Link 
-                    to={`/checkout/${provider.id}`} 
-                    className="w-full py-3 sm:py-3.5 lg:py-4 px-4 sm:px-6 bg-primary hover:bg-[#005655] text-white rounded-xl font-bold text-sm sm:text-base lg:text-lg shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex justify-center items-center text-center cursor-pointer"
-                  >
-                    Book Appointment
-                  </Link>
+                  {provider.status === 'suspended' || provider.status === 'deactivated' ? (
+                    <div className="space-y-2">
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs">
+                        <p className="font-bold flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" /> Service Unavailable</p>
+                        <p className="mt-0.5 text-[11px]">{provider.suspensionReason || 'This partner account is currently suspended by administration.'}</p>
+                      </div>
+                      <button
+                        disabled
+                        className="w-full py-3.5 px-4 bg-gray-200 text-gray-500 rounded-xl font-bold text-sm cursor-not-allowed text-center"
+                      >
+                        Provider Unavailable
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      to={`/checkout/${provider.id}`}
+                      className="w-full py-3 sm:py-3.5 lg:py-4 px-4 sm:px-6 bg-primary hover:bg-[#005655] text-white rounded-xl font-bold text-sm sm:text-base lg:text-lg shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200 flex justify-center items-center text-center cursor-pointer"
+                    >
+                      Book Appointment
+                    </Link>
+                  )}
                 </div>
-                
+
+                <div className="flex items-center justify-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setReportOpen(true)}
+                    className="text-xs font-semibold text-on-surface-variant/70 hover:text-red-600 transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5" /> Report this Provider
+                  </button>
+                </div>
+
                 <div className="bg-surface-container-high/40 p-3 sm:p-3.5 rounded-xl flex items-center gap-2.5 sm:gap-3 border border-outline-variant/20 w-full max-w-full">
                   <span className="material-symbols-outlined text-secondary text-lg sm:text-xl shrink-0">lock</span>
                   <p className="text-[11px] sm:text-xs text-on-surface-variant leading-snug">Your booking is protected by ServiceHub Guarantee.</p>
@@ -449,6 +477,15 @@ const ProviderProfile = () => {
           onClose={() => setGalleryOpen(false)}
           images={Array.isArray(provider?.portfolio) ? provider.portfolio : []}
           providerName={provider.name}
+        />
+
+        {/* Report / Complaint Modal */}
+        <ReportModal
+          isOpen={reportOpen}
+          onClose={() => setReportOpen(false)}
+          targetType="provider"
+          targetId={provider.id || provider.uid}
+          targetName={provider.name}
         />
 
         <Footer />

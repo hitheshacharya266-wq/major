@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../firebase/authService';
 import {
-    getDashboardPath, getFirebaseErrorMessage,
+    getFirebaseErrorMessage,
     validateEmail, validatePassword, validateName,
     SERVICE_CATEGORIES
 } from '../utils/helpers';

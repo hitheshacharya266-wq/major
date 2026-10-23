@@ -14,13 +14,14 @@ import {
     query,
     where,
     onSnapshot,
-    serverTimestamp
+    serverTimestamp,
+    writeBatch
 } from 'firebase/firestore';
 import {
     ref,
     deleteObject
 } from 'firebase/storage';
-import { db, storage } from './config';
+import { db, storage, auth } from './config';
 
 import {
     uploadPortfolioImageToCloudinary,
@@ -261,18 +262,89 @@ export const rateBooking = async (bookingId, rating) => {
 
 // ─── Notifications ────────────────────────────────────────
 
-/** Create a new notification document in Firestore */
+/**
+ * Create a new notification document.
+ * - Ordinary users dispatch strictly through the authenticated /api/admin backend.
+ * - Direct Firestore creation is strictly restricted to verified administrators.
+ * - Never retries automatically after server error to prevent duplicate notifications.
+ * - Returns { success: boolean, notificationId?: string, id?: string, error?: string }.
+ */
 export const createNotification = async (notificationData) => {
+    if (!auth?.currentUser) {
+        return { success: false, error: 'User must be authenticated to send notifications.' };
+    }
+
     try {
+        const tokenResult = await auth.currentUser.getIdTokenResult();
+        const isAdmin = Boolean(tokenResult?.claims?.admin === true);
+
+        // 1. Ordinary users route strictly through trusted backend endpoint
+        if (!isAdmin) {
+            try {
+                const token = tokenResult.token;
+                const res = await fetch('/api/admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        action: 'send-notification',
+                        payload: notificationData
+                    })
+                });
+
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success && data.notificationId) {
+                    return { success: true, notificationId: data.notificationId, id: data.notificationId };
+                }
+
+                const errorMsg = data.error || `Server notification dispatch failed with HTTP ${res.status}`;
+                console.warn('[createNotification] Backend dispatch rejected:', errorMsg);
+                // DO NOT fall back to direct Firestore write for ordinary users
+                return { success: false, error: errorMsg };
+            } catch (networkErr) {
+                console.error('[createNotification] Network error dispatching notification:', networkErr);
+                // DO NOT retry or fall back to direct Firestore write
+                return { success: false, error: networkErr.message || 'Network error dispatching notification.' };
+            }
+        }
+
+        // 2. Verified Admins: can use backend or direct Firestore creation
+        try {
+            const token = tokenResult.token;
+            const res = await fetch('/api/admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    action: 'send-notification',
+                    payload: notificationData
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json().catch(() => ({}));
+                if (data.success && data.notificationId) {
+                    return { success: true, notificationId: data.notificationId, id: data.notificationId };
+                }
+            }
+        } catch {
+            // Backend unreachable; verified admin can fall back to direct authorized write
+        }
+
+        // Direct Firestore creation (strictly restricted to verified admins)
         const docRef = await addDoc(collection(db, 'notifications'), {
             ...notificationData,
             read: false,
             createdAt: serverTimestamp()
         });
-        return docRef.id;
+        return { success: true, notificationId: docRef.id, id: docRef.id };
     } catch (err) {
-        console.error('Failed to create notification document:', err);
-        return null;
+        console.error('[createNotification] Failed to create notification document:', err);
+        return { success: false, error: err.message || 'Notification creation failed.' };
     }
 };
 
@@ -318,46 +390,86 @@ export const markAllNotificationsAsRead = async (userId, notificationList = []) 
     }
 };
 
-/** Save/Update Provider Profile (System-derived rating & completed jobs remain protected) */
+/** Save/Update Provider Profile (System-derived rating, completed jobs & admin verification remain protected) */
 export const saveProviderProfile = async (uid, profileData) => {
-    const normCat = String(profileData.category || 'electrician').trim().toLowerCase();
+    const providerRef = doc(db, 'serviceProviders', uid);
+    const existingSnap = await getDoc(providerRef);
+    const isNew = !existingSnap.exists();
+    const existingData = isNew ? {} : (existingSnap.data() || {});
+
+    const normCat = String(profileData.category || existingData.category || 'electrician').trim().toLowerCase();
     const cleanSkills = Array.isArray(profileData.skills)
         ? profileData.skills
-        : String(profileData.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+        : String(profileData.skills || existingData.skills || '').split(',').map(s => s.trim()).filter(Boolean);
 
-    const providerDoc = {
+    // Profile fields that provider is authorized to edit
+    const editableProfileData = {
         uid,
-        name: profileData.name || profileData.fullName || 'Service Provider',
-        fullName: profileData.name || profileData.fullName || 'Service Provider',
-        gender: profileData.gender || 'male',
+        name: profileData.name || profileData.fullName || existingData.name || existingData.fullName || 'Service Provider',
+        fullName: profileData.name || profileData.fullName || existingData.fullName || existingData.name || 'Service Provider',
+        gender: profileData.gender || existingData.gender || 'male',
         category: normCat,
-        description: profileData.description || '',
-        experienceYears: String(profileData.experienceYears || '3'),
-        price: (profileData.price !== undefined && profileData.price !== null && profileData.price !== '') ? Number(profileData.price) : null,
-        location: profileData.location || 'Mangaluru',
+        description: profileData.description !== undefined ? profileData.description : (existingData.description || ''),
+        experienceYears: String(profileData.experienceYears || existingData.experienceYears || '3'),
+        price: (profileData.price !== undefined && profileData.price !== null && profileData.price !== '')
+            ? Number(profileData.price)
+            : (existingData.price !== undefined ? existingData.price : null),
+        location: profileData.location || existingData.location || 'Mangaluru',
         skills: cleanSkills.length > 0 ? cleanSkills : ['General Repair'],
-        phone: profileData.phone || '',
-        photoURL: profileData.photoURL || profileData.image || '',
-        image: profileData.photoURL || profileData.image || '',
-        available: profileData.available !== false,
-        verified: profileData.verified !== undefined ? profileData.verified : true,
-        ...(Array.isArray(profileData.portfolio) ? { portfolio: profileData.portfolio } : {}),
+        phone: profileData.phone !== undefined ? profileData.phone : (existingData.phone || ''),
+        photoURL: profileData.photoURL || profileData.image || existingData.photoURL || existingData.image || '',
+        image: profileData.photoURL || profileData.image || existingData.image || existingData.photoURL || '',
+        available: profileData.available !== undefined ? profileData.available !== false : (existingData.available !== false),
+        ...(Array.isArray(profileData.portfolio) ? { portfolio: profileData.portfolio } : (Array.isArray(existingData.portfolio) ? { portfolio: existingData.portfolio } : {})),
         updatedAt: serverTimestamp()
     };
 
-    // Update serviceProviders/{uid} document with merge: true
-    await setDoc(doc(db, 'serviceProviders', uid), providerDoc, { merge: true });
+    if (isNew) {
+        // Document creation: Initialize verification and account state strictly according to security rules
+        const newDoc = {
+            ...editableProfileData,
+            verified: false,
+            verificationStatus: 'pending',
+            status: 'active',
+            rating: null,
+            ratingCount: 0,
+            createdAt: serverTimestamp()
+        };
+        await setDoc(providerRef, newDoc);
+    } else {
+        // Document update: Never include verification or admin-protected fields in the update payload.
+        // This ensures request.resource.data.diff(resource.data).affectedKeys() does NOT contain protected keys,
+        // preventing permission-denied errors and preserving existing verification status intact.
+        await setDoc(providerRef, editableProfileData, { merge: true });
+    }
 
-    // Update users/{uid} profile document
-    await updateDoc(doc(db, 'users', uid), {
-        fullName: providerDoc.name,
-        gender: providerDoc.gender,
-        category: providerDoc.category,
-        description: providerDoc.description,
-        updatedAt: serverTimestamp()
-    }).catch(() => {});
+    // Update users/{uid} companion profile document with explicit error handling
+    let userSynced = true;
+    let userSyncError = null;
 
-    return providerDoc;
+    try {
+        await setDoc(doc(db, 'users', uid), {
+            fullName: editableProfileData.name,
+            gender: editableProfileData.gender,
+            category: editableProfileData.category,
+            description: editableProfileData.description,
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+    } catch (userErr) {
+        userSynced = false;
+        userSyncError = userErr.message || 'Failed to update companion user profile';
+        console.warn(`[saveProviderProfile] Companion user profile sync failed for provider '${uid}':`, userErr);
+    }
+
+    // Return full representation with preserved verification state and accurate sync status
+    return {
+        ...existingData,
+        ...editableProfileData,
+        verified: isNew ? false : (existingData.verified ?? false),
+        verificationStatus: isNew ? 'pending' : (existingData.verificationStatus || 'pending'),
+        userSynced,
+        ...(userSyncError ? { userSyncError } : {})
+    };
 };
 
 /** Create a real Customer Review for a completed booking */
@@ -480,11 +592,578 @@ export const getProviderStats = async (providerId, includeBookings = false) => {
             const totalScore = reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0);
             rating = Math.round((totalScore / ratingCount) * 10) / 10;
         }
-    } catch (err) {
-        console.warn('Reviews access restricted or unavailable for provider stats:', err?.message || err);
+    } catch {
+        // Reviews access restricted or unavailable for provider stats
     }
 
     return { completedJobsCount, rating, ratingCount };
+};
+
+// ─── Administrative Audit Logs ────────────────────────────
+
+/**
+ * Create an immutable audit log entry in adminAuditLogs collection.
+ */
+export const createAuditLog = async ({
+    adminUid,
+    adminEmail,
+    action,
+    targetType,
+    targetId,
+    details = {},
+    reason = ''
+}) => {
+    try {
+        const logDoc = {
+            adminUid: adminUid || 'unknown_admin',
+            adminEmail: adminEmail || 'admin@servicehub.in',
+            action,
+            targetType,
+            targetId: String(targetId || ''),
+            details: details || {},
+            reason: reason || '',
+            timestamp: serverTimestamp()
+        };
+        const ref = await addDoc(collection(db, 'adminAuditLogs'), logDoc);
+        return ref.id;
+    } catch (err) {
+        console.error('Failed to create admin audit log:', err);
+        return null;
+    }
+};
+
+/**
+ * Fetch all administrative audit logs, sorted newest first.
+ */
+export const getAuditLogs = async (limitCount = 100) => {
+    try {
+        const snap = await getDocs(collection(db, 'adminAuditLogs'));
+        return snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => getTimestampSeconds(b.timestamp) - getTimestampSeconds(a.timestamp))
+            .slice(0, limitCount);
+    } catch (err) {
+        console.error('Error fetching admin audit logs:', err);
+        return [];
+    }
+};
+
+// ─── Provider Lifecycle & Moderation ───────────────────────
+
+/**
+ * Update provider account lifecycle status:
+ * 'active' | 'suspended' | 'deactivated' | 'pending'
+ */
+export const updateProviderAccountStatus = async (providerId, newStatus, reason = '', adminInfo = {}) => {
+    if (!providerId || !newStatus) throw new Error('Provider ID and status are required');
+
+    const updateData = {
+        status: newStatus,
+        updatedAt: serverTimestamp()
+    };
+
+    if (newStatus === 'suspended') {
+        updateData.suspensionReason = reason || 'Violation of service terms';
+        updateData.suspensionDate = serverTimestamp();
+        updateData.available = false; // automatically set unavailable when suspended
+    } else if (newStatus === 'active') {
+        updateData.suspensionReason = null;
+        updateData.suspensionDate = null;
+        updateData.deactivatedReason = null;
+        updateData.deactivatedDate = null;
+        updateData.available = true;
+    } else if (newStatus === 'deactivated') {
+        updateData.deactivatedReason = reason || 'Account deactivated by administrator';
+        updateData.deactivatedDate = serverTimestamp();
+        updateData.available = false;
+    }
+
+    // 1. Atomic Firestore batch update for serviceProviders and companion users document
+    const batch = writeBatch(db);
+    batch.update(doc(db, 'serviceProviders', providerId), updateData);
+    batch.update(doc(db, 'users', providerId), {
+        providerStatus: newStatus,
+        status: newStatus,
+        updatedAt: serverTimestamp()
+    });
+    await batch.commit();
+
+    // 2. Create Audit Log only after successful batch commit
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: `PROVIDER_${newStatus.toUpperCase()}`,
+        targetType: 'provider',
+        targetId: providerId,
+        details: { previousStatus: adminInfo.previousStatus, newStatus },
+        reason
+    });
+
+    // 4. Send system notification to provider
+    try {
+        let title = 'Account Status Update 🛡️';
+        let message = `Your provider account status has been changed to ${newStatus}.`;
+        if (newStatus === 'suspended') {
+            title = 'Account Suspended ⚠️';
+            message = `Your service provider account has been suspended. Reason: ${reason || 'Terms violation'}. Please contact support for assistance.`;
+        } else if (newStatus === 'active') {
+            title = 'Account Reactivated! 🎉';
+            message = 'Your service partner account is now fully active. You can receive new customer bookings.';
+        }
+        await createNotification({
+            recipientId: providerId,
+            type: 'account_status',
+            title,
+            message,
+            providerId
+        });
+    } catch (notifErr) {
+        console.warn('Could not dispatch status notification to provider:', notifErr);
+    }
+};
+
+/**
+ * Approve provider verification
+ */
+export const verifyProviderAccount = async (providerId, adminInfo = {}) => {
+    if (!providerId) throw new Error('Provider ID is required');
+
+    const updateData = {
+        verified: true,
+        verificationStatus: 'verified',
+        rejectionReason: null,
+        verifiedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    };
+
+    await updateDoc(doc(db, 'serviceProviders', providerId), updateData);
+
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: 'PROVIDER_VERIFIED',
+        targetType: 'provider',
+        targetId: providerId,
+        details: { verificationStatus: 'verified' },
+        reason: 'Verification criteria reviewed and approved by administrator'
+    });
+
+    try {
+        await createNotification({
+            recipientId: providerId,
+            type: 'verification_approved',
+            title: 'Partner Verification Approved! 🏅',
+            message: 'Congratulations! Your profile has been verified by the ServiceHub administration. The verified badge is now visible to customers.',
+            providerId
+        });
+    } catch {
+        // Non-blocking
+    }
+};
+
+/**
+ * Reject provider verification with a mandatory reason
+ */
+export const rejectProviderVerification = async (providerId, rejectionReason, adminInfo = {}) => {
+    if (!providerId) throw new Error('Provider ID is required');
+    if (!rejectionReason || !rejectionReason.trim()) {
+        throw new Error('A rejection reason must be provided');
+    }
+
+    const updateData = {
+        verified: false,
+        verificationStatus: 'rejected',
+        rejectionReason: rejectionReason.trim(),
+        rejectedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    };
+
+    await updateDoc(doc(db, 'serviceProviders', providerId), updateData);
+
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: 'PROVIDER_VERIFICATION_REJECTED',
+        targetType: 'provider',
+        targetId: providerId,
+        details: { verificationStatus: 'rejected' },
+        reason: rejectionReason.trim()
+    });
+
+    try {
+        await createNotification({
+            recipientId: providerId,
+            type: 'verification_rejected',
+            title: 'Verification Requires Changes 📝',
+            message: `Your verification request was rejected. Reason: ${rejectionReason}. Please update your profile with proper details and re-submit.`,
+            providerId
+        });
+    } catch {
+        // Non-blocking
+    }
+};
+
+// ─── Customer Moderation ───────────────────────────────────
+
+/**
+ * Restrict or reactivate customer account
+ */
+export const restrictCustomerAccount = async (customerId, status, reason = '', adminInfo = {}) => {
+    if (!customerId || !status) throw new Error('Customer ID and status are required');
+
+    await updateDoc(doc(db, 'users', customerId), {
+        status,
+        restrictionReason: status === 'restricted' ? reason : null,
+        updatedAt: serverTimestamp()
+    });
+
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: `CUSTOMER_${status.toUpperCase()}`,
+        targetType: 'customer',
+        targetId: customerId,
+        details: { status },
+        reason
+    });
+};
+
+// ─── Bookings Admin ────────────────────────────────────────
+
+/**
+ * Fetch all platform bookings for admin oversight
+ */
+export const getAllBookingsAdmin = async () => {
+    try {
+        const snap = await getDocs(collection(db, 'bookings'));
+        return snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => getTimestampSeconds(b.timestamp) - getTimestampSeconds(a.timestamp));
+    } catch (err) {
+        console.error('Error fetching admin bookings:', err);
+        return [];
+    }
+};
+
+/**
+ * Flag a booking for administrative investigation
+ */
+export const flagBookingForReview = async (bookingId, flagReason, adminInfo = {}) => {
+    if (!bookingId) throw new Error('Booking ID is required');
+
+    await updateDoc(doc(db, 'bookings', bookingId), {
+        flagged: true,
+        flagReason: flagReason || 'Flagged for moderation check',
+        flaggedAt: serverTimestamp(),
+        flaggedBy: adminInfo.uid || 'admin'
+    });
+
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: 'BOOKING_FLAGGED',
+        targetType: 'booking',
+        targetId: bookingId,
+        reason: flagReason || 'Flagged for review'
+    });
+};
+
+// ─── Complaints and Reports ────────────────────────────────
+
+/**
+ * Create a new complaint / report from a customer or provider
+ */
+export const createReport = async ({
+    type = 'provider', // 'provider' | 'booking' | 'review' | 'general'
+    reporterId,
+    reporterName,
+    reporterEmail,
+    targetId,
+    targetName = '',
+    description,
+    bookingId = ''
+}) => {
+    if (!reporterId || !description?.trim()) {
+        throw new Error('Reporter ID and complaint description are required.');
+    }
+
+    const reportDoc = {
+        type,
+        reporterId,
+        reporterName: reporterName || 'User',
+        reporterEmail: reporterEmail || '',
+        targetId: String(targetId || ''),
+        targetName: String(targetName || ''),
+        bookingId: String(bookingId || ''),
+        description: description.trim(),
+        status: 'open', // 'open' | 'under_review' | 'resolved' | 'dismissed'
+        resolutionNotes: '',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    };
+
+    try {
+        const docRef = await addDoc(collection(db, 'reports'), reportDoc);
+        return docRef.id;
+    } catch (clientErr) {
+        // If client write is blocked (e.g. missing deployed Firestore rule), fall back to authenticated server endpoint
+        if ((clientErr.code === 'permission-denied' || clientErr.message?.includes('permission')) && auth?.currentUser) {
+            try {
+                const token = await auth.currentUser.getIdToken();
+                const res = await fetch('/api/admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        action: 'submit-report',
+                        payload: {
+                            type,
+                            reporterId,
+                            reporterName,
+                            reporterEmail,
+                            targetId,
+                            targetName,
+                            bookingId,
+                            description: description.trim()
+                        }
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.reportId) {
+                        return data.reportId;
+                    }
+                }
+            } catch (fallbackErr) {
+                console.error('[createReport] Fallback submission error:', fallbackErr);
+            }
+        }
+        throw clientErr;
+    }
+};
+
+/**
+ * Fetch all complaints and reports
+ */
+export const getAllReports = async () => {
+    try {
+        const snap = await getDocs(collection(db, 'reports'));
+        return snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => getTimestampSeconds(b.createdAt) - getTimestampSeconds(a.createdAt));
+    } catch (err) {
+        console.error('Error fetching reports:', err);
+        return [];
+    }
+};
+
+/**
+ * Update report status (e.g. resolve or dismiss)
+ */
+export const updateReportStatus = async (reportId, status, resolutionNotes = '', adminInfo = {}) => {
+    if (!reportId || !status) throw new Error('Report ID and status are required');
+
+    await updateDoc(doc(db, 'reports', reportId), {
+        status,
+        resolutionNotes: resolutionNotes || '',
+        resolvedBy: adminInfo.uid || 'admin',
+        updatedAt: serverTimestamp()
+    });
+
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: `REPORT_${status.toUpperCase()}`,
+        targetType: 'report',
+        targetId: reportId,
+        details: { status },
+        reason: resolutionNotes || `Report marked as ${status}`
+    });
+};
+
+// ─── Reviews Moderation ───────────────────────────────────
+
+/**
+ * Fetch all reviews across the platform for admin inspection
+ */
+export const getAllReviewsAdmin = async () => {
+    try {
+        const snap = await getDocs(collection(db, 'reviews'));
+        return snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => getTimestampSeconds(b.createdAt) - getTimestampSeconds(a.createdAt));
+    } catch (err) {
+        console.error('Error fetching admin reviews:', err);
+        return [];
+    }
+};
+
+/**
+ * Moderate or remove an inappropriate review
+ */
+export const moderateReview = async (reviewId, providerId, action, reason = '', adminInfo = {}) => {
+    if (!reviewId) throw new Error('Review ID is required');
+
+    if (action === 'remove') {
+        // Mark as moderated/hidden rather than permanently destroying records
+        await updateDoc(doc(db, 'reviews', reviewId), {
+            moderated: true,
+            moderationAction: 'removed',
+            moderationReason: reason || 'Violated community guidelines',
+            moderatedBy: adminInfo.uid || 'admin',
+            moderatedAt: serverTimestamp()
+        });
+
+        // Recalculate provider rating excluding moderated reviews
+        if (providerId) {
+            const q = query(
+                collection(db, 'reviews'),
+                where('providerId', '==', providerId)
+            );
+            const snap = await getDocs(q);
+            const validReviews = snap.docs
+                .map(d => d.data())
+                .filter(r => !r.moderated);
+
+            if (validReviews.length > 0) {
+                const totalScore = validReviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0);
+                const avgRating = Math.round((totalScore / validReviews.length) * 10) / 10;
+                await updateDoc(doc(db, 'serviceProviders', providerId), {
+                    rating: avgRating,
+                    ratingCount: validReviews.length
+                }).catch(() => {});
+            } else {
+                await updateDoc(doc(db, 'serviceProviders', providerId), {
+                    rating: null,
+                    ratingCount: 0
+                }).catch(() => {});
+            }
+        }
+    }
+
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: `REVIEW_${action.toUpperCase()}`,
+        targetType: 'review',
+        targetId: reviewId,
+        details: { providerId, action },
+        reason
+    });
+};
+
+// ─── Platform Settings ─────────────────────────────────────
+
+/**
+ * Fetch platform settings from Firestore
+ */
+export const getPlatformSettings = async () => {
+    try {
+        const snap = await getDoc(doc(db, 'platformSettings', 'general'));
+        if (snap.exists()) {
+            return snap.data();
+        }
+        return {
+            supportedCities: ['Mangaluru', 'Hassan', 'Udupi'],
+            announcement: '',
+            maintenanceMode: false
+        };
+    } catch (err) {
+        console.error('Error fetching platform settings:', err);
+        return {
+            supportedCities: ['Mangaluru', 'Hassan', 'Udupi'],
+            announcement: '',
+            maintenanceMode: false
+        };
+    }
+};
+
+/**
+ * Update platform settings
+ */
+export const updatePlatformSettings = async (settingsData, adminInfo = {}) => {
+    await setDoc(doc(db, 'platformSettings', 'general'), {
+        ...settingsData,
+        updatedAt: serverTimestamp(),
+        updatedBy: adminInfo.uid || 'admin'
+    }, { merge: true });
+
+    await createAuditLog({
+        adminUid: adminInfo.uid,
+        adminEmail: adminInfo.email,
+        action: 'PLATFORM_SETTINGS_UPDATED',
+        targetType: 'system',
+        targetId: 'general',
+        details: settingsData,
+        reason: 'Updated platform configuration'
+    });
+};
+
+// ─── Live Aggregate Stats ─────────────────────────────────
+
+/**
+ * Aggregate real platform stats for the Admin Overview tab
+ */
+export const getAdminOverviewStats = async () => {
+    try {
+        const [usersSnap, providersSnap, bookingsSnap, reportsSnap] = await Promise.all([
+            getDocs(collection(db, 'users')),
+            getDocs(collection(db, 'serviceProviders')),
+            getDocs(collection(db, 'bookings')),
+            getDocs(collection(db, 'reports')).catch(() => ({ docs: [] }))
+        ]);
+
+        const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const providers = providersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const bookings = bookingsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const reports = reportsSnap.docs ? reportsSnap.docs.map(d => ({ id: d.id, ...d.data() })) : [];
+
+        // Provider breakdown
+        const totalProviders = providers.length;
+        const activeProviders = providers.filter(p => (p.status === 'active' || !p.status) && p.available !== false).length;
+        const pendingVerifications = providers.filter(p => p.verified === false || p.verificationStatus === 'pending').length;
+        const suspendedProviders = providers.filter(p => p.status === 'suspended').length;
+        const deactivatedProviders = providers.filter(p => p.status === 'deactivated').length;
+
+        // Customer breakdown
+        const customers = users.filter(u => u.role !== 'provider' && u.role !== 'admin');
+        const totalCustomers = customers.length;
+        const restrictedCustomers = customers.filter(c => c.status === 'restricted').length;
+
+        // Bookings breakdown
+        const totalBookings = bookings.length;
+        const pendingBookings = bookings.filter(b => b.status === 'pending').length;
+        const acceptedBookings = bookings.filter(b => b.status === 'accepted').length;
+        const completedBookings = bookings.filter(b => b.status === 'completed').length;
+        const cancelledBookings = bookings.filter(b => b.status === 'rejected' || b.status === 'cancelled').length;
+
+        // Reports breakdown
+        const openReports = reports.filter(r => r.status === 'open' || r.status === 'under_review').length;
+        const resolvedReports = reports.filter(r => r.status === 'resolved').length;
+
+        return {
+            totalProviders,
+            activeProviders,
+            pendingVerifications,
+            suspendedProviders,
+            deactivatedProviders,
+            totalCustomers,
+            restrictedCustomers,
+            totalBookings,
+            pendingBookings,
+            acceptedBookings,
+            completedBookings,
+            cancelledBookings,
+            openReports,
+            resolvedReports
+        };
+    } catch (err) {
+        console.error('Error aggregating admin stats:', err);
+        throw err;
+    }
 };
 
 

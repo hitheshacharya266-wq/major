@@ -7,7 +7,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import Footer from '../components/Footer';
 import ProviderAvatar from '../components/ProviderAvatar';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, CreditCard, HelpCircle, Navigation } from 'lucide-react';
+import { Search, MapPin, CreditCard, HelpCircle, Navigation, AlertTriangle } from 'lucide-react';
+import ReportModal from '../components/ReportModal';
 import toast from 'react-hot-toast';
 
 const UserDashboard = () => {
@@ -21,6 +22,9 @@ const UserDashboard = () => {
     const [reviewRating, setReviewRating] = useState(5);
     const [reviewComment, setReviewComment] = useState('');
     const [submittingReview, setSubmittingReview] = useState(false);
+
+    // Complaint modal state
+    const [reportTarget, setReportTarget] = useState(null);
 
     useEffect(() => {
         if (!currentUser) return;
@@ -234,6 +238,18 @@ const UserDashboard = () => {
                                                     >
                                                         View Details
                                                     </Link>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setReportTarget({
+                                                            targetId: b.providerId,
+                                                            targetName: b.providerName || 'Service Provider',
+                                                            bookingId: b.id
+                                                        })}
+                                                        className="text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline transition-colors flex items-center gap-1 cursor-pointer ml-1"
+                                                        title="File a complaint regarding this booking"
+                                                    >
+                                                        <AlertTriangle className="w-3 h-3" /> Report
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -292,6 +308,73 @@ const UserDashboard = () => {
 
                     </div>
                 </main>
+
+                {/* Review Rating Modal */}
+                {reviewBooking && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+                        <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4">
+                            <h3 className="text-lg font-black text-on-surface">Rate Your Service Experience</h3>
+                            <p className="text-xs text-on-surface-variant">
+                                How was your service with <span className="font-bold">{reviewBooking.providerName}</span>?
+                            </p>
+                            <form onSubmit={handleSubmitReview} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-on-surface mb-1">Rating</label>
+                                    <div className="flex items-center gap-2">
+                                        {[1, 2, 3, 4, 5].map(star => (
+                                            <button
+                                                type="button"
+                                                key={star}
+                                                onClick={() => setReviewRating(star)}
+                                                className={`text-2xl cursor-pointer ${star <= reviewRating ? 'text-amber-400' : 'text-gray-300'}`}
+                                            >
+                                                ★
+                                            </button>
+                                        ))}
+                                        <span className="text-xs font-bold text-on-surface ml-2">{reviewRating} / 5 Stars</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-on-surface mb-1">Feedback Comment</label>
+                                    <textarea
+                                        rows={3}
+                                        value={reviewComment}
+                                        onChange={(e) => setReviewComment(e.target.value)}
+                                        placeholder="Share details about the service quality..."
+                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs text-on-surface outline-none focus:border-primary resize-none"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleCloseReviewModal}
+                                        className="px-4 py-2 text-xs font-bold text-on-surface-variant hover:bg-surface-container rounded-xl cursor-pointer"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={submittingReview}
+                                        className="px-4 py-2 bg-[#004d4c] text-white font-bold text-xs rounded-xl shadow-md disabled:opacity-50 cursor-pointer"
+                                    >
+                                        {submittingReview ? 'Submitting...' : 'Submit Rating'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Complaint / Report Modal */}
+                <ReportModal
+                    isOpen={!!reportTarget}
+                    onClose={() => setReportTarget(null)}
+                    targetType="booking"
+                    targetId={reportTarget?.targetId}
+                    targetName={reportTarget?.targetName}
+                    bookingId={reportTarget?.bookingId}
+                />
 
                 <Footer />
             </div>

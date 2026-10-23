@@ -30,11 +30,10 @@ const getNotifMeta = (type) => {
 const Notifications = () => {
     const { currentUser } = useAuth();
     const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(Boolean(currentUser));
 
     useEffect(() => {
         if (!currentUser) return;
-        setLoading(true);
 
         const unsubscribe = subscribeToUserNotifications(
             currentUser.uid,

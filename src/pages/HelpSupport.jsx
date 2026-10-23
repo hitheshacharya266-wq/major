@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import PageTransition from '../components/PageTransition';
 import Footer from '../components/Footer';
-import { PhoneCall, Mail, ChevronRight, Minus, CheckCircle2 } from 'lucide-react';
+import ReportModal from '../components/ReportModal';
+import { PhoneCall, Mail, ChevronRight, Minus, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 const FAQS = [
     {
@@ -64,12 +65,13 @@ const FAQS = [
 
 const HelpSupport = () => {
     const [openIdx, setOpenIdx] = useState(0);
+    const [reportModalOpen, setReportModalOpen] = useState(false);
 
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col bg-[#f8f9ff] font-sans text-[#0b1c30] items-center w-full">
                 <main className="w-full max-w-[960px] mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 flex-1 space-y-8">
-                    
+
                     {/* Centered Header */}
                     <div className="text-center max-w-xl mx-auto space-y-2">
                         <span className="text-[11px] font-black text-[#004d4c] uppercase tracking-widest bg-[#e6f4f1] px-3.5 py-1 rounded-full border border-[#004d4c]/15 inline-block">
@@ -79,7 +81,7 @@ const HelpSupport = () => {
                         <p className="text-xs sm:text-sm text-on-surface-variant font-medium">24/7 customer assistance and instant answers to common questions.</p>
                     </div>
 
-                    {/* Support Contact Cards Grid (Equal Width, No Chevrons) */}
+                    {/* Support Contact Cards Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full">
                         <div className="bg-white p-5 sm:p-6 rounded-2xl border border-outline-variant/30 text-left flex items-start gap-4 shadow-2xs hover:border-[#004d4c] transition-all cursor-pointer">
                             <div className="w-11 h-11 rounded-xl bg-[#e6f4f1] text-[#004d4c] flex items-center justify-center font-bold shrink-0">
@@ -100,6 +102,20 @@ const HelpSupport = () => {
                                 <h3 className="font-extrabold text-sm sm:text-base text-[#0b1c30]">Email Desk</h3>
                                 <p className="text-xs text-on-surface-variant font-medium">Average response time: under 15 minutes.</p>
                                 <p className="text-sm sm:text-base font-black text-[#004d4c] pt-0.5">support@servicehub.in</p>
+                            </div>
+                        </div>
+
+                        <div
+                            onClick={() => setReportModalOpen(true)}
+                            className="bg-white p-5 sm:p-6 rounded-2xl border border-outline-variant/30 text-left flex items-start gap-4 shadow-2xs hover:border-red-400 transition-all cursor-pointer col-span-1 sm:col-span-2"
+                        >
+                            <div className="w-11 h-11 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold shrink-0 border border-red-100">
+                                <ShieldAlert className="w-5 h-5" />
+                            </div>
+                            <div className="space-y-1 flex-1">
+                                <h3 className="font-extrabold text-sm sm:text-base text-[#0b1c30]">File a Formal Complaint or Dispute</h3>
+                                <p className="text-xs text-on-surface-variant font-medium">Have an issue with service quality, technician conduct, or pricing? Submit a complaint to our admin moderation team.</p>
+                                <span className="text-xs font-bold text-red-600 hover:underline inline-block pt-0.5">Submit Incident Report →</span>
                             </div>
                         </div>
                     </div>
@@ -145,6 +161,12 @@ const HelpSupport = () => {
                         </div>
                     </div>
                 </main>
+                <ReportModal
+                    isOpen={reportModalOpen}
+                    onClose={() => setReportModalOpen(false)}
+                    targetType="general"
+                    targetName="ServiceHub Support"
+                />
                 <Footer />
             </div>
         </PageTransition>

@@ -18,7 +18,7 @@ import ProfilePhotoModal from '../components/ProfilePhotoModal';
 import {
     CheckCircle2, XCircle, Clock, MapPin, Wrench, ShieldCheck,
     ToggleLeft, ToggleRight, DollarSign, Award, Bell, User, Image as ImageIcon,
-    Camera
+    Camera, AlertTriangle, AlertCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -82,7 +82,7 @@ const ProviderDashboard = () => {
                         message = `${provider?.name || 'Service Partner'} marked your ${booking.category || 'service'} as completed.`;
                     }
 
-                    await createNotification({
+                    const notifRes = await createNotification({
                         recipientId: booking.userId,
                         type,
                         title,
@@ -91,6 +91,9 @@ const ProviderDashboard = () => {
                         providerId: currentUser.uid,
                         customerId: booking.userId
                     });
+                    if (!notifRes?.success) {
+                        console.warn('[ProviderDashboard] Customer notification could not be delivered:', notifRes?.error);
+                    }
                 } catch (nErr) {
                     console.error('Non-blocking customer notification error:', nErr);
                 }
@@ -142,9 +145,23 @@ const ProviderDashboard = () => {
                             <div className="space-y-0.5">
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs font-extrabold text-primary uppercase tracking-widest">Partner Workstation</span>
-                                    <span className="bg-secondary-container/40 text-secondary text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                        <ShieldCheck className="w-3 h-3" /> Verified Partner
-                                    </span>
+                                    {provider?.status === 'suspended' ? (
+                                        <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-red-200">
+                                            <AlertTriangle className="w-3 h-3 text-red-600" /> Account Suspended
+                                        </span>
+                                    ) : provider?.status === 'deactivated' ? (
+                                        <span className="bg-gray-100 text-gray-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-gray-300">
+                                            Deactivated
+                                        </span>
+                                    ) : (provider?.verified !== false && provider?.verificationStatus !== 'rejected') ? (
+                                        <span className="bg-secondary-container/40 text-secondary text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                            <ShieldCheck className="w-3 h-3" /> Verified Partner
+                                        </span>
+                                    ) : (
+                                        <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-200">
+                                            Verification Pending
+                                        </span>
+                                    )}
                                 </div>
                                 <h1 className="text-2xl sm:text-3xl font-black text-on-surface">{provider?.name || 'Service Partner'}</h1>
                                 <p className="text-xs sm:text-sm text-on-surface-variant">
@@ -204,6 +221,38 @@ const ProviderDashboard = () => {
                         </div>
                     </div>
                 </section>
+
+                {/* Account Suspension Banner */}
+                {provider?.status === 'suspended' && (
+                    <div className="bg-red-50 border-b border-red-200 py-3.5 px-4 sm:px-8">
+                        <div className="max-w-container-max mx-auto flex items-start gap-3 text-red-900">
+                            <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
+                            <div className="text-xs space-y-0.5">
+                                <p className="font-black text-sm">Account Suspended by Administration</p>
+                                <p className="font-medium text-red-800">
+                                    Reason: <span className="font-bold">{provider.suspensionReason || 'Terms and quality guidelines violation'}</span>.
+                                    While your account is suspended, your profile is hidden from customer discovery and new bookings cannot be placed. Existing past bookings, reviews, and audit logs are safely preserved. Contact <span className="font-bold underline">support@servicehub.in</span> to appeal this moderation action.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Verification Needs Attention Banner */}
+                {provider?.verificationStatus === 'rejected' && (
+                    <div className="bg-amber-50 border-b border-amber-200 py-3 px-4 sm:px-8">
+                        <div className="max-w-container-max mx-auto flex items-start gap-3 text-amber-900 text-xs">
+                            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
+                            <div>
+                                <p className="font-bold text-sm">Verification Needs Attention</p>
+                                <p className="font-medium">
+                                    Reason: <span className="font-semibold">{provider.rejectionReason || 'Incomplete details'}</span>.
+                                    Please click &quot;Edit Profile&quot; to update your credentials and submit for re-verification.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <main className="max-w-container-max mx-auto px-4 sm:px-8 py-6 sm:py-10 flex-1 w-full space-y-8">
                     {/* STATS OVERVIEW */}

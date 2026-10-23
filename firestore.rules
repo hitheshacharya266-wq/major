@@ -1,0 +1,218 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Server-verified admin authorization: ONLY verified Firebase custom claims
+    // Users cannot grant themselves admin privileges via Firestore document writes
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    // ─── Users Collection ──────────────────────────────────────────
+    match /users/{userId} {
+      // Profile reads restricted to owner or verified admin (prevents arbitrary data scraping)
+      allow read: if isOwner(userId) || isAdmin();
+
+      // User can create their own doc on signup; must have a valid role and cannot assign administrative/status fields
+      allow create: if (
+        isOwner(userId) &&
+        request.resource.data.role in ['user', 'provider'] &&
+        !request.resource.data.keys().hasAny([
+          'status', 'providerStatus', 'restrictionReason', 'admin', 'isStaff', 'moderationStatus', 'verified'
+        ])
+      ) || isAdmin();
+
+      // User can update their own profile, but cannot alter role, status, or administrative fields
+      allow update: if (
+        isOwner(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'role', 'status', 'providerStatus', 'restrictionReason', 'admin', 'isStaff', 'moderationStatus', 'verified'
+        ])
+      ) || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── Service Providers Collection ──────────────────────────────
+    match /serviceProviders/{providerId} {
+      // Public directory read for customer search & service discovery
+      allow read: if true;
+
+      // Registered provider can create their profile (self-verification and administrative status assignment strictly prohibited)
+      allow create: if (
+        isOwner(providerId) &&
+        (!request.resource.data.keys().hasAny(['verified']) || request.resource.data.verified == false) &&
+        (!request.resource.data.keys().hasAny(['verificationStatus']) || request.resource.data.verificationStatus in ['pending', 'unverified']) &&
+        (!request.resource.data.keys().hasAny(['status']) || request.resource.data.status in ['pending', 'active']) &&
+        !request.resource.data.keys().hasAny([
+          'suspensionReason', 'suspensionDate', 'deactivatedReason', 'deactivatedDate',
+          'rejectionReason', 'rejectedAt', 'verifiedAt'
+        ])
+      ) || isAdmin();
+
+      // Provider can update their own details (unless suspended), but cannot self-verify or change account status
+      allow update: if (
+        isOwner(providerId) &&
+        (!resource.data.keys().hasAny(['status']) || resource.data.status != 'suspended') &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'verified', 'verificationStatus', 'status', 'suspensionReason', 'suspensionDate',
+          'deactivatedReason', 'deactivatedDate', 'rejectionReason', 'rejectedAt', 'verifiedAt'
+        ])
+      ) || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── Bookings Collection ───────────────────────────────────────
+    match /bookings/{bookingId} {
+      // Role validation helpers
+      function isCustomer() {
+        return isAuthenticated() && resource.data.userId == request.auth.uid;
+      }
+
+      function isAssignedProvider() {
+        return isAuthenticated() && resource.data.providerId == request.auth.uid;
+      }
+
+      // Customer can cancel pending or accepted bookings, or rate/review completed bookings.
+      // Customer cannot alter pricing, category, assigned parties, or progress workflow.
+      function isValidCustomerBookingUpdate() {
+        let diff = request.resource.data.diff(resource.data);
+        return isCustomer() &&
+          diff.affectedKeys().hasOnly(['status', 'rating', 'reviewed', 'reviewComment', 'reviewedAt', 'updatedAt']) &&
+          (
+            !diff.affectedKeys().hasAny(['status']) ||
+            (resource.data.status in ['pending', 'accepted'] && request.resource.data.status == 'cancelled')
+          ) &&
+          (
+            !diff.affectedKeys().hasAny(['rating', 'reviewed', 'reviewComment']) ||
+            resource.data.status == 'completed'
+          );
+      }
+
+      // Assigned provider can only update job execution status through valid transitions:
+      // - 'pending' -> 'accepted' or 'rejected'
+      // - 'accepted' -> 'completed' or 'rejected'
+      // Provider cannot alter pricing, customer ID, notes, review ratings, or admin flags.
+      function isValidProviderBookingUpdate() {
+        let diff = request.resource.data.diff(resource.data);
+        return isAssignedProvider() &&
+          diff.affectedKeys().hasOnly(['status', 'updatedAt']) &&
+          (
+            (resource.data.status == 'pending' && request.resource.data.status in ['accepted', 'rejected']) ||
+            (resource.data.status == 'accepted' && request.resource.data.status in ['completed', 'rejected'])
+          );
+      }
+
+      // Only customer, assigned provider, or admin can read booking
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.providerId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // Authenticated users can create bookings for themselves with initial valid status 'pending'
+      // Frontend initiates all bookings as 'pending'; initial 'confirmed' is not used in ServiceHub.
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.status == 'pending';
+
+      // Restrict booking updates by role and valid status transitions:
+      // Customers: cancellation or rating completed bookings
+      // Providers: execution status transitions (pending -> accepted/rejected -> completed)
+      // Admins: authorized moderation (flagging, resolution, status override)
+      allow update: if isValidCustomerBookingUpdate() ||
+                       isValidProviderBookingUpdate() ||
+                       isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── Reviews Collection ────────────────────────────────────────
+    match /reviews/{reviewId} {
+      // Public reviews read for customer ratings
+      allow read: if true;
+
+      // Authenticated customer can create review for their booking; cannot self-moderate or flag
+      allow create: if isAuthenticated() &&
+        request.resource.data.customerId == request.auth.uid &&
+        !request.resource.data.keys().hasAny(['flagged', 'hidden']) &&
+        (!request.resource.data.keys().hasAny(['moderationStatus']) ||
+         request.resource.data.moderationStatus in ['pending', 'approved']);
+
+      // Admin can moderate; author can update review content but CANNOT change ownership, booking, or moderation fields
+      allow update: if (
+        isAuthenticated() &&
+        resource.data.customerId == request.auth.uid &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'customerId', 'providerId', 'bookingId', 'moderationStatus', 'flagged', 'hidden', 'createdAt'
+        ])
+      ) || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // ─── Notifications Collection ──────────────────────────────────
+    match /notifications/{notificationId} {
+      // Recipient can read their own notifications
+      allow read: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
+
+      // Authenticated users cannot create arbitrary notifications for other users.
+      // Notifications must be dispatched through trusted server mechanisms (Admin SDK)
+      // or created directly by verified administrators.
+      allow create: if isAdmin();
+
+      // Recipient can only mark notifications as read; cannot alter content or recipient
+      allow update: if isAuthenticated() &&
+        resource.data.recipientId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt', 'updatedAt']);
+
+      allow delete: if (isAuthenticated() && resource.data.recipientId == request.auth.uid) || isAdmin();
+    }
+
+    // ─── Complaints / Reports Collection ───────────────────────────
+    match /reports/{reportId} {
+      // Reporter or Admin can read
+      allow read: if isAuthenticated() && (
+        resource.data.reporterId == request.auth.uid ||
+        isAdmin()
+      );
+
+      // Authenticated users can only submit reports for their own UID; cannot set resolved status or notes
+      allow create: if isAuthenticated() &&
+        request.resource.data.reporterId == request.auth.uid &&
+        (!request.resource.data.keys().hasAny(['status']) || request.resource.data.status in ['open', 'pending']) &&
+        !request.resource.data.keys().hasAny(['resolutionNotes', 'resolvedAt', 'resolvedBy']);
+
+      // Only verified admins can update status or resolve/dismiss reports
+      allow update, delete: if isAdmin();
+    }
+
+    // ─── Admin Audit Logs Collection ───────────────────────────────
+    match /adminAuditLogs/{logId} {
+      // Only admins can read audit logs
+      allow read: if isAdmin();
+
+      // Only admins can append audit logs; cannot modify or delete
+      allow create: if isAdmin();
+
+      // Immutable audit log: cannot update or delete once written
+      allow update, delete: if false;
+    }
+
+    // ─── Platform Settings Collection ──────────────────────────────
+    match /platformSettings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

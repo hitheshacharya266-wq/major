@@ -83,6 +83,12 @@ const BookingCheckout = () => {
             return;
         }
 
+        if (provider?.status === 'suspended' || provider?.status === 'deactivated') {
+            toast.error('This service provider is currently suspended or unavailable for bookings.');
+            navigate('/search');
+            return;
+        }
+
         setSubmitting(true);
         try {
             const targetProviderId = provider?.uid || provider?.id || providerId;
@@ -108,9 +114,9 @@ const BookingCheckout = () => {
 
             const newBookingId = await createBooking(bookingData);
 
-            // Safely create provider notification
+            // Safely create provider notification through authenticated backend
             try {
-                await createNotification({
+                const notifRes = await createNotification({
                     recipientId: bookingData.providerId,
                     type: 'booking_created',
                     title: 'New Booking Request 📬',
@@ -119,6 +125,9 @@ const BookingCheckout = () => {
                     providerId: bookingData.providerId,
                     customerId: bookingData.userId
                 });
+                if (!notifRes?.success) {
+                    console.warn('[BookingCheckout] Provider notification could not be delivered:', notifRes?.error);
+                }
             } catch (nErr) {
                 console.error('Non-blocking notification error:', nErr);
             }
