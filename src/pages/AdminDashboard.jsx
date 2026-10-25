@@ -42,6 +42,13 @@ const AdminDashboard = () => {
     // 'overview' | 'providers' | 'verifications' | 'customers' | 'bookings' | 'reports' | 'reviews' | 'audit' | 'settings'
     const [activeTab, setActiveTab] = useState('overview');
 
+    const handleTabChange = useCallback((tab) => {
+        setActiveTab(tab);
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, []);
+
     // Data states
     const [stats, setStats] = useState(null);
     const [users, setUsers] = useState([]);
@@ -445,45 +452,45 @@ const AdminDashboard = () => {
 
     return (
         <PageTransition>
-            <div className="min-h-screen flex flex-col bg-surface font-sans text-on-surface">
+            <div className="min-h-screen flex flex-col bg-surface font-sans text-on-surface w-full max-w-full min-w-0 self-stretch">
 
                 {/* ADMIN TOP BAR */}
-                <header className="bg-white border-b border-outline-variant/30 py-4 px-4 sm:px-8 sticky top-16 z-30 shadow-2xs">
-                    <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="space-y-0.5">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[11px] font-black uppercase tracking-widest text-[#004d4c] bg-[#e6f4f1] px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-[#004d4c]/15">
-                                    <Shield className="w-3.5 h-3.5" /> ServiceHub Admin Control Panel
+                <header className="bg-white border-b border-outline-variant/30 py-2.5 sm:py-4 px-3 sm:px-8 relative z-10 shadow-xs w-full max-w-full">
+                    <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 sm:gap-4 w-full">
+                        <div className="space-y-0.5 min-w-0">
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#004d4c] bg-[#e6f4f1] px-2 sm:px-2.5 py-0.5 rounded-md flex items-center gap-1 border border-[#004d4c]/15">
+                                    <Shield className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0" /> ServiceHub Admin Control Panel
                                 </span>
                                 {isPreviewMode ? (
-                                    <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                        <ShieldAlert className="w-3 h-3 text-amber-700" /> Preview Mode (Read-Only)
+                                    <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-extrabold px-2 sm:px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                        <ShieldAlert className="w-3 h-3 text-amber-700 shrink-0" /> Preview Mode (Read-Only)
                                     </span>
                                 ) : adminClaim ? (
                                     <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                        <ShieldCheck className="w-3 h-3 text-emerald-600" /> Verified Custom Claim
+                                        <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" /> Verified Custom Claim
                                     </span>
                                 ) : (
                                     <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                        <Info className="w-3 h-3 text-amber-700" /> Firestore Admin Role
+                                        <Info className="w-3 h-3 text-amber-700 shrink-0" /> Firestore Admin Role
                                     </span>
                                 )}
                             </div>
-                            <h1 className="text-xl sm:text-2xl font-black text-on-surface">
+                            <h1 className="text-lg sm:text-2xl font-black text-on-surface break-words tracking-tight">
                                 Platform Operations Command Center
                             </h1>
                         </div>
 
                         {/* Search & Global Actions */}
-                        <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                            <div className="bg-surface-container/60 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-outline-variant/30 flex-1 sm:w-64">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <div className="bg-surface-container/60 px-3 py-1.5 rounded-xl flex items-center gap-2 border border-outline-variant/30 flex-1 min-w-0 sm:w-64 h-9">
                                 <Search className="w-4 h-4 text-on-surface-variant shrink-0" />
                                 <input
                                     type="text"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     placeholder="Filter by name, email, ID..."
-                                    className="bg-transparent border-none outline-none text-xs text-on-surface w-full"
+                                    className="bg-transparent border-none outline-none text-xs text-on-surface w-full min-w-0"
                                 />
                             </div>
 
@@ -502,13 +509,13 @@ const AdminDashboard = () => {
 
                 {/* PREVIEW MODE NOTIFICATION BANNER */}
                 {isPreviewMode && (
-                    <div className="bg-gradient-to-r from-amber-50 via-amber-100/70 to-amber-50 border-b border-amber-200 px-4 sm:px-8 py-3.5 shadow-xs">
-                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-                            <div className="flex items-start sm:items-center gap-3">
+                    <div className="bg-gradient-to-r from-amber-50 via-amber-100/70 to-amber-50 border-b border-amber-200 px-3 sm:px-8 py-3.5 shadow-xs w-full max-w-full">
+                        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 w-full">
+                            <div className="flex items-start sm:items-center gap-3 min-w-0">
                                 <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
                                     <ShieldAlert className="w-5 h-5" />
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <span className="text-xs font-black uppercase tracking-wider text-amber-950">
                                             Admin Dashboard Preview Mode
@@ -517,15 +524,15 @@ const AdminDashboard = () => {
                                             Read-Only Demonstration
                                         </span>
                                     </div>
-                                    <p className="text-xs text-amber-900/90 mt-0.5 leading-relaxed">
+                                    <p className="text-xs text-amber-900/90 mt-0.5 leading-relaxed break-words">
                                         Displaying realistic sample platform metrics, providers, and bookings for interface review. Real administrative actions (verifications, suspensions, moderations) are locked until authenticated via Firebase Admin SDK (<code className="font-mono bg-amber-200/60 px-1 py-0.5 rounded text-[11px] font-bold">admin: true</code>).
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                            <div className="flex items-center gap-2 self-stretch sm:self-end md:self-auto shrink-0">
                                 <Link
                                     to="/login"
-                                    className="inline-flex items-center gap-1.5 bg-[#004d4c] text-white font-bold text-xs px-4 py-2 rounded-xl hover:bg-[#003837] transition-all shadow-xs"
+                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-[#004d4c] text-white font-bold text-xs px-4 py-2 rounded-xl hover:bg-[#003837] transition-all shadow-xs"
                                 >
                                     <ShieldCheck className="w-3.5 h-3.5" /> Sign In as Administrator
                                 </Link>
@@ -535,50 +542,52 @@ const AdminDashboard = () => {
                 )}
 
                 {/* MAIN ADMIN WORKSPACE (Sidebar + Content View) */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex-1 w-full flex flex-col lg:flex-row gap-6">
+                <div className="max-w-7xl mx-auto px-3 sm:px-8 py-4 sm:py-6 flex-1 w-full max-w-full flex flex-col lg:flex-row gap-4 sm:gap-6 min-w-0">
 
                     {/* LEFT NAVIGATION SIDEBAR */}
-                    <aside className="w-full lg:w-64 shrink-0">
-                        <nav className="bg-white rounded-3xl p-3 border border-outline-variant/30 shadow-2xs space-y-1">
+                    <aside className="w-full lg:w-64 shrink-0 min-w-0">
+                        <nav className="bg-white rounded-2xl lg:rounded-3xl p-1.5 sm:p-2 lg:p-3 border border-outline-variant/30 shadow-2xs flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1.5 lg:gap-0 lg:space-y-1 overscroll-x-contain">
                             <button
-                                onClick={() => setActiveTab('overview')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('overview')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'overview'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <Sliders className="w-4 h-4" /> System Overview
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <Sliders className="w-4 h-4 shrink-0" /> System Overview
                                 </span>
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('providers')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('providers')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'providers'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <Wrench className="w-4 h-4" /> Service Partners
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <Wrench className="w-4 h-4 shrink-0" /> Service Partners
                                 </span>
-                                <span className="text-[10px] bg-black/10 px-2 py-0.5 rounded-full font-black">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                                    activeTab === 'providers' ? 'bg-white/20 text-white' : 'bg-black/10 text-on-surface'
+                                }`}>
                                     {providers.length}
                                 </span>
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('verifications')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('verifications')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'verifications'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <ShieldCheck className="w-4 h-4" /> Verification Queue
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <ShieldCheck className="w-4 h-4 shrink-0" /> Verification Queue
                                 </span>
                                 {verificationQueue.length > 0 && (
                                     <span className="text-[10px] bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full font-black">
@@ -588,47 +597,51 @@ const AdminDashboard = () => {
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('customers')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('customers')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'customers'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <Users className="w-4 h-4" /> Customers
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <Users className="w-4 h-4 shrink-0" /> Customers
                                 </span>
-                                <span className="text-[10px] bg-black/10 px-2 py-0.5 rounded-full font-black">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                                    activeTab === 'customers' ? 'bg-white/20 text-white' : 'bg-black/10 text-on-surface'
+                                }`}>
                                     {filteredCustomers.length}
                                 </span>
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('bookings')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('bookings')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'bookings'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <Calendar className="w-4 h-4" /> Bookings Oversight
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <Calendar className="w-4 h-4 shrink-0" /> Bookings Oversight
                                 </span>
-                                <span className="text-[10px] bg-black/10 px-2 py-0.5 rounded-full font-black">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                                    activeTab === 'bookings' ? 'bg-white/20 text-white' : 'bg-black/10 text-on-surface'
+                                }`}>
                                     {bookings.length}
                                 </span>
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('reports')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('reports')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'reports'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <AlertTriangle className="w-4 h-4" /> Complaints &amp; Reports
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <AlertTriangle className="w-4 h-4 shrink-0" /> Complaints &amp; Reports
                                 </span>
                                 {openReportsCount > 0 && (
                                     <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-black">
@@ -638,54 +651,58 @@ const AdminDashboard = () => {
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('reviews')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('reviews')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'reviews'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <Star className="w-4 h-4" /> Reviews Moderation
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <Star className="w-4 h-4 shrink-0" /> Reviews Moderation
                                 </span>
-                                <span className="text-[10px] bg-black/10 px-2 py-0.5 rounded-full font-black">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                                    activeTab === 'reviews' ? 'bg-white/20 text-white' : 'bg-black/10 text-on-surface'
+                                }`}>
                                     {reviews.length}
                                 </span>
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('audit')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('audit')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'audit'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <Shield className="w-4 h-4" /> Audit Trail Log
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <Shield className="w-4 h-4 shrink-0" /> Audit Trail Log
                                 </span>
-                                <span className="text-[10px] bg-black/10 px-2 py-0.5 rounded-full font-black">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                                    activeTab === 'audit' ? 'bg-white/20 text-white' : 'bg-black/10 text-on-surface'
+                                }`}>
                                     {auditLogs.length}
                                 </span>
                             </button>
 
                             <button
-                                onClick={() => setActiveTab('settings')}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                                onClick={() => handleTabChange('settings')}
+                                className={`shrink-0 lg:w-full text-left px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl lg:rounded-2xl text-xs font-bold flex items-center justify-between gap-2.5 transition-colors cursor-pointer whitespace-nowrap ${
                                     activeTab === 'settings'
                                         ? 'bg-[#004d4c] text-white shadow-xs'
                                         : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                                 }`}
                             >
-                                <span className="flex items-center gap-2.5">
-                                    <Sliders className="w-4 h-4" /> Platform Settings
+                                <span className="flex items-center gap-2 sm:gap-2.5">
+                                    <Sliders className="w-4 h-4 shrink-0" /> Platform Settings
                                 </span>
                             </button>
                         </nav>
 
                         {/* Admin Session Card */}
                         {isPreviewMode ? (
-                            <div className="bg-amber-50/80 rounded-3xl p-4 border border-amber-200/80 shadow-2xs mt-4 text-xs space-y-2">
+                            <div className="hidden lg:block bg-amber-50/80 rounded-3xl p-4 border border-amber-200/80 shadow-2xs mt-4 text-xs space-y-2">
                                 <p className="font-extrabold text-amber-900 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
                                     <Lock className="w-3.5 h-3.5 text-amber-700" /> Preview Session
                                 </p>
@@ -701,7 +718,7 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-white rounded-3xl p-4 border border-outline-variant/30 shadow-2xs mt-4 text-xs space-y-2">
+                            <div className="hidden lg:block bg-white rounded-3xl p-4 border border-outline-variant/30 shadow-2xs mt-4 text-xs space-y-2">
                                 <p className="font-extrabold text-on-surface text-[11px] uppercase tracking-wider text-on-surface-variant">Logged in Administrator</p>
                                 <p className="font-bold text-on-surface truncate">{userProfile?.fullName || currentUser?.displayName || 'Admin'}</p>
                                 <p className="text-on-surface-variant text-[11px] truncate">{currentUser?.email}</p>
@@ -714,49 +731,49 @@ const AdminDashboard = () => {
                     </aside>
 
                     {/* RIGHT MAIN VIEW AREA */}
-                    <main className="flex-1 min-w-0">
+                    <main className="flex-1 min-w-0 w-full max-w-full">
 
                         {/* ─── TAB 1: OVERVIEW ────────────────────────────────────────── */}
                         {activeTab === 'overview' && (
-                            <div className="space-y-6">
+                            <div className="space-y-4 sm:space-y-6 w-full max-w-full">
                                 {/* STATS SUMMARY GRID */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    <div className="bg-white p-4 sm:p-5 rounded-3xl border border-outline-variant/30 shadow-2xs">
-                                        <p className="text-xs text-on-surface-variant font-bold">Total Service Partners</p>
-                                        <p className="text-2xl sm:text-3xl font-black text-on-surface mt-1">{stats?.totalProviders ?? providers.length}</p>
-                                        <p className="text-[11px] text-emerald-700 font-bold mt-1">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                                    <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-outline-variant/30 shadow-2xs">
+                                        <p className="text-[11px] sm:text-xs text-on-surface-variant font-bold">Total Service Partners</p>
+                                        <p className="text-xl sm:text-3xl font-black text-on-surface mt-1">{stats?.totalProviders ?? providers.length}</p>
+                                        <p className="text-[10px] sm:text-[11px] text-emerald-700 font-bold mt-1">
                                             {stats?.activeProviders ?? providers.filter(p => p.status === 'active' || !p.status).length} Active On-Duty
                                         </p>
                                     </div>
 
-                                    <div className="bg-white p-4 sm:p-5 rounded-3xl border border-outline-variant/30 shadow-2xs">
-                                        <p className="text-xs text-on-surface-variant font-bold">Pending Verifications</p>
-                                        <p className="text-2xl sm:text-3xl font-black text-amber-600 mt-1">{verificationQueue.length}</p>
-                                        <button onClick={() => setActiveTab('verifications')} className="text-[11px] text-[#004d4c] font-bold hover:underline mt-1 cursor-pointer">
+                                    <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-outline-variant/30 shadow-2xs">
+                                        <p className="text-[11px] sm:text-xs text-on-surface-variant font-bold">Pending Verifications</p>
+                                        <p className="text-xl sm:text-3xl font-black text-amber-600 mt-1">{verificationQueue.length}</p>
+                                        <button onClick={() => handleTabChange('verifications')} className="text-[11px] text-[#004d4c] font-bold hover:underline mt-1 cursor-pointer">
                                             Review Queue →
                                         </button>
                                     </div>
 
-                                    <div className="bg-white p-4 sm:p-5 rounded-3xl border border-outline-variant/30 shadow-2xs">
-                                        <p className="text-xs text-on-surface-variant font-bold">Total Bookings</p>
-                                        <p className="text-2xl sm:text-3xl font-black text-on-surface mt-1">{stats?.totalBookings ?? bookings.length}</p>
-                                        <p className="text-[11px] text-primary font-bold mt-1">
+                                    <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-outline-variant/30 shadow-2xs">
+                                        <p className="text-[11px] sm:text-xs text-on-surface-variant font-bold">Total Bookings</p>
+                                        <p className="text-xl sm:text-3xl font-black text-on-surface mt-1">{stats?.totalBookings ?? bookings.length}</p>
+                                        <p className="text-[10px] sm:text-[11px] text-primary font-bold mt-1">
                                             {stats?.completedBookings ?? bookings.filter(b => b.status === 'completed').length} Completed
                                         </p>
                                     </div>
 
-                                    <div className="bg-white p-4 sm:p-5 rounded-3xl border border-outline-variant/30 shadow-2xs">
-                                        <p className="text-xs text-on-surface-variant font-bold">Open Complaints</p>
-                                        <p className="text-2xl sm:text-3xl font-black text-red-600 mt-1">{openReportsCount}</p>
-                                        <button onClick={() => setActiveTab('reports')} className="text-[11px] text-red-700 font-bold hover:underline mt-1 cursor-pointer">
+                                    <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-outline-variant/30 shadow-2xs">
+                                        <p className="text-[11px] sm:text-xs text-on-surface-variant font-bold">Open Complaints</p>
+                                        <p className="text-xl sm:text-3xl font-black text-red-600 mt-1">{openReportsCount}</p>
+                                        <button onClick={() => handleTabChange('reports')} className="text-[11px] text-red-700 font-bold hover:underline mt-1 cursor-pointer">
                                             Inspect Complaints →
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* SECONDARY STATS ROW */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <div className="bg-white p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex items-center justify-between">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                                    <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex items-center justify-between">
                                         <div>
                                             <p className="text-xs text-on-surface-variant font-bold">Registered Customers</p>
                                             <p className="text-xl font-black text-on-surface">{filteredCustomers.length}</p>
@@ -764,7 +781,7 @@ const AdminDashboard = () => {
                                         <Users className="w-8 h-8 text-primary/30" />
                                     </div>
 
-                                    <div className="bg-white p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex items-center justify-between">
+                                    <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex items-center justify-between">
                                         <div>
                                             <p className="text-xs text-on-surface-variant font-bold">Suspended Accounts</p>
                                             <p className="text-xl font-black text-red-600">
@@ -774,7 +791,7 @@ const AdminDashboard = () => {
                                         <Ban className="w-8 h-8 text-red-300" />
                                     </div>
 
-                                    <div className="bg-white p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex items-center justify-between">
+                                    <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex items-center justify-between">
                                         <div>
                                             <p className="text-xs text-on-surface-variant font-bold">Coverage Districts</p>
                                             <p className="text-xl font-black text-on-surface">
@@ -786,13 +803,13 @@ const AdminDashboard = () => {
                                 </div>
 
                                 {/* RECENT AUDIT ACTIVITY FEED */}
-                                <div className="bg-white rounded-3xl p-5 sm:p-6 border border-outline-variant/30 shadow-2xs space-y-4">
-                                    <div className="flex items-center justify-between">
+                                <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-outline-variant/30 shadow-2xs space-y-4">
+                                    <div className="flex items-center justify-between flex-wrap gap-2">
                                         <h3 className="font-black text-base text-on-surface flex items-center gap-2">
-                                            <Shield className="w-4 h-4 text-primary" /> Recent Administrative Activity
+                                            <Shield className="w-4 h-4 text-primary shrink-0" /> Recent Administrative Activity
                                         </h3>
                                         <button
-                                            onClick={() => setActiveTab('audit')}
+                                            onClick={() => handleTabChange('audit')}
                                             className="text-xs font-bold text-[#004d4c] hover:underline cursor-pointer"
                                         >
                                             View Full Audit Log ({auditLogs.length}) →
@@ -807,14 +824,14 @@ const AdminDashboard = () => {
                                         <div className="divide-y divide-outline-variant/20 text-xs">
                                             {auditLogs.slice(0, 5).map(log => (
                                                 <div key={log.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                                    <div className="space-y-0.5">
-                                                        <div className="flex items-center gap-2">
+                                                    <div className="space-y-0.5 min-w-0">
+                                                        <div className="flex items-center gap-2 flex-wrap">
                                                             <span className="font-extrabold uppercase text-[10px] px-2 py-0.5 rounded-full bg-surface-container text-primary">
                                                                 {log.action}
                                                             </span>
-                                                            <span className="text-on-surface font-bold">Target: {log.targetType} #{log.targetId?.slice(0, 8)}</span>
+                                                            <span className="text-on-surface font-bold break-words">Target: {log.targetType} #{log.targetId?.slice(0, 8)}</span>
                                                         </div>
-                                                        <p className="text-on-surface-variant text-[11px]">{log.reason || 'No additional comment provided'}</p>
+                                                        <p className="text-on-surface-variant text-[11px] break-words">{log.reason || 'No additional comment provided'}</p>
                                                     </div>
                                                     <span className="text-[11px] text-on-surface-variant/70 shrink-0">
                                                         {formatDate(log.timestamp)}
@@ -829,17 +846,17 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 2: SERVICE PARTNERS MANAGEMENT ────────────────────── */}
                         {activeTab === 'providers' && (
-                            <div className="space-y-4">
+                            <div className="space-y-4 w-full max-w-full">
                                 {/* Filters Row */}
-                                <div className="bg-white p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <span className="font-bold text-on-surface-variant flex items-center gap-1">
+                                <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant/30 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs w-full max-w-full">
+                                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                                        <span className="font-bold text-on-surface-variant flex items-center gap-1 shrink-0">
                                             <Filter className="w-3.5 h-3.5" /> Filters:
                                         </span>
                                         <select
                                             value={categoryFilter}
                                             onChange={(e) => setCategoryFilter(e.target.value)}
-                                            className="bg-surface-container/50 border border-outline-variant/40 rounded-xl px-2.5 py-1.5 font-bold text-on-surface outline-none"
+                                            className="bg-surface-container/50 border border-outline-variant/40 rounded-xl px-2.5 py-1.5 font-bold text-on-surface outline-none text-xs flex-1 sm:flex-initial min-w-0"
                                         >
                                             <option value="all">All Categories ({providers.length})</option>
                                             {SERVICE_CATEGORIES.map(c => (
@@ -850,7 +867,7 @@ const AdminDashboard = () => {
                                         <select
                                             value={statusFilter}
                                             onChange={(e) => setStatusFilter(e.target.value)}
-                                            className="bg-surface-container/50 border border-outline-variant/40 rounded-xl px-2.5 py-1.5 font-bold text-on-surface outline-none"
+                                            className="bg-surface-container/50 border border-outline-variant/40 rounded-xl px-2.5 py-1.5 font-bold text-on-surface outline-none text-xs flex-1 sm:flex-initial min-w-0"
                                         >
                                             <option value="all">All Account Statuses</option>
                                             <option value="active">Active</option>
@@ -859,15 +876,15 @@ const AdminDashboard = () => {
                                             <option value="pending">Pending</option>
                                         </select>
                                     </div>
-                                    <span className="font-bold text-on-surface-variant">
+                                    <span className="font-bold text-on-surface-variant shrink-0">
                                         Showing {filteredProviders.length} providers
                                     </span>
                                 </div>
 
                                 {/* Providers Table */}
-                                <div className="bg-white rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs">
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-left border-collapse text-xs">
+                                <div className="bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs w-full max-w-full">
+                                    <div className="overflow-x-auto w-full max-w-full overscroll-x-contain">
+                                        <table className="w-full min-w-[720px] text-left border-collapse text-xs">
                                             <thead>
                                                 <tr className="bg-surface-container-low text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant border-b border-outline-variant/30">
                                                     <th className="py-3.5 px-4 sm:px-6">Partner Name</th>
@@ -983,8 +1000,8 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 3: VERIFICATION QUEUE ─────────────────────────────── */}
                         {activeTab === 'verifications' && (
-                            <div className="space-y-4">
-                                <div className="bg-[#e6f4f1] p-4 rounded-2xl border border-[#004d4c]/15 text-xs text-[#004d4c] space-y-1">
+                            <div className="space-y-4 w-full max-w-full">
+                                <div className="bg-[#e6f4f1] p-3.5 sm:p-4 rounded-2xl border border-[#004d4c]/15 text-xs text-[#004d4c] space-y-1">
                                     <p className="font-extrabold text-sm">Provider Identity &amp; Onboarding Verification</p>
                                     <p className="text-[11px] text-on-surface-variant font-medium">
                                         Review new service partners before granting the platform verified trust badge. Rejection requires a mandatory reason sent to the provider.
@@ -992,7 +1009,7 @@ const AdminDashboard = () => {
                                 </div>
 
                                 {verificationQueue.length === 0 ? (
-                                    <div className="bg-white rounded-3xl p-10 text-center border border-outline-variant/30 space-y-2">
+                                    <div className="bg-white rounded-2xl sm:rounded-3xl p-8 sm:p-10 text-center border border-outline-variant/30 space-y-2">
                                         <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl">
                                             ✓
                                         </div>
@@ -1000,32 +1017,41 @@ const AdminDashboard = () => {
                                         <p className="text-xs text-on-surface-variant">All registered service providers have been verified or addressed.</p>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full">
                                         {verificationQueue.map(p => (
-                                            <div key={p.id} className="bg-white p-5 rounded-3xl border border-outline-variant/30 shadow-2xs space-y-4 text-xs">
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div className="flex items-center gap-3">
+                                            <div key={p.id} className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-outline-variant/30 shadow-2xs space-y-3.5 sm:space-y-4 text-xs w-full min-w-0">
+                                                <div className="flex items-start justify-between gap-2.5 min-w-0">
+                                                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                                                         <ProviderAvatar name={p.name} gender={p.gender} category={p.category} photoURL={p.photoURL || p.image} size="md" />
-                                                        <div>
-                                                            <h4 className="font-extrabold text-sm text-on-surface">{p.name}</h4>
-                                                            <p className="text-primary font-bold capitalize">{p.category} • {p.location || 'Mangaluru'}</p>
-                                                            <p className="text-on-surface-variant text-[11px]">{p.phone || p.email || 'No phone recorded'}</p>
+                                                        <div className="min-w-0 flex-1">
+                                                            <h4 className="font-extrabold text-sm text-on-surface truncate">{p.name}</h4>
+                                                            <p className="text-primary font-bold capitalize text-xs truncate">{p.category} • {p.location || 'Mangaluru'}</p>
+                                                            <p className="text-on-surface-variant text-[11px] truncate">{p.phone || p.email || 'No phone recorded'}</p>
                                                         </div>
                                                     </div>
-                                                    <span className="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full">
+                                                    <span className="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">
                                                         Awaiting Review
                                                     </span>
                                                 </div>
 
                                                 <div className="bg-surface-container/30 p-3 rounded-xl space-y-1 text-[11px]">
                                                     <p className="font-bold text-on-surface">Service Description:</p>
-                                                    <p className="text-on-surface-variant line-clamp-3">{p.description || 'No detailed service description entered yet.'}</p>
+                                                    <p className="text-on-surface-variant line-clamp-3 break-words">{p.description || 'No detailed service description entered yet.'}</p>
                                                 </div>
 
-                                                <div className="flex items-center justify-between text-[11px]">
-                                                    <span>Experience: <strong className="text-on-surface">{p.experienceYears || '3'} Years</strong></span>
-                                                    <span>Base Price: <strong className="text-on-surface">{formatCurrency(p.price)}</strong></span>
-                                                    <span>Portfolio Work: <strong className="text-on-surface">{Array.isArray(p.portfolio) ? p.portfolio.length : 0} items</strong></span>
+                                                <div className="grid grid-cols-3 gap-2 bg-surface-container/20 p-2.5 rounded-xl text-[11px] text-center">
+                                                    <div>
+                                                        <p className="text-on-surface-variant text-[10px]">Experience</p>
+                                                        <p className="font-bold text-on-surface">{p.experienceYears || '3'} Yrs</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-on-surface-variant text-[10px]">Base Price</p>
+                                                        <p className="font-bold text-on-surface">{formatCurrency(p.price)}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-on-surface-variant text-[10px]">Portfolio</p>
+                                                        <p className="font-bold text-on-surface">{Array.isArray(p.portfolio) ? p.portfolio.length : 0} items</p>
+                                                    </div>
                                                 </div>
 
                                                 {Array.isArray(p.portfolio) && p.portfolio.length > 0 && (
@@ -1038,7 +1064,7 @@ const AdminDashboard = () => {
                                                     </button>
                                                 )}
 
-                                                <div className="flex items-center gap-2 pt-2 border-t border-outline-variant/20">
+                                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2 border-t border-outline-variant/20">
                                                     <button
                                                         onClick={() => handleVerifyProvider(p.id)}
                                                         disabled={processingAction}
@@ -1063,10 +1089,10 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 4: CUSTOMERS MANAGEMENT ────────────────────────────── */}
                         {activeTab === 'customers' && (
-                            <div className="space-y-4">
-                                <div className="bg-white rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs">
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-left border-collapse text-xs">
+                            <div className="space-y-4 w-full max-w-full">
+                                <div className="bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs w-full max-w-full">
+                                    <div className="overflow-x-auto w-full max-w-full overscroll-x-contain">
+                                        <table className="w-full min-w-[560px] text-left border-collapse text-xs">
                                             <thead>
                                                 <tr className="bg-surface-container-low text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant border-b border-outline-variant/30">
                                                     <th className="py-3.5 px-4 sm:px-6">Customer Name</th>
@@ -1130,15 +1156,15 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 5: BOOKINGS OVERSIGHT ──────────────────────────────── */}
                         {activeTab === 'bookings' && (
-                            <div className="space-y-4">
+                            <div className="space-y-4 w-full max-w-full">
                                 {/* Booking Filter */}
-                                <div className="bg-white p-3 rounded-2xl border border-outline-variant/30 flex items-center justify-between text-xs">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-bold text-on-surface-variant">Status:</span>
+                                <div className="bg-white p-3 sm:p-3.5 rounded-2xl border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs w-full max-w-full">
+                                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                                        <span className="font-bold text-on-surface-variant shrink-0">Status:</span>
                                         <select
                                             value={bookingStatusFilter}
                                             onChange={(e) => setBookingStatusFilter(e.target.value)}
-                                            className="bg-surface-container/50 border border-outline-variant/40 rounded-xl px-2.5 py-1 font-bold text-on-surface outline-none"
+                                            className="bg-surface-container/50 border border-outline-variant/40 rounded-xl px-2.5 py-1 font-bold text-on-surface outline-none text-xs flex-1 sm:flex-initial min-w-0"
                                         >
                                             <option value="all">All ({bookings.length})</option>
                                             <option value="pending">Pending</option>
@@ -1147,14 +1173,14 @@ const AdminDashboard = () => {
                                             <option value="rejected">Rejected / Cancelled</option>
                                         </select>
                                     </div>
-                                    <span className="font-bold text-on-surface-variant">
+                                    <span className="font-bold text-on-surface-variant shrink-0">
                                         Showing {filteredBookings.length} bookings
                                     </span>
                                 </div>
 
-                                <div className="bg-white rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs">
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-left border-collapse text-xs">
+                                <div className="bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs w-full max-w-full">
+                                    <div className="overflow-x-auto w-full max-w-full overscroll-x-contain">
+                                        <table className="w-full min-w-[700px] text-left border-collapse text-xs">
                                             <thead>
                                                 <tr className="bg-surface-container-low text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant border-b border-outline-variant/30">
                                                     <th className="py-3.5 px-4 sm:px-6">Booking ID</th>
@@ -1228,14 +1254,14 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 6: COMPLAINTS & REPORTS ────────────────────────────── */}
                         {activeTab === 'reports' && (
-                            <div className="space-y-4">
-                                <div className="bg-white p-4 rounded-2xl border border-outline-variant/30 flex items-center justify-between text-xs">
+                            <div className="space-y-4 w-full max-w-full">
+                                <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                     <h3 className="font-extrabold text-sm text-on-surface">User Complaints &amp; Resolution Queue</h3>
                                     <span className="font-bold text-red-600">{openReportsCount} Pending Resolution</span>
                                 </div>
 
                                 {reports.length === 0 ? (
-                                    <div className="bg-white rounded-3xl p-10 text-center border border-outline-variant/30 space-y-2">
+                                    <div className="bg-white rounded-2xl sm:rounded-3xl p-8 sm:p-10 text-center border border-outline-variant/30 space-y-2">
                                         <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl">
                                             ✓
                                         </div>
@@ -1245,21 +1271,21 @@ const AdminDashboard = () => {
                                 ) : (
                                     <div className="space-y-3">
                                         {reports.map(r => (
-                                            <div key={r.id} className="bg-white p-5 rounded-3xl border border-outline-variant/30 shadow-2xs space-y-3 text-xs">
+                                            <div key={r.id} className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-outline-variant/30 shadow-2xs space-y-3 text-xs w-full min-w-0">
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-outline-variant/20 pb-3">
-                                                    <div>
+                                                    <div className="min-w-0">
                                                         <span className="font-extrabold uppercase text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-800">
                                                             {r.type} Dispute
                                                         </span>
-                                                        <h4 className="font-bold text-sm text-on-surface mt-1">
+                                                        <h4 className="font-bold text-sm text-on-surface mt-1 break-words">
                                                             Against: {r.targetName || `#${r.targetId?.slice(0, 8)}`}
                                                         </h4>
-                                                        <p className="text-on-surface-variant text-[11px]">
+                                                        <p className="text-on-surface-variant text-[11px] break-words">
                                                             Reported by {r.reporterName} ({r.reporterEmail}) on {formatDate(r.createdAt)}
                                                         </p>
                                                     </div>
 
-                                                    <span className={`px-2.5 py-1 rounded-full font-extrabold text-[10px] uppercase tracking-wider self-start sm:self-auto ${
+                                                    <span className={`px-2.5 py-1 rounded-full font-extrabold text-[10px] uppercase tracking-wider self-start sm:self-auto shrink-0 ${
                                                         r.status === 'resolved' ? 'bg-emerald-100 text-emerald-800' :
                                                         r.status === 'dismissed' ? 'bg-gray-100 text-gray-700' :
                                                         'bg-red-100 text-red-800'
@@ -1268,18 +1294,18 @@ const AdminDashboard = () => {
                                                     </span>
                                                 </div>
 
-                                                <div className="bg-surface-container/30 p-3 rounded-xl text-on-surface text-[12px] leading-relaxed">
+                                                <div className="bg-surface-container/30 p-3 rounded-xl text-on-surface text-[12px] leading-relaxed break-words">
                                                     {r.description}
                                                 </div>
 
                                                 {r.resolutionNotes && (
-                                                    <div className="bg-emerald-50 p-2.5 rounded-xl text-emerald-900 text-[11px] border border-emerald-200">
+                                                    <div className="bg-emerald-50 p-2.5 rounded-xl text-emerald-900 text-[11px] border border-emerald-200 break-words">
                                                         <strong>Resolution Notes:</strong> {r.resolutionNotes}
                                                     </div>
                                                 )}
 
                                                 {r.status !== 'resolved' && r.status !== 'dismissed' && (
-                                                    <div className="flex items-center justify-end gap-2 pt-1">
+                                                    <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
                                                         <button
                                                             onClick={() => setReportResolveModal({ reportId: r.id, status: 'resolved' })}
                                                             className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-colors cursor-pointer"
@@ -1303,38 +1329,38 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 7: REVIEWS MODERATION ──────────────────────────────── */}
                         {activeTab === 'reviews' && (
-                            <div className="space-y-4">
-                                <div className="bg-white p-4 rounded-2xl border border-outline-variant/30 flex items-center justify-between text-xs">
+                            <div className="space-y-4 w-full max-w-full">
+                                <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                     <h3 className="font-extrabold text-sm text-on-surface">Customer Reviews Moderation</h3>
                                     <span className="font-bold text-on-surface-variant">Total: {reviews.length} reviews</span>
                                 </div>
 
                                 {reviews.length === 0 ? (
-                                    <div className="bg-white rounded-3xl p-10 text-center border border-outline-variant/30 text-on-surface-variant text-xs">
+                                    <div className="bg-white rounded-2xl sm:rounded-3xl p-8 sm:p-10 text-center border border-outline-variant/30 text-on-surface-variant text-xs">
                                         No customer reviews currently logged.
                                     </div>
                                 ) : (
-                                    <div className="bg-white rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs">
+                                    <div className="bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs w-full max-w-full">
                                         <div className="divide-y divide-outline-variant/20 text-xs">
                                             {reviews.map(rev => (
                                                 <div key={rev.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between gap-3 items-start">
-                                                    <div className="space-y-1.5 flex-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-amber-500 font-black">★ {rev.rating} / 5</span>
+                                                    <div className="space-y-1.5 flex-1 min-w-0 w-full">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className="text-amber-500 font-black shrink-0">★ {rev.rating} / 5</span>
                                                             <span className="font-bold text-on-surface">{rev.customerName || 'Customer'}</span>
-                                                            <span className="text-on-surface-variant text-[11px]">→ Provider ID: {rev.providerId?.slice(0, 8)}</span>
+                                                            <span className="text-on-surface-variant text-[11px] truncate">→ Provider ID: {rev.providerId?.slice(0, 8)}</span>
                                                             {rev.moderated && (
                                                                 <span className="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded text-[10px]">REMOVED BY ADMIN</span>
                                                             )}
                                                         </div>
-                                                        <p className="text-on-surface text-[12px] leading-relaxed italic">&quot;{rev.comment}&quot;</p>
+                                                        <p className="text-on-surface text-[12px] leading-relaxed italic break-words">&quot;{rev.comment}&quot;</p>
                                                         <p className="text-[10px] text-on-surface-variant/70">{formatDate(rev.createdAt)}</p>
                                                     </div>
 
                                                     {!rev.moderated && (
                                                         <button
                                                             onClick={() => setReviewModerateModal({ reviewId: rev.id, providerId: rev.providerId })}
-                                                            className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold text-xs transition-colors cursor-pointer shrink-0"
+                                                            className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-bold text-xs transition-colors cursor-pointer shrink-0 w-full sm:w-auto text-center"
                                                         >
                                                             Remove Review
                                                         </button>
@@ -1349,17 +1375,17 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 8: AUDIT TRAIL LOG ─────────────────────────────────── */}
                         {activeTab === 'audit' && (
-                            <div className="space-y-4">
-                                <div className="bg-white p-4 rounded-2xl border border-outline-variant/30 flex items-center justify-between text-xs">
+                            <div className="space-y-4 w-full max-w-full">
+                                <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                     <h3 className="font-extrabold text-sm text-on-surface flex items-center gap-2">
-                                        <Shield className="w-4 h-4 text-primary" /> Immutable Administrative Audit Trail
+                                        <Shield className="w-4 h-4 text-primary shrink-0" /> Immutable Administrative Audit Trail
                                     </h3>
                                     <span className="font-bold text-on-surface-variant">{auditLogs.length} Records</span>
                                 </div>
 
-                                <div className="bg-white rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs">
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-left border-collapse text-xs">
+                                <div className="bg-white rounded-2xl sm:rounded-3xl border border-outline-variant/30 overflow-hidden shadow-2xs w-full max-w-full">
+                                    <div className="overflow-x-auto w-full max-w-full overscroll-x-contain">
+                                        <table className="w-full min-w-[660px] text-left border-collapse text-xs">
                                             <thead>
                                                 <tr className="bg-surface-container-low text-[11px] uppercase tracking-wider font-extrabold text-on-surface-variant border-b border-outline-variant/30">
                                                     <th className="py-3.5 px-4 sm:px-6">Timestamp</th>
@@ -1391,7 +1417,7 @@ const AdminDashboard = () => {
                                                             <td className="py-3 px-4 text-on-surface-variant truncate max-w-[150px]">
                                                                 {log.adminEmail || log.adminUid}
                                                             </td>
-                                                            <td className="py-3 px-4 text-on-surface-variant text-[11px]">
+                                                            <td className="py-3 px-4 text-on-surface-variant text-[11px] break-words">
                                                                 {log.reason || '—'}
                                                             </td>
                                                         </tr>
@@ -1406,7 +1432,7 @@ const AdminDashboard = () => {
 
                         {/* ─── TAB 9: PLATFORM SETTINGS ──────────────────────────────── */}
                         {activeTab === 'settings' && (
-                            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-outline-variant/30 shadow-2xs space-y-6 text-xs max-w-2xl">
+                            <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-outline-variant/30 shadow-2xs space-y-6 text-xs max-w-2xl w-full min-w-0">
                                 <div>
                                     <h3 className="font-black text-lg text-on-surface">Platform Operations Configuration</h3>
                                     <p className="text-on-surface-variant text-xs mt-0.5">Control regional coverage areas and customer announcement notices.</p>
@@ -1442,7 +1468,7 @@ const AdminDashboard = () => {
                                                 ...prev,
                                                 supportedCities: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                                             }))}
-                                            className="w-full bg-surface-container/40 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary"
+                                            className="w-full bg-surface-container/40 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary min-w-0"
                                         />
                                     </div>
 
@@ -1455,7 +1481,7 @@ const AdminDashboard = () => {
                                             value={platformConfig.announcement || ''}
                                             onChange={(e) => setPlatformConfig(prev => ({ ...prev, announcement: e.target.value }))}
                                             placeholder="Optional banner message displayed to all platform users..."
-                                            className="w-full bg-surface-container/40 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none"
+                                            className="w-full bg-surface-container/40 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none min-w-0"
                                         />
                                     </div>
 
@@ -1463,7 +1489,7 @@ const AdminDashboard = () => {
                                         <button
                                             type="submit"
                                             disabled={processingAction}
-                                            className="px-6 py-2.5 bg-[#004d4c] hover:bg-[#003837] text-white rounded-xl font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
+                                            className="w-full sm:w-auto px-6 py-2.5 bg-[#004d4c] hover:bg-[#003837] text-white rounded-xl font-bold transition-all shadow-md cursor-pointer disabled:opacity-50 text-center"
                                         >
                                             {processingAction ? 'Saving...' : 'Save Configuration'}
                                         </button>
@@ -1476,15 +1502,15 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: SUSPEND PROVIDER WITH MANDATORY REASON ───────────── */}
                 {suspensionModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-outline-variant/40 space-y-4 max-h-[90vh] overflow-y-auto my-auto">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
+                                <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold shrink-0">
                                     <Ban className="w-5 h-5" />
                                 </div>
-                                <div>
-                                    <h3 className="font-black text-base text-on-surface">Suspend Service Provider</h3>
-                                    <p className="text-xs text-on-surface-variant">{suspensionModal.providerName}</p>
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-base text-on-surface truncate">Suspend Service Provider</h3>
+                                    <p className="text-xs text-on-surface-variant truncate">{suspensionModal.providerName}</p>
                                 </div>
                             </div>
                             <form onSubmit={handleConfirmSuspension} className="space-y-4">
@@ -1497,7 +1523,7 @@ const AdminDashboard = () => {
                                         value={suspensionReason}
                                         onChange={(e) => setSuspensionReason(e.target.value)}
                                         placeholder="Explain terms violation, customer complaints, or safety issues..."
-                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-red-500 resize-none"
+                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-red-500 resize-none min-w-0"
                                         required
                                     />
                                     <p className="text-[11px] text-on-surface-variant mt-1">
@@ -1527,8 +1553,8 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: REJECT VERIFICATION WITH REASON ─────────────────── */}
                 {rejectionModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-outline-variant/40 space-y-4 max-h-[90vh] overflow-y-auto my-auto">
                             <h3 className="font-black text-base text-on-surface">Reject Provider Verification</h3>
                             <p className="text-xs text-on-surface-variant">Provide feedback to <span className="font-bold">{rejectionModal.providerName}</span> on why verification was rejected.</p>
                             <form onSubmit={handleConfirmRejectVerification} className="space-y-4">
@@ -1541,7 +1567,7 @@ const AdminDashboard = () => {
                                         value={rejectionReason}
                                         onChange={(e) => setRejectionReason(e.target.value)}
                                         placeholder="e.g. Please provide a clear profile photo and valid service description..."
-                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none"
+                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none min-w-0"
                                         required
                                     />
                                 </div>
@@ -1568,8 +1594,8 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: RESTRICT CUSTOMER ACCOUNT ───────────────────────── */}
                 {customerRestrictModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-outline-variant/40 space-y-4 max-h-[90vh] overflow-y-auto my-auto">
                             <h3 className="font-black text-base text-on-surface">
                                 {customerRestrictModal.newStatus === 'restricted' ? 'Restrict Customer Account' : 'Reactivate Customer Account'}
                             </h3>
@@ -1586,7 +1612,7 @@ const AdminDashboard = () => {
                                         value={restrictionReason}
                                         onChange={(e) => setRestrictionReason(e.target.value)}
                                         placeholder="Reason for restriction or reactivation..."
-                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none"
+                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none min-w-0"
                                     />
                                 </div>
                                 <div className="flex justify-end gap-2 pt-2">
@@ -1612,8 +1638,8 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: FLAG BOOKING ────────────────────────────────────── */}
                 {flagModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-outline-variant/40 space-y-4 max-h-[90vh] overflow-y-auto my-auto">
                             <h3 className="font-black text-base text-on-surface">Flag Booking for Investigation</h3>
                             <form onSubmit={handleConfirmFlagBooking} className="space-y-4">
                                 <div>
@@ -1625,7 +1651,7 @@ const AdminDashboard = () => {
                                         value={flagReason}
                                         onChange={(e) => setFlagReason(e.target.value)}
                                         placeholder="e.g. Unusually high billing discrepancy reported..."
-                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none"
+                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none min-w-0"
                                         required
                                     />
                                 </div>
@@ -1652,8 +1678,8 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: RESOLVE / DISMISS REPORT ────────────────────────── */}
                 {reportResolveModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-outline-variant/40 space-y-4 max-h-[90vh] overflow-y-auto my-auto">
                             <h3 className="font-black text-base text-on-surface">
                                 {reportResolveModal.status === 'resolved' ? 'Resolve Complaint Ticket' : 'Dismiss Complaint Ticket'}
                             </h3>
@@ -1667,7 +1693,7 @@ const AdminDashboard = () => {
                                         value={resolutionNotes}
                                         onChange={(e) => setResolutionNotes(e.target.value)}
                                         placeholder="Document actions taken or reasons for dismissal..."
-                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none"
+                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-primary resize-none min-w-0"
                                         required
                                     />
                                 </div>
@@ -1694,8 +1720,8 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: MODERATE REVIEW ─────────────────────────────────── */}
                 {reviewModerateModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-outline-variant/40 space-y-4 max-h-[90vh] overflow-y-auto my-auto">
                             <h3 className="font-black text-base text-on-surface">Moderate / Remove Review</h3>
                             <p className="text-xs text-on-surface-variant">Removing this review will hide it from customer view and recalculate the provider average rating.</p>
                             <form onSubmit={handleConfirmModerateReview} className="space-y-4">
@@ -1708,7 +1734,7 @@ const AdminDashboard = () => {
                                         value={moderationReason}
                                         onChange={(e) => setModerationReason(e.target.value)}
                                         placeholder="State guideline violation (e.g. Hate speech, spam, irrelevant content)..."
-                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-red-500 resize-none"
+                                        className="w-full bg-surface-container/50 border border-outline-variant/40 rounded-xl p-3 text-xs outline-none focus:border-red-500 resize-none min-w-0"
                                         required
                                     />
                                 </div>
@@ -1735,20 +1761,20 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: FULL PROVIDER PROFILE DETAILS ───────────────────── */}
                 {selectedProviderModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-outline-variant/40 space-y-5 max-h-[90vh] overflow-y-auto text-xs">
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-3">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-8 shadow-2xl border border-outline-variant/40 space-y-5 max-h-[90vh] overflow-y-auto text-xs my-auto">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
                                     <ProviderAvatar name={selectedProviderModal.name} gender={selectedProviderModal.gender} category={selectedProviderModal.category} photoURL={selectedProviderModal.photoURL || selectedProviderModal.image} size="lg" />
-                                    <div>
-                                        <h3 className="font-black text-lg text-on-surface">{selectedProviderModal.name}</h3>
-                                        <p className="font-bold text-primary capitalize">{selectedProviderModal.category} • {selectedProviderModal.location || 'Mangaluru'}</p>
-                                        <p className="text-on-surface-variant text-[11px]">{selectedProviderModal.email || 'No email registered'}</p>
+                                    <div className="min-w-0">
+                                        <h3 className="font-black text-lg text-on-surface truncate">{selectedProviderModal.name}</h3>
+                                        <p className="font-bold text-primary capitalize truncate">{selectedProviderModal.category} • {selectedProviderModal.location || 'Mangaluru'}</p>
+                                        <p className="text-on-surface-variant text-[11px] truncate">{selectedProviderModal.email || 'No email registered'}</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setSelectedProviderModal(null)}
-                                    className="p-1.5 rounded-full hover:bg-surface-container text-on-surface-variant cursor-pointer"
+                                    className="p-1.5 rounded-full hover:bg-surface-container text-on-surface-variant cursor-pointer shrink-0"
                                 >
                                     ✕
                                 </button>
@@ -1775,7 +1801,7 @@ const AdminDashboard = () => {
 
                             <div className="space-y-1">
                                 <p className="font-bold text-on-surface uppercase tracking-wider text-[11px]">Service Description</p>
-                                <p className="text-on-surface leading-relaxed bg-surface-container/20 p-3 rounded-xl">
+                                <p className="text-on-surface leading-relaxed bg-surface-container/20 p-3 rounded-xl break-words">
                                     {selectedProviderModal.description || 'No detailed description provided.'}
                                 </p>
                             </div>
@@ -1796,7 +1822,7 @@ const AdminDashboard = () => {
                             {Array.isArray(selectedProviderModal.portfolio) && selectedProviderModal.portfolio.length > 0 && (
                                 <div className="space-y-2">
                                     <p className="font-bold text-on-surface uppercase tracking-wider text-[11px]">Portfolio Work Preview ({selectedProviderModal.portfolio.length})</p>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                         {selectedProviderModal.portfolio.slice(0, 3).map((img, i) => (
                                             <img
                                                 key={i}
@@ -1809,7 +1835,7 @@ const AdminDashboard = () => {
                                 </div>
                             )}
 
-                            <div className="flex justify-end gap-2 pt-2 border-t border-outline-variant/20">
+                            <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-outline-variant/20">
                                 <button
                                     type="button"
                                     onClick={() => setSelectedProviderModal(null)}
@@ -1821,7 +1847,7 @@ const AdminDashboard = () => {
                                     <button
                                         type="button"
                                         onClick={async () => {
-                                            await handleReactivateProvider(selectedProviderModal);
+                                             await handleReactivateProvider(selectedProviderModal);
                                         }}
                                         className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md cursor-pointer flex items-center gap-1.5"
                                     >
@@ -1844,35 +1870,35 @@ const AdminDashboard = () => {
 
                 {/* ─── MODAL: FULL BOOKING DETAILS ────────────────────────────── */}
                 {bookingDetailModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-                        <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-outline-variant/40 space-y-4 text-xs">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <h3 className="font-black text-base text-on-surface">Booking #{bookingDetailModal.id?.slice(0, 8)}</h3>
-                                    <p className="text-on-surface-variant text-[11px]">{formatDate(bookingDetailModal.timestamp)}</p>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
+                        <div className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-outline-variant/40 space-y-4 text-xs max-h-[90vh] overflow-y-auto my-auto">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <h3 className="font-black text-base text-on-surface truncate">Booking #{bookingDetailModal.id?.slice(0, 8)}</h3>
+                                    <p className="text-on-surface-variant text-[11px] truncate">{formatDate(bookingDetailModal.timestamp)}</p>
                                 </div>
                                 <button
                                     onClick={() => setBookingDetailModal(null)}
-                                    className="p-1.5 rounded-full hover:bg-surface-container text-on-surface-variant cursor-pointer"
+                                    className="p-1.5 rounded-full hover:bg-surface-container text-on-surface-variant cursor-pointer shrink-0"
                                 >
                                     ✕
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3 bg-surface-container/30 p-3.5 rounded-2xl">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-surface-container/30 p-3.5 rounded-2xl">
                                 <div>
                                     <p className="text-on-surface-variant text-[11px]">Customer:</p>
-                                    <p className="font-bold text-on-surface">{bookingDetailModal.userName}</p>
-                                    <p className="text-[10px] text-on-surface-variant">{bookingDetailModal.userEmail}</p>
+                                    <p className="font-bold text-on-surface break-words">{bookingDetailModal.userName}</p>
+                                    <p className="text-[10px] text-on-surface-variant break-words">{bookingDetailModal.userEmail}</p>
                                 </div>
                                 <div>
                                     <p className="text-on-surface-variant text-[11px]">Provider:</p>
-                                    <p className="font-bold text-on-surface">{bookingDetailModal.providerName}</p>
+                                    <p className="font-bold text-on-surface break-words">{bookingDetailModal.providerName}</p>
                                     <p className="text-[10px] text-primary capitalize">{bookingDetailModal.category}</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-1.5">
+                            <div className="space-y-1.5 break-words">
                                 <p className="font-bold text-on-surface">Scheduled Appointment:</p>
                                 <p className="text-on-surface-variant">{bookingDetailModal.date || 'Jul 30, 2026'}, {bookingDetailModal.slot}</p>
                                 <p className="font-bold text-on-surface pt-1">Service Address:</p>
@@ -1885,7 +1911,7 @@ const AdminDashboard = () => {
                                 )}
                             </div>
 
-                            <div className="flex items-center justify-between border-t border-outline-variant/20 pt-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-outline-variant/20 pt-3">
                                 <div>
                                     <span className="text-on-surface-variant">Amount: </span>
                                     <strong className="text-base text-on-surface">{formatCurrency(bookingDetailModal.price)}</strong>
