@@ -550,29 +550,30 @@ const PortfolioManager = ({
                                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                         loading="lazy"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2.5 flex flex-col justify-between">
-                                        <div className="flex justify-end gap-1">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 md:via-black/20 md:to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 sm:p-2.5 flex flex-col justify-between pointer-events-auto">
+                                        <div className="flex justify-end items-center gap-1.5 sm:gap-2">
                                             <a
                                                 href={imgUrl}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="w-7 h-7 rounded-full bg-white/90 text-on-surface flex items-center justify-center hover:bg-white transition-colors"
+                                                className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-white/95 hover:bg-white text-on-surface flex items-center justify-center transition-all shadow-md active:scale-95 border border-black/10 shrink-0"
                                                 title="View full resolution"
                                             >
-                                                <ExternalLink className="w-3.5 h-3.5" />
+                                                <ExternalLink className="w-4 h-4 md:w-3.5 md:h-3.5 text-on-surface" />
                                             </a>
                                             {isOwner && (
                                                 <button
                                                     type="button"
                                                     onClick={() => handleDeleteExisting(imgItem)}
-                                                    className="w-7 h-7 rounded-full bg-red-600/90 text-white flex items-center justify-center hover:bg-red-600 transition-colors cursor-pointer"
+                                                    className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 border border-white/20 shrink-0"
                                                     title="Delete this image"
+                                                    aria-label="Delete portfolio image"
                                                 >
-                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                    <Trash2 className="w-4 h-4 md:w-3.5 md:h-3.5 text-white" />
                                                 </button>
                                             )}
                                         </div>
-                                        <p className="text-[11px] text-white font-semibold truncate">
+                                        <p className="text-[11px] text-white font-semibold truncate drop-shadow-xs">
                                             {title}
                                         </p>
                                     </div>
