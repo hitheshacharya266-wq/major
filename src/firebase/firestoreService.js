@@ -28,6 +28,8 @@ import {
     uploadProfilePhotoToCloudinary
 } from '../services/cloudinaryService';
 
+import { DEMO_PROVIDERS } from '../data/demoProviders';
+
 /** Upload provider profile image to Cloudinary and return persistent secure URL and metadata */
 export const uploadProviderProfileImage = async (uid, file, onProgress) => {
     if (!file || !uid) throw new Error('File and Provider ID are required.');
@@ -118,16 +120,51 @@ export const getProvidersByCategory = async (category) => {
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 };
 
-/** Get all service providers */
+/** Get all service providers (merges live Firestore providers with presentation demo providers) */
 export const getAllProviders = async () => {
-    const snap = await getDocs(collection(db, 'serviceProviders'));
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    try {
+        const snap = await getDocs(collection(db, 'serviceProviders'));
+        const dbList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        const dbKeySet = new Set();
+        dbList.forEach(p => {
+            if (p.email) dbKeySet.add(p.email.toLowerCase());
+            if (p.uid) dbKeySet.add(p.uid);
+            if (p.id) dbKeySet.add(p.id);
+        });
+
+        // Merge in demo providers that are not already in DB
+        const merged = [...dbList];
+        DEMO_PROVIDERS.forEach(dp => {
+            const hasMatch = (dp.email && dbKeySet.has(dp.email.toLowerCase())) ||
+                (dp.uid && dbKeySet.has(dp.uid)) ||
+                (dp.id && dbKeySet.has(dp.id));
+            if (!hasMatch) {
+                merged.push(dp);
+            }
+        });
+
+        return merged;
+    } catch (err) {
+        console.warn('Firestore serviceProviders query failed, falling back to DEMO_PROVIDERS:', err);
+        return DEMO_PROVIDERS;
+    }
 };
 
-/** Get a single provider by UID */
+/** Get a single provider by UID or ID */
 export const getProviderProfile = async (uid) => {
-    const snap = await getDoc(doc(db, 'serviceProviders', uid));
-    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    if (!uid) return null;
+    try {
+        const snap = await getDoc(doc(db, 'serviceProviders', uid));
+        if (snap.exists()) {
+            return { id: snap.id, ...snap.data() };
+        }
+    } catch (err) {
+        console.warn(`Firestore getProviderProfile failed for ${uid}:`, err);
+    }
+    // Fallback to DEMO_PROVIDERS
+    const demo = DEMO_PROVIDERS.find(p => p.id === uid || p.uid === uid || p.email?.toLowerCase() === String(uid).toLowerCase());
+    return demo ? { ...demo } : null;
 };
 
 /** Toggle provider availability */
@@ -540,13 +577,17 @@ export const getProviderReviews = async (providerId) => {
             where('providerId', '==', providerId)
         );
         const snap = await getDocs(q);
-        return snap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .sort((a, b) => getTimestampSeconds(b.createdAt) - getTimestampSeconds(a.createdAt));
+        if (!snap.empty) {
+            return snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => getTimestampSeconds(b.createdAt) - getTimestampSeconds(a.createdAt));
+        }
     } catch (err) {
         console.error('Error fetching provider reviews:', err);
-        return [];
     }
+    // Check demo reviews fallback
+    const demo = DEMO_PROVIDERS.find(p => p.id === providerId || p.uid === providerId || p.email?.toLowerCase() === String(providerId).toLowerCase());
+    return demo?.reviews || [];
 };
 
 /**
@@ -557,9 +598,10 @@ export const getProviderReviews = async (providerId) => {
 export const getProviderStats = async (providerId, includeBookings = false) => {
     if (!providerId) return { completedJobsCount: 0, rating: null, ratingCount: 0 };
 
-    let completedJobsCount = 0;
-    let rating = null;
-    let ratingCount = 0;
+    const demo = DEMO_PROVIDERS.find(p => p.id === providerId || p.uid === providerId || p.email?.toLowerCase() === String(providerId).toLowerCase());
+    let completedJobsCount = demo?.completedJobsCount || demo?.completedJobs || 0;
+    let rating = demo?.rating ?? null;
+    let ratingCount = demo?.ratingCount || 0;
 
     // 1. Fetch completed bookings count ONLY if includeBookings is explicitly true.
     // Public visitors must NEVER query the protected 'bookings' collection.
@@ -571,7 +613,9 @@ export const getProviderStats = async (providerId, includeBookings = false) => {
                 where('status', '==', 'completed')
             );
             const snapBookings = await getDocs(qBookings);
-            completedJobsCount = snapBookings.docs.length;
+            if (snapBookings.docs.length > 0) {
+                completedJobsCount = snapBookings.docs.length;
+            }
         } catch (err) {
             // Bookings are protected by security rules; quietly handle without breaking provider stats
             console.warn('Bookings access restricted or unavailable for provider stats:', err?.message || err);
@@ -585,12 +629,13 @@ export const getProviderStats = async (providerId, includeBookings = false) => {
             where('providerId', '==', providerId)
         );
         const snapReviews = await getDocs(qReviews);
-        const reviews = snapReviews.docs.map(d => d.data());
-        ratingCount = reviews.length;
-
-        if (ratingCount > 0) {
-            const totalScore = reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0);
-            rating = Math.round((totalScore / ratingCount) * 10) / 10;
+        if (!snapReviews.empty) {
+            const reviews = snapReviews.docs.map(d => d.data());
+            ratingCount = reviews.length;
+            if (ratingCount > 0) {
+                const totalScore = reviews.reduce((sum, r) => sum + (Number(r.rating) || 0), 0);
+                rating = Math.round((totalScore / ratingCount) * 10) / 10;
+            }
         }
     } catch {
         // Reviews access restricted or unavailable for provider stats

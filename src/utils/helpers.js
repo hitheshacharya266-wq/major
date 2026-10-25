@@ -4,74 +4,225 @@
 
 /** Service categories with display info */
 export const SERVICE_CATEGORIES = [
-    { id: 'plumber', label: 'Plumber', emoji: '🔧', icon: 'plumbing' },
-    { id: 'electrician', label: 'Electrician', emoji: '⚡', icon: 'electrical_services' },
-    { id: 'carpenter', label: 'Carpenter', emoji: '🪚', icon: 'construction' },
-    { id: 'mechanic', label: 'Mechanic', emoji: '🔩', icon: 'build' },
-    { id: 'ac_repair', label: 'AC Repair', emoji: '❄️', icon: 'ac_unit' },
-    { id: 'cleaning', label: 'Cleaning', emoji: '🧹', icon: 'cleaning_services' },
+    { id: 'electrician', label: 'Electrical Services', emoji: '⚡', icon: 'electrical_services' },
+    { id: 'plumber', label: 'Plumbing', emoji: '🔧', icon: 'plumbing' },
+    { id: 'cleaning', label: 'Home Cleaning', emoji: '🧹', icon: 'cleaning_services' },
+    { id: 'ac_repair', label: 'AC Repair & Install', emoji: '❄️', icon: 'ac_unit' },
+    { id: 'carpenter', label: 'Carpentry', emoji: '🪚', icon: 'construction' },
+    { id: 'painter', label: 'Painting', emoji: '🎨', icon: 'format_paint' },
+    { id: 'appliance_repair', label: 'Appliance Repair', emoji: '🔌', icon: 'home_repair_service' },
+    { id: 'computer_repair', label: 'Computer & Laptop', emoji: '💻', icon: 'computer' },
+    { id: 'mobile_repair', label: 'Mobile Repair', emoji: '📱', icon: 'smartphone' },
+    { id: 'photography', label: 'Photography & Video', emoji: '📸', icon: 'photo_camera' },
+    { id: 'salon_grooming', label: 'Salon & Grooming', emoji: '✂️', icon: 'content_cut' },
+    { id: 'mechanic', label: 'Vehicle & Bike Repair', emoji: '🔩', icon: 'car_repair' },
+    { id: 'gardening', label: 'Gardening & Lawns', emoji: '🌱', icon: 'yard' },
     { id: 'pest_control', label: 'Pest Control', emoji: '🦟', icon: 'pest_control' },
+    { id: 'packers_movers', label: 'Packers & Movers', emoji: '📦', icon: 'local_shipping' },
+    { id: 'interior_design', label: 'Interior Design', emoji: '🛋️', icon: 'deck' },
+    { id: 'fitness_trainer', label: 'Fitness & Gym', emoji: '🏋️', icon: 'fitness_center' },
+    { id: 'tutoring', label: 'Tutoring & Academics', emoji: '📚', icon: 'school' },
+    { id: 'laundry', label: 'Laundry & Ironing', emoji: '🧺', icon: 'local_laundry_service' },
+    { id: 'handyman', label: 'Handyman Services', emoji: '🛠️', icon: 'handyman' },
 ];
 
 /** Category alias map for normalization (case-insensitive, handles plural/singular/aliases) */
 const CATEGORY_ALIASES = {
-    // Plumber
-    'plumber': 'plumber',
-    'plumbers': 'plumber',
-    'plumbing': 'plumber',
-
-    // Electrician
+    // 1. Electrician
     'electrician': 'electrician',
     'electricians': 'electrician',
     'electrical': 'electrician',
+    'electrical services': 'electrician',
     'electricity': 'electrician',
+    'wiring': 'electrician',
+    'wireman': 'electrician',
 
-    // Carpenter
-    'carpenter': 'carpenter',
-    'carpenters': 'carpenter',
-    'carpentry': 'carpenter',
-    'woodwork': 'carpenter',
+    // 2. Plumber
+    'plumber': 'plumber',
+    'plumbers': 'plumber',
+    'plumbing': 'plumber',
+    'plumbing services': 'plumber',
+    'sanitary': 'plumber',
+    'pipe': 'plumber',
+    'pipes': 'plumber',
 
-    // Mechanic
-    'mechanic': 'mechanic',
-    'mechanics': 'mechanic',
-    'mechanical': 'mechanic',
-    'auto': 'mechanic',
-    'automobile': 'mechanic',
+    // 3. Home Cleaning
+    'cleaning': 'cleaning',
+    'cleaner': 'cleaning',
+    'cleaners': 'cleaning',
+    'home cleaning': 'cleaning',
+    'deep cleaning': 'cleaning',
+    'house cleaning': 'cleaning',
+    'sanitization': 'cleaning',
 
-    // AC Repair
+    // 4. AC Repair
     'ac': 'ac_repair',
     'ac_repair': 'ac_repair',
     'ac-repair': 'ac_repair',
     'ac repair': 'ac_repair',
     'acrepair': 'ac_repair',
+    'ac repair & install': 'ac_repair',
     'air conditioner': 'ac_repair',
     'air conditioning': 'ac_repair',
     'hvac': 'ac_repair',
+    'air cooler': 'ac_repair',
 
-    // Cleaning
-    'cleaning': 'cleaning',
-    'cleaner': 'cleaning',
-    'cleaners': 'cleaning',
-    'deep cleaning': 'cleaning',
-    'house cleaning': 'cleaning',
+    // 5. Carpenter
+    'carpenter': 'carpenter',
+    'carpenters': 'carpenter',
+    'carpentry': 'carpenter',
+    'woodwork': 'carpenter',
+    'furniture': 'carpenter',
 
-    // Pest Control
+    // 6. Painter
+    'painter': 'painter',
+    'painters': 'painter',
+    'painting': 'painter',
+    'wall painting': 'painter',
+    'whitewash': 'painter',
+
+    // 7. Appliance Repair
+    'appliance': 'appliance_repair',
+    'appliances': 'appliance_repair',
+    'appliance repair': 'appliance_repair',
+    'appliance_repair': 'appliance_repair',
+    'fridge': 'appliance_repair',
+    'refrigerator': 'appliance_repair',
+    'washing machine': 'appliance_repair',
+    'microwave': 'appliance_repair',
+    'water purifier': 'appliance_repair',
+    'ro repair': 'appliance_repair',
+
+    // 8. Computer & Laptop Repair
+    'computer': 'computer_repair',
+    'computer repair': 'computer_repair',
+    'computer_repair': 'computer_repair',
+    'laptop': 'computer_repair',
+    'laptop repair': 'computer_repair',
+    'pc': 'computer_repair',
+    'pc repair': 'computer_repair',
+    'computer & laptop': 'computer_repair',
+
+    // 9. Mobile Phone Repair
+    'mobile': 'mobile_repair',
+    'mobile repair': 'mobile_repair',
+    'mobile_repair': 'mobile_repair',
+    'phone': 'mobile_repair',
+    'phone repair': 'mobile_repair',
+    'smartphone': 'mobile_repair',
+    'tablet': 'mobile_repair',
+    'screen repair': 'mobile_repair',
+
+    // 10. Photography & Videography
+    'photography': 'photography',
+    'photographer': 'photography',
+    'photographers': 'photography',
+    'videography': 'photography',
+    'videographer': 'photography',
+    'photo': 'photography',
+    'photos': 'photography',
+    'photography & video': 'photography',
+
+    // 11. Salon & Grooming
+    'salon': 'salon_grooming',
+    'salon & grooming': 'salon_grooming',
+    'salon_grooming': 'salon_grooming',
+    'grooming': 'salon_grooming',
+    'haircut': 'salon_grooming',
+    'makeup': 'salon_grooming',
+    'beautician': 'salon_grooming',
+    'barber': 'salon_grooming',
+    'beauty parlor': 'salon_grooming',
+
+    // 12. Mechanic / Vehicle & Bike
+    'mechanic': 'mechanic',
+    'mechanics': 'mechanic',
+    'mechanical': 'mechanic',
+    'auto': 'mechanic',
+    'automobile': 'mechanic',
+    'vehicle repair': 'mechanic',
+    'bike': 'mechanic',
+    'bike repair': 'mechanic',
+    'motorcycle': 'mechanic',
+    'car repair': 'mechanic',
+    'garage': 'mechanic',
+    'vehicle & bike repair': 'mechanic',
+
+    // 13. Gardening & Landscaping
+    'gardening': 'gardening',
+    'gardener': 'gardening',
+    'garden': 'gardening',
+    'landscaping': 'gardening',
+    'lawn': 'gardening',
+    'gardening & lawns': 'gardening',
+    'plants': 'gardening',
+
+    // 14. Pest Control
     'pest': 'pest_control',
     'pest_control': 'pest_control',
     'pest-control': 'pest_control',
     'pest control': 'pest_control',
     'pestcontrol': 'pest_control',
+    'termite': 'pest_control',
+    'fumigation': 'pest_control',
 
-    // Painter
-    'painter': 'painter',
-    'painters': 'painter',
-    'painting': 'painter',
+    // 15. Packers & Movers
+    'packers': 'packers_movers',
+    'movers': 'packers_movers',
+    'packers_movers': 'packers_movers',
+    'packers & movers': 'packers_movers',
+    'packers and movers': 'packers_movers',
+    'moving': 'packers_movers',
+    'shifting': 'packers_movers',
+    'home shifting': 'packers_movers',
+    'relocation': 'packers_movers',
 
-    // Appliance
-    'appliance': 'appliance',
-    'appliances': 'appliance',
-    'appliance repair': 'appliance',
+    // 16. Interior Design
+    'interior': 'interior_design',
+    'interiors': 'interior_design',
+    'interior design': 'interior_design',
+    'interior_design': 'interior_design',
+    'interior designer': 'interior_design',
+    'home decor': 'interior_design',
+    'renovation': 'interior_design',
+
+    // 17. Fitness & Gym
+    'fitness': 'fitness_trainer',
+    'fitness trainer': 'fitness_trainer',
+    'fitness_trainer': 'fitness_trainer',
+    'fitness & gym': 'fitness_trainer',
+    'gym': 'fitness_trainer',
+    'personal trainer': 'fitness_trainer',
+    'workout': 'fitness_trainer',
+    'trainer': 'fitness_trainer',
+
+    // 18. Tutoring & Academics
+    'tutor': 'tutoring',
+    'tutoring': 'tutoring',
+    'tutors': 'tutoring',
+    'tuition': 'tutoring',
+    'teacher': 'tutoring',
+    'tutoring & academics': 'tutoring',
+    'maths tutor': 'tutoring',
+    'academics': 'tutoring',
+
+    // 19. Laundry & Ironing
+    'laundry': 'laundry',
+    'laundry & ironing': 'laundry',
+    'ironing': 'laundry',
+    'dry cleaning': 'laundry',
+    'dry clean': 'laundry',
+    'washing': 'laundry',
+    'clothes cleaning': 'laundry',
+
+    // 20. Handyman & Maintenance
+    'handyman': 'handyman',
+    'handymen': 'handyman',
+    'handyman services': 'handyman',
+    'home maintenance': 'handyman',
+    'repair': 'handyman',
+    'general maintenance': 'handyman',
+    'maintenance': 'handyman',
 };
 
 /**

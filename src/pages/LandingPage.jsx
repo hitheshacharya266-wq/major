@@ -5,12 +5,18 @@ import Footer from '../components/Footer';
 import { SERVICE_CATEGORIES, normalizeCategory } from '../utils/helpers';
 
 const LANDING_CATEGORIES = [
-    { id: 'plumber', label: 'Plumber', icon: 'plumbing' },
     { id: 'electrician', label: 'Electrician', icon: 'electrical_services' },
-    { id: 'carpenter', label: 'Carpenter', icon: 'construction' },
-    { id: 'mechanic', label: 'Mechanic', icon: 'build' },
+    { id: 'plumber', label: 'Plumber', icon: 'plumbing' },
+    { id: 'cleaning', label: 'Cleaning', icon: 'cleaning_services' },
     { id: 'ac_repair', label: 'AC Repair', icon: 'ac_unit' },
-    { id: 'cleaning', label: 'Cleaning', icon: 'cleaning_services' }
+    { id: 'carpenter', label: 'Carpenter', icon: 'construction' },
+    { id: 'painter', label: 'Painting', icon: 'format_paint' },
+    { id: 'appliance_repair', label: 'Appliance', icon: 'home_repair_service' },
+    { id: 'computer_repair', label: 'Computers', icon: 'computer' },
+    { id: 'photography', label: 'Photography', icon: 'photo_camera' },
+    { id: 'salon_grooming', label: 'Salon', icon: 'content_cut' },
+    { id: 'packers_movers', label: 'Movers', icon: 'local_shipping' },
+    { id: 'interior_design', label: 'Interior', icon: 'deck' },
 ];
 
 const LandingPage = () => {
@@ -95,7 +101,7 @@ const LandingPage = () => {
                                 {/* Popular Search Pills */}
                                 <div className="flex flex-wrap gap-2 items-center text-xs">
                                     <span className="font-extrabold text-on-surface-variant/80">Popular:</span>
-                                    {['Plumber', 'Electrician', 'Carpenter', 'Mechanic', 'AC Repair'].map((tag) => (
+                                    {['Electrician', 'Plumber', 'Cleaning', 'AC Repair', 'Painting', 'Interior Design', 'Photography', 'Salon'].map((tag) => (
                                         <span
                                             key={tag}
                                             onClick={() => {

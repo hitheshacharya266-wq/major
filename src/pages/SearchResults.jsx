@@ -182,7 +182,7 @@ const SearchResults = () => {
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => handleQueryChange(e.target.value)}
-                                    placeholder="Search plumber, electrician, AC, mechanic..."
+                                    placeholder="Search provider, skill (e.g. electrician, interior, photography, tutor)..."
                                     className="w-full min-w-0 bg-transparent border-none outline-none text-xs sm:text-sm font-semibold text-on-surface"
                                 />
                             </div>

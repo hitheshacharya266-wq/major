@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { initializeTestEnvironment, assertSucceeds, assertFails } from "@firebase/rules-unit-testing";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { before, after, test } from "node:test";
-import assert from "node:assert/strict";
 
 const PROJECT_ID = "service-aggregator-b2530";
 let testEnv;

@@ -201,6 +201,52 @@ const ProviderProfile = () => {
                 </div>
               </section>
 
+              {/* Working Hours, Availability & Service Area */}
+              <section className="bg-white p-4 sm:p-6 rounded-2xl border border-outline-variant/30 shadow-xs space-y-3.5 w-full max-w-full min-w-0">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-on-surface tracking-tight flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-xl">schedule</span>
+                  Working Hours &amp; Service Area
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
+                  {/* Hours */}
+                  <div className="bg-surface-container-low/70 p-3 sm:p-3.5 rounded-xl border border-outline-variant/20 space-y-1">
+                    <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant block">Operating Hours</span>
+                    <p className="font-bold text-on-surface">
+                      {provider.workingHours?.start && provider.workingHours?.end
+                        ? `${provider.workingHours.start} – ${provider.workingHours.end}`
+                        : typeof provider.workingHours === 'string'
+                        ? provider.workingHours
+                        : '08:30 AM – 07:00 PM'}
+                    </p>
+                    {provider.breakTime && (
+                      <p className="text-[10px] sm:text-[11px] text-on-surface-variant font-medium">Break: {provider.breakTime}</p>
+                    )}
+                  </div>
+
+                  {/* Working Days */}
+                  <div className="bg-surface-container-low/70 p-3 sm:p-3.5 rounded-xl border border-outline-variant/20 space-y-1">
+                    <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant block">Working Days</span>
+                    <p className="font-bold text-on-surface">
+                      {Array.isArray(provider.workingDays)
+                        ? (provider.workingDays.length === 7 ? 'All 7 Days Open' : `${provider.workingDays[0]} – ${provider.workingDays[provider.workingDays.length - 1]}`)
+                        : 'Monday – Saturday'}
+                    </p>
+                    <p className="text-[10px] sm:text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Available for Instant Booking
+                    </p>
+                  </div>
+
+                  {/* Service Area */}
+                  <div className="bg-surface-container-low/70 p-3 sm:p-3.5 rounded-xl border border-outline-variant/20 space-y-1">
+                    <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-on-surface-variant block">Service Location</span>
+                    <p className="font-bold text-on-surface truncate">{provider.location || 'Mangaluru Region'}</p>
+                    <p className="text-[10px] sm:text-[11px] text-on-surface-variant truncate">{provider.city ? `${provider.city} & nearby areas` : 'Doorstep service'}</p>
+                  </div>
+                </div>
+              </section>
+
               {/* Service Portfolio */}
               {(() => {
                 const portfolioImages = Array.isArray(provider?.portfolio) ? provider.portfolio : [];
@@ -267,13 +313,35 @@ const ProviderProfile = () => {
                     <table className="w-full border-collapse text-left min-w-[340px] sm:min-w-[480px]">
                       <thead className="bg-surface-container/70 text-on-surface-variant text-[11px] sm:text-xs font-semibold uppercase tracking-wider border-b border-outline-variant/20">
                         <tr>
-                          <th className="px-3.5 sm:px-6 py-3 sm:py-4">Service Category</th>
+                          <th className="px-3.5 sm:px-6 py-3 sm:py-4">Service Offering</th>
                           <th className="px-3.5 sm:px-6 py-3 sm:py-4">Base Price</th>
                           <th className="px-3.5 sm:px-6 py-3 sm:py-4">Estimated Time</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-outline-variant/15 text-xs sm:text-sm lg:text-base text-on-surface">
-                        {parsedSkills.length > 0 ? (
+                        {Array.isArray(provider.services) && provider.services.length > 0 ? (
+                            provider.services.map((srv, idx) => (
+                              <tr key={srv.id || idx} className="hover:bg-surface-container-low/50 transition-colors">
+                                <td className="px-3.5 sm:px-6 py-3.5 sm:py-4 font-medium">
+                                  <div className="flex items-start gap-2.5">
+                                    <span className="material-symbols-outlined text-primary text-lg sm:text-xl shrink-0 mt-0.5">check_circle</span>
+                                    <div>
+                                      <p className="font-bold text-on-surface">{srv.name}</p>
+                                      {srv.description && (
+                                        <p className="text-[11px] sm:text-xs text-on-surface-variant font-normal leading-relaxed">{srv.description}</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-3.5 sm:px-6 py-3.5 sm:py-4 font-black text-on-surface whitespace-nowrap">
+                                  {formatCurrency(srv.price)}
+                                </td>
+                                <td className="px-3.5 sm:px-6 py-3.5 sm:py-4 text-on-surface-variant whitespace-nowrap">
+                                  {srv.duration || '60 mins'}
+                                </td>
+                              </tr>
+                            ))
+                        ) : parsedSkills.length > 0 ? (
                             parsedSkills.slice(0, 3).map((skill, index) => (
                               <tr key={index} className="hover:bg-surface-container-low/50 transition-colors">
                                 <td className="px-3.5 sm:px-6 py-3.5 sm:py-4 flex items-center gap-2.5 sm:gap-3 font-medium">
@@ -368,9 +436,19 @@ const ProviderProfile = () => {
                       onChange={(e) => setSelectedService(e.target.value)}
                       className="w-full bg-surface-container-low/80 border border-outline-variant/40 rounded-xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none cursor-pointer"
                     >
-                      <option value="main">{parsedSkills[0] || 'General Repair'} {price ? `(${formatCurrency(price)})` : ''}</option>
-                      {parsedSkills[1] && <option value="skill1">{parsedSkills[1]} {price ? `(${formatCurrency(price + 300)})` : ''}</option>}
-                      <option value="custom">Custom Request</option>
+                      {Array.isArray(provider.services) && provider.services.length > 0 ? (
+                        provider.services.map((s, idx) => (
+                          <option key={s.id || idx} value={s.id || idx}>
+                            {s.name} ({formatCurrency(s.price)})
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="main">{parsedSkills[0] || 'General Repair'} {price ? `(${formatCurrency(price)})` : ''}</option>
+                          {parsedSkills[1] && <option value="skill1">{parsedSkills[1]} {price ? `(${formatCurrency(price + 300)})` : ''}</option>}
+                          <option value="custom">Custom Request</option>
+                        </>
+                      )}
                     </select>
                   </div>
 

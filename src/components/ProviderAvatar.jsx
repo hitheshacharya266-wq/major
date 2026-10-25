@@ -5,13 +5,26 @@ import React, { useState } from 'react';
  */
 const CATEGORY_BADGES = {
     electrician: { icon: '⚡', label: 'Electrician' },
-    plumber: { icon: '🚰', label: 'Plumber' },
-    carpenter: { icon: '🪵', label: 'Carpenter' },
-    mechanic: { icon: '🔧', label: 'Mechanic' },
+    plumber: { icon: '🔧', label: 'Plumber' },
     cleaning: { icon: '🧹', label: 'Cleaning' },
     ac_repair: { icon: '❄️', label: 'AC Repair' },
+    carpenter: { icon: '🪚', label: 'Carpenter' },
     painter: { icon: '🎨', label: 'Painter' },
-    appliance: { icon: '🔌', label: 'Appliance Repair' }
+    appliance_repair: { icon: '🔌', label: 'Appliance Repair' },
+    appliance: { icon: '🔌', label: 'Appliance Repair' },
+    computer_repair: { icon: '💻', label: 'Computer Repair' },
+    mobile_repair: { icon: '📱', label: 'Mobile Repair' },
+    photography: { icon: '📸', label: 'Photography' },
+    salon_grooming: { icon: '✂️', label: 'Salon & Grooming' },
+    mechanic: { icon: '🔩', label: 'Vehicle Repair' },
+    gardening: { icon: '🌱', label: 'Gardening' },
+    pest_control: { icon: '🦟', label: 'Pest Control' },
+    packers_movers: { icon: '📦', label: 'Packers & Movers' },
+    interior_design: { icon: '🛋️', label: 'Interior Design' },
+    fitness_trainer: { icon: '🏋️', label: 'Fitness Trainer' },
+    tutoring: { icon: '📚', label: 'Tutor' },
+    laundry: { icon: '🧺', label: 'Laundry' },
+    handyman: { icon: '🛠️', label: 'Handyman' },
 };
 
 /**
